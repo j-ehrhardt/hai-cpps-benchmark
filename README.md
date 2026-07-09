@@ -22,7 +22,7 @@ HAI-CPPS consists of
 
 In addition to the existing setups, you can create and simulate your own simulations and system constellations, using the OpenModelica models and the HAI-CPPS python API. 
 
-You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cps-benchmark/)
+You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
 
 > [!NOTE]
 > HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/benchmark_v1).
