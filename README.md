@@ -27,6 +27,9 @@ You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/h
 > [!NOTE]
 > HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/benchmark_v1).
 
+> [!NOTE]
+> We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `hai-cpps-v1` in this repository. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
+
 ### Table of Contents
 
 1. [Introduction](#hamburg-ai-benchmark-for-cyber-physical-systems-hai-cps)
