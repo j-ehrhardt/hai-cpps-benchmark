@@ -6,7 +6,6 @@
         "mixer0": {
           "files": "../models/Mixer.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_valve_in1": false,
             "anom_valve_in2": false,
@@ -51,7 +50,6 @@
         "distill0": {
           "files": "../models/Distill.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -91,7 +89,6 @@
         "filter0": {
           "files": "../models/Filter.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -125,7 +122,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -159,7 +155,6 @@
         "mixer0": {
           "files": "../models/Mixer.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_valve_in1": false,
             "anom_valve_in2": false,
@@ -170,7 +165,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -214,7 +208,6 @@
         "distill0": {
           "files": "../models/Distill.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -225,7 +218,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -234,7 +226,6 @@
         "bottling1": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -274,7 +265,6 @@
         "filter0": {
           "files": "../models/Filter.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -284,7 +274,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -318,7 +307,6 @@
         "mixer0": {
           "files": "../models/Mixer.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_valve_in1": false,
             "anom_valve_in2": false,
@@ -329,7 +317,6 @@
         "filter0": {
           "files": "../models/Filter.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -339,7 +326,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -384,7 +370,6 @@
         "distill0": {
           "files": "../models/Distill.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -395,7 +380,6 @@
         "filter0": {
           "files": "../models/Filter.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
@@ -405,7 +389,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -414,7 +397,6 @@
         "bottling1": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -455,7 +437,6 @@
         "mixer0": {
           "files": "../models/Mixer.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_valve_in1": false,
             "anom_valve_in2": false,
@@ -466,7 +447,6 @@
         "mixer1": {
           "files": "../models/Mixer.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_valve_in1": false,
             "anom_valve_in2": false,
@@ -477,7 +457,6 @@
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false
@@ -486,7 +465,6 @@
         "distill0": {
           "files": "../models/Distill.mo",
           "faults": {
-            "anom_clogging": false,
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
