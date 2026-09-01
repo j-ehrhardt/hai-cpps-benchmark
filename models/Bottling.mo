@@ -8,16 +8,18 @@ model bottlingModule
   parameter Real pump_P401_head_max = 2.045;
   parameter Real pump_P401_head_middle = 1.534;
   parameter Real pump_P401_head_min = 1.022;
+  parameter Real closedValveOpening(min = 0, max = 1) = 1e-4;
+  parameter Integer noiseSeed = 1;
   // anomalies 
   parameter Real anom_start = 2500;
-  parameter Boolean anom_leaking = false;
-  parameter Boolean anom_clogging = false;
-  parameter Boolean anom_valve_in0 = false;
-  parameter Boolean anom_pump50 = false;
-  parameter Boolean anom_pump75 = false;
+  parameter Boolean anom_leaking = false annotation(Evaluate = false);
+  parameter Boolean anom_valve_in0 = false annotation(Evaluate = false);
+  parameter Boolean anom_pump50 = false annotation(Evaluate = false);
+  parameter Boolean anom_pump75 = false annotation(Evaluate = false);
   Real var_valve_in(start=0.0); 
   Real var_pump_n(start=1.0);
   Real pump_n_in;
+  Boolean fault_window_active;
   // ports
   Modelica.Fluid.Interfaces.FluidPort_a port_in0(redeclare package Medium = Medium) annotation(
     Placement(transformation(origin = {-90, 110}, extent = {{10, -10}, {-10, 10}}), iconTransformation(origin = {200, 0}, extent = {{10, -10}, {-10, 10}})));
@@ -77,13 +79,13 @@ model bottlingModule
   Modelica.Fluid.Valves.ValveLinear clogging_valve(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
     Placement(transformation(origin = {-10, -70}, extent = {{10, 10}, {-10, -10}}, rotation = 270)));
   // machines
-  Modelica.Fluid.Machines.PrescribedPump pump_P401(redeclare package Medium = Medium, N_nominal = 166.43, m_flow_start = 0.000001, T_start = 300, V(displayUnit = "m3") = 0.00004398128, checkValve = true, checkValveHomotopy = Modelica.Fluid.Types.CheckValveHomotopyType.Closed, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, redeclare function flowCharacteristic = Modelica.Fluid.Machines.BaseClasses.PumpCharacteristics.quadraticFlow(V_flow_nominal = {pump_P401_V_flow_at_max_head, pump_P401_V_flow_at_middle_head, pump_P401_V_flow_at_min_head}, head_nominal = {pump_P401_head_max, pump_P401_head_middle, pump_P401_head_min}), massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, nParallel = 1, p_a_start = 100000, p_b_start = 100000, use_N_in = true, allowFlowReversal = false) annotation(
+  Modelica.Fluid.Machines.PrescribedPump pump_P401(redeclare package Medium = Medium, N_nominal = 166.43, m_flow_start = 0.000001, T_start = 300, V(displayUnit = "m3") = 0.00004398128, checkValve = false, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, redeclare function flowCharacteristic = Modelica.Fluid.Machines.BaseClasses.PumpCharacteristics.quadraticFlow(V_flow_nominal = {pump_P401_V_flow_at_max_head, pump_P401_V_flow_at_middle_head, pump_P401_V_flow_at_min_head}, head_nominal = {pump_P401_head_max, pump_P401_head_middle, pump_P401_head_min}), massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, nParallel = 1, p_a_start = 100000, p_b_start = 100000, use_N_in = true, allowFlowReversal = true) annotation(
     Placement(transformation(origin = {-50, -110}, extent = {{-10, 10}, {10, -10}})));
   Modelica.Blocks.Continuous.FirstOrder firstOrder(T = 1) annotation(
     Placement(transformation(origin = {-70, -150}, extent = {{-10, -10}, {10, 10}})));
   Modelica.Blocks.Sources.RealExpression n_in(y = pump_n_in) annotation(
     Placement(transformation(origin = {-150, -124}, extent = {{-10, -10}, {10, 10}})));
-  Modelica.Blocks.Noise.UniformNoise uniformNoise(samplePeriod = 1, y_min = 1.2, y_max = 0.8) annotation(
+  Modelica.Blocks.Noise.UniformNoise uniformNoise(samplePeriod = 1, y_min = 0.8, y_max = 1.2, useAutomaticLocalSeed = false, fixedLocalSeed = noiseSeed) annotation(
     Placement(transformation(origin = {-150, -150}, extent = {{-10, -10}, {10, 10}})));
   Modelica.Blocks.Math.Product product1 annotation(
     Placement(transformation(origin = {-110, -150}, extent = {{-10, -10}, {10, 10}})));
@@ -116,20 +118,22 @@ model bottlingModule
   Modelica.StateGraph.TransitionWithSignal condition_is_empty_tank_B402 annotation(
     Placement(transformation(origin = {152, 170}, extent = {{-10, -10}, {10, 10}})));
 equation
+  assert(not (anom_pump50 and anom_pump75), "Bottling pump50 and pump75 faults are mutually exclusive");
+  fault_window_active = time >= anom_start;
 // stategraph conditions
   condition_is_full_tank_B401.condition = tank_B401.level >= tank_B401.height*tankMaxVol;
   condition_is_empty_tank_B401.condition = tank_B401.level <= tank_B401.height*tankMinVol;
   condition_is_empty_tank_B402.condition = tank_B402.level <= tank_B402.height*tankMinVol;
 // stategraph actions
-  valve_in.opening = if state_filling_tank_B401.active then 1.0 else 0.0 + var_valve_in;
-  valve_pump_P401.opening = if state_emptying_tank_B401.active then 1.0 else 0.0;
+  valve_in.opening = if state_filling_tank_B401.active then 1.0 else max(closedValveOpening, var_valve_in);
+  valve_pump_P401.opening = if state_emptying_tank_B401.active then 1.0 else closedValveOpening;
   pump_n_in = if state_emptying_tank_B401.active then 150.0 * var_pump_n else 0.0;
-  valve_out.opening = if state_bottling.active and mod(time, 4) < 2 then 1.0 else 0.0;
+  valve_out.opening = if state_bottling.active and mod(time, 4) < 2 then 1.0 else closedValveOpening;
 // anomalies
-  leaking_valve.opening = if (anom_leaking and time >= anom_start) then 0.25 else 0.0;
-  clogging_valve.opening = if (anom_clogging and time >= anom_start) then 0.8 else 1.0;
-  var_valve_in = if(anom_valve_in0 and time >= anom_start) then 0.2 else 0.0;
-  var_pump_n = if (anom_pump50 and time >= anom_start) then 0.5 else if (anom_pump75 and time >= anom_start) then 0.75 else 1.0;
+  leaking_valve.opening = if (fault_window_active and anom_leaking) then 0.25 else 0.0;
+  clogging_valve.opening = 1.0;
+  var_valve_in = if (fault_window_active and anom_valve_in0) then 0.2 else 0.0;
+  var_pump_n = if (fault_window_active and anom_pump50) then 0.5 else if (fault_window_active and anom_pump75) then 0.75 else 1.0;
 // connections
   connect(tank_B401.ports[1], pipe0.port_a) annotation(
     Line(points = {{-90, -1}, {-90, -40}}, color = {0, 127, 255}));

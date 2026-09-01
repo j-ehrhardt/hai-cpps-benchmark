@@ -9,19 +9,21 @@ model filterModule
   parameter Real pump_P101_head_max = 2.045;
   parameter Real pump_P101_head_middle = 1.534;
   parameter Real pump_P101_head_min = 1.022;
+  parameter Real closedValveOpening(min = 0, max = 1) = 1e-4;
+  parameter Integer noiseSeed = 1;
   
   // anomalies
   parameter Real anom_start = 2500;
-  parameter Boolean anom_leaking = false;
-  parameter Boolean anom_clogging = false;
-  parameter Boolean anom_pollution = true;
-  parameter Boolean anom_valve_in0 = false;
-  parameter Boolean anom_pump50 = false;
-  parameter Boolean anom_pump75 = false;
+  parameter Boolean anom_leaking = false annotation(Evaluate = false);
+  parameter Boolean anom_pollution = false annotation(Evaluate = false);
+  parameter Boolean anom_valve_in0 = false annotation(Evaluate = false);
+  parameter Boolean anom_pump50 = false annotation(Evaluate = false);
+  parameter Boolean anom_pump75 = false annotation(Evaluate = false);
   Real pollution_value(start=0.5);
   Real var_valve_in(start=0.0);
   Real var_pump_n(start=1.0);
   Real pump_n_in;
+  Boolean fault_window_active;
   
   // ports
   Modelica.Fluid.Interfaces.FluidPort_a port_in0(redeclare package Medium = Medium) annotation(
@@ -64,12 +66,12 @@ model filterModule
     Placement(transformation(origin = {-10, -150}, extent = {{10, 10}, {-10, -10}}, rotation = 180)));
 
   // machines
-  Modelica.Fluid.Machines.PrescribedPump pump_P101(redeclare package Medium = Medium, N_nominal = 166.43, m_flow_start = 0.000001, T_start = 300, V(displayUnit = "m3") = 0.00004398128, checkValve = true, checkValveHomotopy = Modelica.Fluid.Types.CheckValveHomotopyType.Closed, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, redeclare function flowCharacteristic = Modelica.Fluid.Machines.BaseClasses.PumpCharacteristics.quadraticFlow(V_flow_nominal = {pump_P101_V_flow_at_max_head, pump_P101_V_flow_at_middle_head, pump_P101_V_flow_at_min_head}, head_nominal = {pump_P101_head_max, pump_P101_head_middle, pump_P101_head_min}), massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, nParallel = 1, p_a_start = 100000, p_b_start = 100000, use_N_in = true, allowFlowReversal = false) annotation(Placement(transformation(origin = {-90, -150}, extent = {{-10, 10}, {10, -10}})));
+  Modelica.Fluid.Machines.PrescribedPump pump_P101(redeclare package Medium = Medium, N_nominal = 166.43, m_flow_start = 0.000001, T_start = 300, V(displayUnit = "m3") = 0.00004398128, checkValve = false, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, redeclare function flowCharacteristic = Modelica.Fluid.Machines.BaseClasses.PumpCharacteristics.quadraticFlow(V_flow_nominal = {pump_P101_V_flow_at_max_head, pump_P101_V_flow_at_middle_head, pump_P101_V_flow_at_min_head}, head_nominal = {pump_P101_head_max, pump_P101_head_middle, pump_P101_head_min}), massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, nParallel = 1, p_a_start = 100000, p_b_start = 100000, use_N_in = true, allowFlowReversal = true) annotation(Placement(transformation(origin = {-90, -150}, extent = {{-10, 10}, {10, -10}})));
   Modelica.Blocks.Continuous.FirstOrder firstOrder(T = 1)  annotation(
     Placement(transformation(origin = {-110, -190}, extent = {{-10, -10}, {10, 10}})));
   Modelica.Blocks.Sources.RealExpression n_in(y = pump_n_in) annotation(
     Placement(transformation(origin = {-190, -164}, extent = {{-10, -10}, {10, 10}})));
-  Modelica.Blocks.Noise.UniformNoise uniformNoise(samplePeriod = 1, y_min = 1.2, y_max = 0.8)  annotation(
+  Modelica.Blocks.Noise.UniformNoise uniformNoise(samplePeriod = 1, y_min = 0.8, y_max = 1.2, useAutomaticLocalSeed = false, fixedLocalSeed = noiseSeed)  annotation(
     Placement(transformation(origin = {-190, -190}, extent = {{-10, -10}, {10, 10}})));
   Modelica.Blocks.Math.Product product1 annotation(
     Placement(transformation(origin = {-150, -190}, extent = {{-10, -10}, {10, 10}})));
@@ -155,21 +157,23 @@ model filterModule
   Modelica.StateGraph.TransitionWithSignal state_is_empty_tank_B102 annotation(
     Placement(transformation(origin = {152, 170}, extent = {{-10, -10}, {10, 10}})));
 equation
+  assert(not (anom_pump50 and anom_pump75), "Filter pump50 and pump75 faults are mutually exclusive");
+  fault_window_active = time >= anom_start;
   // state graph equations
   condition_is_full_tank_B101.condition = tank_B101.level >= tank_B101.height*tankMaxVol;
   condition_is_empty_tank_B101.condition = tank_B101.level <= tank_B101.height*tankMinVol;
   state_is_empty_tank_B102.condition = tank_B102.level <= tank_B102.height*tankMinVol;
-  valve_in.opening = if state_filling_tank_B101.active then 1.0 else 0.0 + var_valve_in;
-  valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else 0.0;
+  valve_in.opening = if state_filling_tank_B101.active then 1.0 else max(closedValveOpening, var_valve_in);
+  valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
   pump_n_in = if state_emptying_tank_B101.active then 150.0 * var_pump_n else 0.0;
-  valve_out.opening = if state_emptying_tank_B102.active then 1.0 else 0.0;
+  valve_out.opening = if state_emptying_tank_B102.active then 1.0 else closedValveOpening;
 
   // anomalies
-  leaking_valve.opening = if (anom_leaking and time >= anom_start) then 0.25 else 0.0;
-  clogging_valve.opening = if (anom_clogging and time >= anom_start) then 0.8 else 1.0;
-  pollution_value = if (anom_pollution and time >= anom_start) then 1.0 else 0.5;
-  var_valve_in = if (anom_valve_in0 and time >= anom_start) then 0.2 else 0.0;
-  var_pump_n = if (anom_pump50 and time >= anom_start) then 0.5 else if (anom_pump75 and time >= anom_start) then 0.75 else 1.0;
+  leaking_valve.opening = if (fault_window_active and anom_leaking) then 0.25 else 0.0;
+  clogging_valve.opening = 1.0;
+  pollution_value = if (fault_window_active and anom_pollution) then 1.0 else 0.5;
+  var_valve_in = if (fault_window_active and anom_valve_in0) then 0.2 else 0.0;
+  var_pump_n = if (fault_window_active and anom_pump50) then 0.5 else if (fault_window_active and anom_pump75) then 0.75 else 1.0;
   
   // connections
   connect(tank_B101.ports[1], pipe0.port_a) annotation(
