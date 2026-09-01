@@ -1,273 +1,550 @@
-import os
+"""Command-line entry point for validated HAI-CPPS v2 generation."""
+
+from __future__ import annotations
+
+import argparse
 import json
-import pandas as pd
-import utils as u
+import platform
+import shutil
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
+
+from config import (
+    ConfigError,
+    RunSpec,
+    focused_fault_pair,
+    generate_normal_campaign,
+    generate_single_fault_campaign,
+    load_benchmark_config,
+)
+from export import ExportError, export_result_csvs
+from runner import SimulationError, check_openmodelica_topologies, run_openmodelica
+from validation import (
+    ValidationError,
+    duplicate_signal_groups,
+    require_valid_report,
+    sha256_file,
+    validate_fault_pair,
+    write_validation_report,
+)
 
 
-def create_sim_setup(mos_path, dict_setup):
-    """
-    creating the call.mos file that contains the simulation setup.
-    """
-    sim_setup = dict_setup['sim_setup']
-    vanilla_mos_file = u.read_file('vanilla_call.mos')
-
-    new_mos_file = []
-    for l in vanilla_mos_file:
-        if l.startswith('cd("../data'):
-            l = f'cd("../data/{dict_setup['ds_name']}");'
-        elif l.startswith('simulate'):
-            setup = l.split()
-            new_setup = []
-            for arg in setup:
-                if arg.startswith('startTime'):
-                    arg = f'startTime={sim_setup["startTime"]}'
-                elif arg.startswith('stopTime'):
-                    arg = f'stopTime={sim_setup["stopTime"]}'
-                elif arg.startswith('numberOfIntervals'):
-                    arg = f'numberOfIntervals={sim_setup["numberOfIntervals"]}'
-
-                new_setup.append(arg)
-            l = " ".join(new_setup)
-        new_mos_file.append(l)
-
-    with open(mos_path, 'w') as f:
-        f.writelines(new_mos_file)
-    print(f'simulation setup done and written to {mos_path}.')
+DEFAULT_CONFIG = Path(__file__).resolve().parent / "benchmark_setup.json"
+DEFAULT_SEED = 20260831
+RUNTIME_SOURCE_PATHS = (
+    Path(__file__).resolve(),
+    Path(__file__).resolve().parent / "config.py",
+    Path(__file__).resolve().parent / "export.py",
+    Path(__file__).resolve().parent / "model_generation.py",
+    Path(__file__).resolve().parent / "runner.py",
+    Path(__file__).resolve().parent / "validation.py",
+    Path(__file__).resolve().parent / "schemas" / "benchmark_setup.schema.json",
+)
 
 
-def create_plant_sim_model(model_dir, sim_setup):
-    """
-    adapts the Plant.mo file, accordingly to the simulation setup
-    """
-    top_block = ['model processPlant', '    replaceable package Medium = Modelica.Media.Water.StandardWater;', '    Modelica.Fluid.System system_plant(energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, p_ambient = 1e5, T_ambient = 293.15, m_flow_start = 0.0005, p_start = 1e5, T_start(displayUnit = "K") = 300, dp_small = 100, m_flow_small = 0.01) annotation(Placement(transformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}})));']
-    dek_block = []
-    equ_block = []
-    bot_block = ['  annotation(uses(Modelica(version = "4.0.0")), experiment(StartTime = 0, StopTime = 1000, NumberOfIntervals = 500, Tolerance = 1e-6, Interval = 0.1),'                                                                                                                                                                     
-                 '  Icon(graphics = {Text(origin = {2, -5}, textColor = {26, 95, 180}, extent = {{44, -51}, {-44, 51}}, textString = "P")}));', 'end processPlant;']
-
-    sim_setup = sim_setup['model']
-    mod_setup = sim_setup['modules']
-    edg_setup = sim_setup['edges']
-
-    for m in mod_setup:
-        if 'source' in m:
-            dek_block.append(f'    sourceModule {m}(redeclare package Medium = Medium);')
-        elif 'sink' in m:
-            dek_block.append(f'    sinkModule {m}(redeclare package Medium = Medium);')
-        elif 'mixer' in m:
-            dek_block.append(f'    mixerModule {m}(redeclare package Medium = Medium);')
-        elif 'filter' in m:
-            dek_block.append(f'    filterModule {m}(redeclare package Medium = Medium);')
-        elif 'distill' in m:
-            dek_block.append(f'    distillModule {m}(redeclare package Medium = Medium);')
-        elif 'bottling' in m:
-            dek_block.append(f'    bottlingModule {m}(redeclare package Medium = Medium);')
-    dek_block.append('equation')
-
-    for e in edg_setup:
-        equ_block.append(f'    connect({edg_setup[e][0]},{edg_setup[e][1]});')
-
-    model_block = top_block + dek_block + equ_block + bot_block
-    model_block = '\n'.join(model_block)
-    with open(os.path.join(model_dir, 'Plant.mo'), 'w') as f:
-        f.writelines(model_block)
-    print(f'simulation model created and saved {os.path.join(model_dir, "Plant.mo")}.')
+@dataclass(frozen=True)
+class CompletedRun:
+    run: RunSpec
+    output_dir: Path
+    continuous: Path
+    discrete: Path
+    hybrid: Path
+    verification: Path
 
 
-def write_anomaly_in_module(module, module_dict, reset=False):
-    model_dict = module_dict[module]
-    model_code = u.read_file(model_dict['files'])
+def _run_metadata(run: RunSpec) -> Dict[str, Any]:
+    return {
+        "scenario_id": run.scenario_id,
+        "base_dataset": run.base_dataset,
+        "target_module": run.target_module,
+        "target_fault": run.target_fault,
+        "data_roles": {
+            "continuous": "measurement_features",
+            "discrete": "measurement_features",
+            "hybrid": "measurement_features",
+            "verification": "internal_non_feature",
+        },
+        "setup": run.setup,
+    }
 
-    new_model_code = []
-    if reset:
-        for line in model_code:
-            if line.startswith('  parameter Boolean'):
-                for anomaly in model_dict['faults']:
-                    if line.startswith(f'  parameter Boolean {anomaly}'):
-                        line = f'  parameter Boolean {anomaly} = false;\n'
-            new_model_code.append(line)
+
+def _write_json(path: Path, data: Mapping[str, Any]) -> None:
+    path.write_text(
+        json.dumps(dict(data), indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
+def _command_output(command: Sequence[str], cwd: Path) -> Optional[str]:
+    try:
+        completed = subprocess.run(
+            list(command),
+            cwd=str(cwd),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if completed.returncode != 0:
+        return None
+    return completed.stdout.strip() or None
+
+
+def _runtime_source_hashes() -> Dict[str, str]:
+    return {str(path): sha256_file(path) for path in RUNTIME_SOURCE_PATHS}
+
+
+def _provenance(
+    config_path: Path,
+    run: RunSpec,
+    raw_validation: Mapping[str, Any],
+    model_hashes: Mapping[str, str],
+    modelica_version: Optional[str],
+) -> Dict[str, Any]:
+    repository = Path(__file__).resolve().parent.parent
+    git_commit = _command_output(("git", "rev-parse", "HEAD"), repository)
+    git_status = _command_output(("git", "status", "--porcelain"), repository)
+    omc_version = _command_output(("omc", "--version"), repository)
+    return {
+        "scenario_id": run.scenario_id,
+        "base_dataset": run.base_dataset,
+        "target_module": run.target_module,
+        "target_fault": run.target_fault,
+        "configuration_sha256": sha256_file(config_path),
+        "git_commit": git_commit,
+        "git_dirty": bool(git_status),
+        "model_sha256": dict(model_hashes),
+        "runtime_source_sha256": _runtime_source_hashes(),
+        "openmodelica_version": omc_version,
+        "modelica_standard_library_version": modelica_version,
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+        "seed": run.setup["sim_setup"]["seed"],
+        "solver": {
+            "tolerance": 1e-6,
+            "output_format": "csv",
+            "emit_event_points": False,
+        },
+        "raw_result": dict(raw_validation),
+    }
+
+
+def _safe_remove_output(path: Path, output_root: Path) -> None:
+    resolved_path = path.resolve()
+    resolved_root = output_root.resolve()
+    try:
+        relative = resolved_path.relative_to(resolved_root)
+    except ValueError as exc:
+        raise SimulationError(
+            "Refusing to remove output outside configured root: {}".format(resolved_path)
+        ) from exc
+    if not relative.parts:
+        raise SimulationError("Refusing to remove the output root itself")
+    shutil.rmtree(resolved_path)
+
+
+def _completed_paths(output_root: Path, run: RunSpec) -> CompletedRun:
+    output_dir = output_root / run.scenario_id
+    return CompletedRun(
+        run=run,
+        output_dir=output_dir,
+        continuous=output_dir / "{}_continuous.csv".format(run.scenario_id),
+        discrete=output_dir / "{}_discrete.csv".format(run.scenario_id),
+        hybrid=output_dir / "{}_hybrid.csv".format(run.scenario_id),
+        verification=output_dir / "verification.csv",
+    )
+
+
+def _load_resumable_run(
+    output_root: Path, run: RunSpec, config_path: Path
+) -> Optional[CompletedRun]:
+    completed = _completed_paths(output_root, run)
+    required = (
+        completed.continuous,
+        completed.discrete,
+        completed.hybrid,
+        completed.verification,
+        completed.output_dir / "sim_setup.json",
+        completed.output_dir / "provenance.json",
+        completed.output_dir / "validation.json",
+    )
+    if not all(path.is_file() for path in required):
+        return None
+
+    try:
+        sim_setup = json.loads(
+            (completed.output_dir / "sim_setup.json").read_text(encoding="utf-8")
+        )
+        provenance = json.loads(
+            (completed.output_dir / "provenance.json").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SimulationError(
+            "Existing output metadata is unreadable for {}: {}".format(
+                run.scenario_id, exc
+            )
+        ) from exc
+
+    expected_setup = _run_metadata(run)
+    stale_reasons = []
+    if sim_setup != expected_setup:
+        stale_reasons.append("scenario configuration differs")
+    if provenance.get("configuration_sha256") != sha256_file(config_path):
+        stale_reasons.append("benchmark configuration file changed")
+    if provenance.get("runtime_source_sha256") != _runtime_source_hashes():
+        stale_reasons.append("simulation/export source changed")
+
+    recorded_models = provenance.get("model_sha256", {})
+    if not isinstance(recorded_models, dict) or not recorded_models or any(
+        not Path(path).is_file() or sha256_file(Path(path)) != digest
+        for path, digest in recorded_models.items()
+    ):
+        stale_reasons.append("reusable Modelica source changed")
+
+    if stale_reasons:
+        raise SimulationError(
+            "Cannot resume stale output {}: {}. Use --force to regenerate it.".format(
+                completed.output_dir, "; ".join(stale_reasons)
+            )
+        )
+    return completed
+
+
+def _execute_run(
+    run: RunSpec,
+    config_path: Path,
+    output_root: Path,
+    build_root: Path,
+    force: bool,
+    resume: bool,
+) -> CompletedRun:
+    if resume:
+        existing = _load_resumable_run(output_root, run, config_path)
+        if existing is not None:
+            print("[resume] {}".format(run.scenario_id))
+            return existing
+
+    output_dir = output_root / run.scenario_id
+    if output_dir.exists():
+        if not force:
+            raise SimulationError(
+                "Output already exists or is incomplete: {} (use --force)".format(
+                    output_dir
+                )
+            )
+        _safe_remove_output(output_dir, output_root)
+
+    print("[simulate] {}".format(run.scenario_id))
+    artifacts = run_openmodelica(
+        setup=run.setup,
+        config_dir=config_path.parent,
+        build_root=build_root,
+        scenario_id=run.scenario_id,
+        force=force or resume,
+    )
+
+    exported = export_result_csvs(
+        artifacts.raw_result,
+        output_dir,
+        run.scenario_id,
+        run.setup["sim_setup"],
+    )
+
+    _write_json(
+        output_dir / "sim_setup.json",
+        _run_metadata(run),
+    )
+    _write_json(
+        output_dir / "provenance.json",
+        _provenance(
+            config_path,
+            run,
+            artifacts.raw_validation,
+            artifacts.model_hashes,
+            artifacts.modelica_version,
+        ),
+    )
+    _write_json(
+        output_dir / "validation.json",
+        {
+            "valid": not run.is_fault,
+            "category": "normal_run" if not run.is_fault else "pending_pair_validation",
+            "raw_result": dict(artifacts.raw_validation),
+            "safe_columns": list(exported.safe_columns),
+        },
+    )
+    return CompletedRun(
+        run=run,
+        output_dir=output_dir,
+        continuous=exported.continuous,
+        discrete=exported.discrete,
+        hybrid=exported.hybrid,
+        verification=exported.verification,
+    )
+
+
+def _validate_pair(normal: CompletedRun, fault: CompletedRun) -> None:
+    report = validate_fault_pair(
+        normal_measurements_path=normal.hybrid,
+        fault_measurements_path=fault.hybrid,
+        normal_verification_path=normal.verification,
+        fault_verification_path=fault.verification,
+        normal_run=normal.run,
+        run=fault.run,
+    )
+    write_validation_report(report, fault.output_dir / "validation.json")
+    if not report["valid"]:
+        print(
+            "[undetectable] {}: {}".format(
+                fault.run.scenario_id, report["category"]
+            ),
+            file=sys.stderr,
+        )
+    require_valid_report(report)
+
+
+def _set_seed(benchmark: Dict[str, Any], seed: int) -> None:
+    if not 1 <= seed <= 2_147_483_646:
+        raise ConfigError("--seed must be between 1 and 2147483646")
+    for scenario in benchmark.values():
+        scenario["sim_setup"]["seed"] = seed
+
+
+def _selected_datasets(
+    benchmark: Mapping[str, Any], scenario: Optional[str]
+) -> Optional[List[str]]:
+    if scenario is None:
+        return None
+    if scenario not in benchmark:
+        raise ConfigError("Unknown dataset {!r}".format(scenario))
+    return [scenario]
+
+
+def _normal_outputs_for_faults(
+    output_root: Path,
+    benchmark: Mapping[str, Any],
+    fault_runs: Iterable[RunSpec],
+    config_path: Path,
+) -> Dict[str, CompletedRun]:
+    needed = sorted({run.base_dataset for run in fault_runs})
+    normal_specs = {
+        run.base_dataset: run
+        for run in generate_normal_campaign(benchmark, selected=needed)
+    }
+    outputs: Dict[str, CompletedRun] = {}
+    missing = []
+    for dataset_name, normal_spec in normal_specs.items():
+        completed = _load_resumable_run(output_root, normal_spec, config_path)
+        if completed is None:
+            missing.append(normal_spec.scenario_id)
+        else:
+            outputs[dataset_name] = completed
+    if missing:
+        raise SimulationError(
+            "Single-fault validation requires existing normal runs: {}. "
+            "Run the normal or full campaign first.".format(", ".join(missing))
+        )
+    return outputs
+
+
+def _validate_campaign_duplicates(fault_outputs: Sequence[CompletedRun], output_root: Path) -> None:
+    groups = duplicate_signal_groups(output.hybrid for output in fault_outputs)
+    report_path = output_root / "campaign_validation.json"
+    _write_json(
+        report_path,
+        {
+            "valid": not groups,
+            "fault_scenarios": len(fault_outputs),
+            "duplicate_signal_groups": groups,
+        },
+    )
+    if groups:
+        raise ValidationError(
+            "Different fault labels produced identical hybrid signals. See {}".format(
+                report_path
+            )
+        )
+
+
+def run_command(args: argparse.Namespace) -> int:
+    config_path = args.config.resolve()
+    benchmark = load_benchmark_config(config_path)
+    _set_seed(benchmark, args.seed)
+    selected = _selected_datasets(benchmark, args.scenario)
+    output_root = args.output.resolve()
+    build_root = args.build_root.resolve()
+
+    if bool(args.module) != bool(args.fault):
+        raise ConfigError("--module and --fault must be supplied together")
+    if args.module and not args.scenario:
+        raise ConfigError("A focused --module/--fault run also requires --scenario")
+
+    output_root.mkdir(parents=True, exist_ok=True)
+    build_root.mkdir(parents=True, exist_ok=True)
+
+    normal_outputs: Dict[str, CompletedRun] = {}
+    fault_outputs: List[CompletedRun] = []
+
+    if args.module:
+        normal_spec, fault_spec = focused_fault_pair(
+            benchmark, args.scenario, args.module, args.fault
+        )
+        normal = _execute_run(
+            normal_spec,
+            config_path,
+            output_root,
+            build_root,
+            args.force,
+            args.resume,
+        )
+        normal_outputs[normal_spec.base_dataset] = normal
+        fault = _execute_run(
+            fault_spec,
+            config_path,
+            output_root,
+            build_root,
+            args.force,
+            args.resume,
+        )
+        _validate_pair(normal, fault)
+        fault_outputs.append(fault)
     else:
-        for line in model_code:
-            if line.startswith('  parameter Boolean'):
-                for anomaly in model_dict['faults']:
-                    if model_dict['faults'][anomaly] == True and line.startswith(f'  parameter Boolean {anomaly}'):
-                        line = f'  parameter Boolean {anomaly} = true;\n'
-            new_model_code.append(line)
+        if args.campaign in ("normal", "full"):
+            for run in generate_normal_campaign(benchmark, selected):
+                completed = _execute_run(
+                    run,
+                    config_path,
+                    output_root,
+                    build_root,
+                    args.force,
+                    args.resume,
+                )
+                normal_outputs[run.base_dataset] = completed
 
-    with open(model_dict['files'], 'w') as f:
-        f.writelines(new_model_code)
+        if args.campaign in ("single-fault", "full"):
+            fault_runs = generate_single_fault_campaign(benchmark, selected)
+            if args.campaign == "single-fault":
+                normal_outputs = _normal_outputs_for_faults(
+                    output_root, benchmark, fault_runs, config_path
+                )
+            for run in fault_runs:
+                completed = _execute_run(
+                    run,
+                    config_path,
+                    output_root,
+                    build_root,
+                    args.force,
+                    args.resume,
+                )
+                _validate_pair(normal_outputs[run.base_dataset], completed)
+                fault_outputs.append(completed)
 
-    if not reset: print(f'anomalies have been updated for {module}.')
-
-
-def induce_anomalies_in_plant(sim_setup, reset=False):
-    """
-    writes anomalies into modelica simulation models.
-    """
-    model_setup = sim_setup['model']['modules']
-
-    # iterate through available models in simulation
-    for module in model_setup:
-        write_anomaly_in_module(module, model_setup, reset)
-
-
-def data_cleaning(data_dir, sim_setup, modus):
-    df = pd.read_csv(os.path.join(data_dir, sim_setup['ds_name'], f'{sim_setup["ds_name"]}.csv'), index_col=False)
-
-    keep_cols = []
-
-    # drop unnecessary info
-    drop_cols = [col for col in df.columns if 'der(' in col or 'level_to_boolean' in col]
-    df = df.drop(columns=drop_cols)
-
-    # select and add all columns to keep within the dataframe feel free to comment lines out or add lines
-    if '_s' in modus:
-        keep_cols += [col for col in df.columns if 'state_' in col and not 'monitoring' in col]
-    if 'continuous' in modus:
-        keep_cols += [col for col in df.columns if '.level' in col]
-        keep_cols += [col for col in df.columns if 'sensor_continuous' in col and not 'port' in col]
-        keep_cols += [col for col in df.columns if 'volumeFlowRate' in col and 'm_flow' in col]
-        keep_cols += [col for col in df.columns if 'N_in' in col]
-        keep_cols += [col for col in df.columns if '.port.T' in col]
-    if 'discrete' in modus:
-        keep_cols += [col for col in df.columns if 'pump_n_in' in col]
-        keep_cols += [col for col in df.columns if 'sensor_discrete_' in col]
-        keep_cols += [col for col in df.columns if '.opening' in col]
-        keep_cols += [col for col in df.columns if '.port.Q_flow' in col]
-    if 'hybrid' in modus:
-        keep_cols += [col for col in df.columns if '.level' in col]
-        keep_cols += [col for col in df.columns if 'sensor_continuous' in col and not 'port' in col]
-        keep_cols += [col for col in df.columns if 'volumeFlowRate' in col and 'm_flow' in col]
-        keep_cols += [col for col in df.columns if 'N_in' in col]
-        keep_cols += [col for col in df.columns if 'pump_n_in' in col]
-        keep_cols += [col for col in df.columns if 'sensor_discrete_' in col]
-        keep_cols += [col for col in df.columns if '.opening' in col]
-        keep_cols += [col for col in df.columns if '.port.T' in col]
-        keep_cols += [col for col in df.columns if '.port.Q_flow' in col]
-
-    df = df[keep_cols]
-    df.to_csv(os.path.join(data_dir, sim_setup['ds_name'], f'{sim_setup["ds_name"]}_{modus}.csv'))
-    os.remove(os.path.join(data_dir, sim_setup['ds_name'], f'{sim_setup["ds_name"]}.csv'))
+    if fault_outputs:
+        _validate_campaign_duplicates(fault_outputs, output_root)
+    print(
+        "Completed {} normal and {} fault run(s).".format(
+            len(normal_outputs), len(fault_outputs)
+        )
+    )
+    return 0
 
 
-def run_sim(sim_setup, mos_path='./call.mos', model_dir='../models', data_dir='../data', modus='hybrid', states=True):
-    """
-    executes the simulation by calling OpenModelica from the command line and running the call.mos file.
-    there are three modes: 'continuous', 'hybrid', and 'discrete'.
-    """
-    if states: modus = modus + '_s'
-
-    # make data dir
-    print(os.path.join(data_dir, sim_setup['ds_name']))
-
-    u.create_dir(os.path.join(data_dir, sim_setup['ds_name']))
-
-    # create simulation model
-    create_plant_sim_model(model_dir, sim_setup)
-
-    # induce anomalies to OpenModelica modules
-    induce_anomalies_in_plant(sim_setup, reset=False)
-
-    # write simulation file
-    create_sim_setup(mos_path, sim_setup)
-
-    # execute simulation
-    print('loading simulation files ...')
-    os.system("omc call.mos")
-
-    # delete unnecessarey simulation information and rename it
-    filelist = [f for f in os.listdir(os.path.join(data_dir, sim_setup['ds_name'])) if not f.endswith('.csv')]
-    for f in filelist:
-        os.remove(os.path.join(data_dir, sim_setup['ds_name'], f))
-    os.rename(os.path.join(data_dir, sim_setup['ds_name'], 'processPlant_res.csv'), os.path.join(data_dir, sim_setup['ds_name'], f'{sim_setup["ds_name"]}.csv'))
-
-    # save simulation hyperparameters in simulation directory
-    with open(os.path.join(data_dir, sim_setup['ds_name'], 'sim_setup.json'), 'w') as f:
-        json.dump(sim_setup, f, indent=4)
-
-    # clean dataframe
-    data_cleaning(data_dir, sim_setup, modus)
-
-    # resest all anomalies in all files to false again
-    induce_anomalies_in_plant(sim_setup, reset=True)
-
-    print(f'simulation finished. data is saved in {os.path.join(data_dir, sim_setup['ds_name'])}')
+def validate_command(args: argparse.Namespace) -> int:
+    benchmark = load_benchmark_config(args.config.resolve())
+    normal_count = len(generate_normal_campaign(benchmark))
+    fault_count = len(generate_single_fault_campaign(benchmark))
+    print(
+        "Configuration valid: {} datasets, {} normal runs, {} single-fault runs.".format(
+            len(benchmark), normal_count, fault_count
+        )
+    )
+    if args.check_modelica:
+        logs = check_openmodelica_topologies(
+            benchmark,
+            args.config.resolve().parent,
+            args.build_root.resolve(),
+            force=args.force,
+        )
+        print("OpenModelica checks passed for {} topologies.".format(len(logs)))
+    return 0
 
 
-## only for anomaly creation purpose. Can be deleted afterwards
-## only for anomaly creation purpose. Can be deleted afterwards
-def process_faults_all_combinations(data, file_path):
-    """
-    For each dataset, creates configurations where each fault is set to true exactly once,
-    with all others set to false, and saves all combinations into a JSON file.
-    
-    Parameters:
-        data (dict): The input data structure to process.
-        file_path (str): The path to the JSON file to save the modified data.
-    """
-    result = {}
-    
-    for ds_name, ds_content in data.items():
-        modules = ds_content.get("model", {}).get("modules", {})
-        faults_list = []  # To track all faults and their modules
-        
-        # Collect all faults with their module references
-        for module_name, module_data in modules.items():
-            faults = module_data.get("faults", {})
-            for fault_name in faults.keys():
-                faults_list.append((module_name, fault_name))
-        
-        # Create configurations for each fault set to true
-        ds_result = {}
-        for target_module, target_fault in faults_list:
-            # Clone the dataset structure
-            cloned_ds = json.loads(json.dumps(ds_content))
-            cloned_modules = cloned_ds["model"]["modules"]
-            
-            # Set all faults to false first
-            for module_name, module_data in cloned_modules.items():
-                for fault_name in module_data.get("faults", {}).keys():
-                    module_data["faults"][fault_name] = False
-            
-            # Set the specific fault to true
-            cloned_modules[target_module]["faults"][target_fault] = True
-            
-            # Rename the dataset to include the fault name
-            renamed_ds_name = f"{ds_name}_{target_module}_{target_fault}"
-            cloned_ds["ds_name"] = renamed_ds_name  # Update the `ds_name` field
-            
-            # Add renamed dataset to the results
-            ds_result[renamed_ds_name] = cloned_ds
-        
-        # Merge renamed datasets into the result
-        result.update(ds_result)
-    
-    # Write the result to the JSON file
-    with open(file_path, 'w') as json_file:
-        json.dump(result, json_file, indent=4)
-    
-    print(f"Modified configurations written to {file_path}")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Validated HAI-CPPS v2 simulation and dataset generation"
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    validate_parser = subparsers.add_parser(
+        "validate", help="validate configuration without simulation"
+    )
+    validate_parser.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="benchmark JSON path"
+    )
+    validate_parser.add_argument(
+        "--check-modelica",
+        action="store_true",
+        help="also run OpenModelica checkModel for every topology",
+    )
+    validate_parser.add_argument(
+        "--build-root",
+        type=Path,
+        default=Path("build/model-check"),
+        help="directory for optional model-check artifacts",
+    )
+    validate_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="replace existing model-check directories",
+    )
+    validate_parser.set_defaults(handler=validate_command)
+
+    run_parser = subparsers.add_parser("run", help="run a validated campaign")
+    run_parser.add_argument(
+        "--config", type=Path, default=DEFAULT_CONFIG, help="benchmark JSON path"
+    )
+    run_parser.add_argument(
+        "--campaign",
+        choices=("normal", "single-fault", "full"),
+        default="normal",
+        help="'full' means normal plus all one-fault-at-a-time scenarios",
+    )
+    run_parser.add_argument("--scenario", help="limit execution to one ds name")
+    run_parser.add_argument("--module", help="focused fault target module")
+    run_parser.add_argument("--fault", help="focused Boolean fault name")
+    run_parser.add_argument(
+        "--output", type=Path, default=Path("data"), help="dataset output root"
+    )
+    run_parser.add_argument(
+        "--build-root",
+        type=Path,
+        default=Path("build"),
+        help="isolated OpenModelica build root",
+    )
+    run_parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    output_policy = run_parser.add_mutually_exclusive_group()
+    output_policy.add_argument(
+        "--force", action="store_true", help="replace this campaign's existing run paths"
+    )
+    output_policy.add_argument(
+        "--resume", action="store_true", help="reuse complete existing run outputs"
+    )
+    run_parser.set_defaults(handler=run_command)
+    return parser
 
 
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        return int(args.handler(args))
+    except (ConfigError, ExportError, SimulationError, ValidationError) as exc:
+        print("error: {}".format(exc), file=sys.stderr)
+        return 2
 
-if __name__ == '__main__':
-    behavior = 'anomalous'  # can be 'anomalous' or 'normal'
 
-    if behavior == 'normal':
-        with open('benchmark_setup.json') as f:
-            setup = json.load(f)
-        for i in setup:
-            run_sim(sim_setup=setup[i], modus='continuous', states=True)
-
-    elif behavior == 'anomalous':
-        with open('benchmark_setup.json') as f:
-            setup = json.load(f)
-        process_faults_all_combinations(setup, 'benchmark_setup_anom.json')
-
-        with open('benchmark_setup_anom.json') as f_anom:
-            setup_anom = json.load(f_anom)
-        for i in setup_anom:
-            run_sim(sim_setup=setup_anom[i], modus='discrete', states=True)
-
-    else:
-        raise ValueError(f"Unknown behavior: {behavior}. Must be 'normal' or 'anomalous'.")
+if __name__ == "__main__":
+    raise SystemExit(main())

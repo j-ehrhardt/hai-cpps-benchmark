@@ -10,37 +10,57 @@
             "anom_valve_in1": false,
             "anom_valve_in2": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "mixer"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source1": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source2": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "mixer0.port_in0"],
-        "1": ["source1.port_out0", "mixer0.port_in1"],
-        "2": ["source2.port_out0", "mixer0.port_in2"],
-        "3": ["mixer0.port_out0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "mixer0.port_in0"
+        ],
+        "1": [
+          "source1.port_out0",
+          "mixer0.port_in1"
+        ],
+        "2": [
+          "source2.port_out0",
+          "mixer0.port_in2"
+        ],
+        "3": [
+          "mixer0.port_out0",
+          "sink0.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds2": {
@@ -54,32 +74,48 @@
             "anom_pump75": false,
             "anom_pump50": false,
             "anom_heat75": false,
-            "anom_heat50": false
-          }
+            "anom_heat50": false,
+            "anom_leaking": false
+          },
+          "type": "distill"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         },
         "sink1": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "distill0.port_in0"],
-        "1": ["distill0.port_out0", "sink0.port_in0"],
-        "2": ["distill0.port_out1", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "distill0.port_in0"
+        ],
+        "1": [
+          "distill0.port_out0",
+          "sink0.port_in0"
+        ],
+        "2": [
+          "distill0.port_out1",
+          "sink1.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds3": {
@@ -92,27 +128,39 @@
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
-            "anom_pollution": false
-          }
+            "anom_pollution": false,
+            "anom_leaking": false
+          },
+          "type": "filter"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "filter0.port_in0"],
-        "1": ["filter0.port_out0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "filter0.port_in0"
+        ],
+        "1": [
+          "filter0.port_out0",
+          "sink0.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds4": {
@@ -125,27 +173,38 @@
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
-            "anom_pollution": false
-          }
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "bottling0.port_in0"],
-        "1": ["bottling0.port_out0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "bottling0.port_in0"
+        ],
+        "1": [
+          "bottling0.port_out0",
+          "sink0.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds5": {
@@ -159,46 +218,71 @@
             "anom_valve_in1": false,
             "anom_valve_in2": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "mixer"
         },
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source1": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source2": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "mixer0.port_in0"],
-        "1": ["source1.port_out0", "mixer0.port_in1"],
-        "2": ["source2.port_out0", "mixer0.port_in2"],
-        "3": ["mixer0.port_out0", "bottling0.port_in0"],
-        "4": ["bottling0.port_out0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "mixer0.port_in0"
+        ],
+        "1": [
+          "source1.port_out0",
+          "mixer0.port_in1"
+        ],
+        "2": [
+          "source2.port_out0",
+          "mixer0.port_in2"
+        ],
+        "3": [
+          "mixer0.port_out0",
+          "bottling0.port_in0"
+        ],
+        "4": [
+          "bottling0.port_out0",
+          "sink0.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds6": {
@@ -212,50 +296,76 @@
             "anom_pump75": false,
             "anom_pump50": false,
             "anom_heat75": false,
-            "anom_heat50": false
-          }
+            "anom_heat50": false,
+            "anom_leaking": false
+          },
+          "type": "distill"
         },
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "bottling1": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         },
         "sink1": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "distill0.port_in0"],
-        "1": ["distill0.port_out0", "bottling0.port_in0"],
-        "2": ["distill0.port_out1", "bottling1.port_in0"],
-        "3": ["bottling0.port_out0", "sink0.port_in0"],
-        "4": ["bottling1.port_out0", "sink1.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "distill0.port_in0"
+        ],
+        "1": [
+          "distill0.port_out0",
+          "bottling0.port_in0"
+        ],
+        "2": [
+          "distill0.port_out1",
+          "bottling1.port_in0"
+        ],
+        "3": [
+          "bottling0.port_out0",
+          "sink0.port_in0"
+        ],
+        "4": [
+          "bottling1.port_out0",
+          "sink1.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds7": {
@@ -268,36 +378,53 @@
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
-            "anom_pollution": false
-          }
+            "anom_pollution": false,
+            "anom_leaking": false
+          },
+          "type": "filter"
         },
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "filter0.port_in0"],
-        "1": ["filter0.port_out0", "bottling0.port_in0"],
-        "2": ["bottling0.port_out0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "filter0.port_in0"
+        ],
+        "1": [
+          "filter0.port_out0",
+          "bottling0.port_in0"
+        ],
+        "2": [
+          "bottling0.port_out0",
+          "sink0.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds8": {
@@ -311,8 +438,10 @@
             "anom_valve_in1": false,
             "anom_valve_in2": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "mixer"
         },
         "filter0": {
           "files": "../models/Filter.mo",
@@ -320,47 +449,75 @@
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
-            "anom_pollution": false
-          }
+            "anom_pollution": false,
+            "anom_leaking": false
+          },
+          "type": "filter"
         },
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source1": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source2": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "mixer0.port_in0"],
-        "1": ["source1.port_out0", "mixer0.port_in1"],
-        "2": ["source2.port_out0", "mixer0.port_in2"],
-        "4": ["mixer0.port_out0", "filter0.port_in0"],
-        "5": ["filter0.port_out0", "bottling0.port_in0"],
-        "6": ["bottling0.port_out0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "mixer0.port_in0"
+        ],
+        "1": [
+          "source1.port_out0",
+          "mixer0.port_in1"
+        ],
+        "2": [
+          "source2.port_out0",
+          "mixer0.port_in2"
+        ],
+        "4": [
+          "mixer0.port_out0",
+          "filter0.port_in0"
+        ],
+        "5": [
+          "filter0.port_out0",
+          "bottling0.port_in0"
+        ],
+        "6": [
+          "bottling0.port_out0",
+          "sink0.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds9": {
@@ -374,8 +531,10 @@
             "anom_pump75": false,
             "anom_pump50": false,
             "anom_heat75": false,
-            "anom_heat50": false
-          }
+            "anom_heat50": false,
+            "anom_leaking": false
+          },
+          "type": "distill"
         },
         "filter0": {
           "files": "../models/Filter.mo",
@@ -383,51 +542,80 @@
             "anom_valve_in0": false,
             "anom_pump75": false,
             "anom_pump50": false,
-            "anom_pollution": false
-          }
+            "anom_pollution": false,
+            "anom_leaking": false
+          },
+          "type": "filter"
         },
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "bottling1": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         },
         "sink1": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "filter0.port_in0"],
-        "1": ["filter0.port_out0", "distill0.port_in0"],
-        "2": ["distill0.port_out0", "bottling0.port_in0"],
-        "3": ["distill0.port_out1", "bottling1.port_in0"],
-        "4": ["bottling0.port_in0", "sink0.port_in0"],
-        "5": ["bottling1.port_in0", "sink0.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "filter0.port_in0"
+        ],
+        "1": [
+          "filter0.port_out0",
+          "distill0.port_in0"
+        ],
+        "2": [
+          "distill0.port_out0",
+          "bottling0.port_in0"
+        ],
+        "3": [
+          "distill0.port_out1",
+          "bottling1.port_in0"
+        ],
+        "4": [
+          "bottling0.port_out0",
+          "sink0.port_in0"
+        ],
+        "5": [
+          "bottling1.port_out0",
+          "sink1.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   },
   "ds10": {
@@ -441,8 +629,10 @@
             "anom_valve_in1": false,
             "anom_valve_in2": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "mixer"
         },
         "mixer1": {
           "files": "../models/Mixer.mo",
@@ -451,16 +641,20 @@
             "anom_valve_in1": false,
             "anom_valve_in2": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "mixer"
         },
         "bottling0": {
           "files": "../models/Bottling.mo",
           "faults": {
             "anom_valve_in0": false,
             "anom_pump75": false,
-            "anom_pump50": false
-          }
+            "anom_pump50": false,
+            "anom_leaking": false
+          },
+          "type": "bottling"
         },
         "distill0": {
           "files": "../models/Distill.mo",
@@ -469,55 +663,96 @@
             "anom_pump75": false,
             "anom_pump50": false,
             "anom_heat75": false,
-            "anom_heat50": false
-          }
+            "anom_heat50": false,
+            "anom_leaking": false
+          },
+          "type": "distill"
         },
         "source0": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source1": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source2": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source3": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "source4": {
           "files": "../models/Source.mo",
-          "faults": {}
+          "faults": {},
+          "type": "source"
         },
         "sink0": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         },
         "sink1": {
           "files": "../models/Sink.mo",
-          "faults": {}
+          "faults": {},
+          "type": "sink"
         }
       },
       "edges": {
-        "0": ["source0.port_out0", "mixer0.port_in0"],
-        "1": ["source1.port_out0", "mixer0.port_in1"],
-        "2": ["source2.port_out0", "mixer0.port_in2"],
-        "3": ["mixer0.port_out0", "distill0.port_in0"],
-        "4": ["distill0.port_out1", "mixer1.port_in0"],
-        "5": ["source3.port_out0", "mixer1.port_in1"],
-        "6": ["source4.port_out0", "mixer1.port_in2"],
-        "7": ["distill0.port_out0", "sink0.port_in0"],
-        "8": ["mixer1.port_out0", "bottling0.port_in0"],
-        "9": ["bottling0.port_out0", "sink1.port_in0"]
+        "0": [
+          "source0.port_out0",
+          "mixer0.port_in0"
+        ],
+        "1": [
+          "source1.port_out0",
+          "mixer0.port_in1"
+        ],
+        "2": [
+          "source2.port_out0",
+          "mixer0.port_in2"
+        ],
+        "3": [
+          "mixer0.port_out0",
+          "distill0.port_in0"
+        ],
+        "4": [
+          "distill0.port_out1",
+          "mixer1.port_in0"
+        ],
+        "5": [
+          "source3.port_out0",
+          "mixer1.port_in1"
+        ],
+        "6": [
+          "source4.port_out0",
+          "mixer1.port_in2"
+        ],
+        "7": [
+          "distill0.port_out0",
+          "sink0.port_in0"
+        ],
+        "8": [
+          "mixer1.port_out0",
+          "bottling0.port_in0"
+        ],
+        "9": [
+          "bottling0.port_out0",
+          "sink1.port_in0"
+        ]
       }
     },
     "sim_setup": {
       "startTime": 0,
       "stopTime": 10000,
-      "numberOfIntervals": 10000
+      "numberOfIntervals": 10000,
+      "faultStart": 2500,
+      "seed": 20260831
     }
   }
 }

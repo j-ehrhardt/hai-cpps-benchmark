@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hai-cpps.example/schemas/benchmark_setup.schema.json",
+  "title": "HAI-CPPS v2 benchmark setup",
+  "type": "object",
+  "minProperties": 1,
+  "propertyNames": {
+    "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+  },
+  "additionalProperties": {
+    "$ref": "#/$defs/scenario"
+  },
+  "$defs": {
+    "scenario": {
+      "type": "object",
+      "required": ["ds_name", "model", "sim_setup"],
+      "additionalProperties": false,
+      "properties": {
+        "ds_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "model": {
+          "type": "object",
+          "required": ["modules", "edges"],
+          "additionalProperties": false,
+          "properties": {
+            "modules": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+              },
+              "additionalProperties": {"$ref": "#/$defs/module"}
+            },
+            "edges": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {"$ref": "#/$defs/edge"}
+            }
+          }
+        },
+        "sim_setup": {"$ref": "#/$defs/simulation"}
+      }
+    },
+    "module": {
+      "type": "object",
+      "required": ["files", "faults"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["source", "sink", "mixer", "filter", "distill", "bottling"]
+        },
+        "files": {"type": "string", "minLength": 1},
+        "faults": {
+          "type": "object",
+          "additionalProperties": {"type": "boolean"}
+        }
+      }
+    },
+    "edge": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"},
+        {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"}
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "simulation": {
+      "type": "object",
+      "required": ["startTime", "stopTime", "numberOfIntervals"],
+      "additionalProperties": false,
+      "properties": {
+        "startTime": {"type": "number"},
+        "stopTime": {"type": "number"},
+        "numberOfIntervals": {"type": "integer", "minimum": 1},
+        "faultStart": {"type": "number"},
+        "seed": {"type": "integer", "minimum": 1, "maximum": 2147483646}
+      }
+    }
+  }
+}
