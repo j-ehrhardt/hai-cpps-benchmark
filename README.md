@@ -147,8 +147,35 @@ Either, you simulate your own scenarios or you recreate the benchmark.
 
 ## Replicate the Benchmark Datasets
 
-If you simply want to replicate all datasets from the benchmark run the `sim.py` file with the virtual environemtn activated (either from the docker container or your terminal)
-The script will automatically select the `benchmark_setup.json` file and run all simulations.
+With the project environment activated and `omc` available on `PATH`, generate the
+complete v2 campaign with:
+
+```bash
+python code/sim.py run \
+  --config code/benchmark_setup.json \
+  --campaign full \
+  --output data/v2 \
+  --build-root build/v2 \
+  --seed 20260831
+```
+
+`full` generates one normal run and every supported single-fault run for each of
+the ten datasets. The command fails if an OpenModelica result is incomplete, an
+export is unsafe, or a fault is not detectable in the measurement data.
+
+To regenerate existing outputs, add `--force`. This replaces only the selected
+scenario output and build directories.
+
+On a multi-core computer, datasets can be generated concurrently with GNU
+Parallel. Each job must have its own output and build root:
+
+```bash
+parallel -j 10 --line-buffer 'python code/sim.py run --config code/benchmark_setup.json --campaign full --scenario {} --output=data/v2/{} --build-root=build/v2/{} --seed 20260831 --force' ::: ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10
+```
+
+Adjust `-j 10` to the number of concurrent simulations your machine can sustain.
+The parallel layout stores each dataset beneath `data/v2/dsN/`, rather than
+directly beneath `data/v2/`.
 
 > [!WARNING]
 > Attention! The simulations takes time, so be prepared to let your computer run for a while. 
