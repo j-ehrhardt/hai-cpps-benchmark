@@ -72,10 +72,8 @@ def canonical_grid_indices(
 ) -> List[int]:
     """Select the last row at each configured output time, excluding event rows."""
 
-    start = float(sim_setup["startTime"])
-    stop = float(sim_setup["stopTime"])
-    intervals = int(sim_setup["numberOfIntervals"])
-    step = (stop - start) / intervals
+    grid = canonical_grid_times(sim_setup)
+    step = grid[1] - grid[0] if len(grid) > 1 else 0.0
     tolerance = max(1e-9, abs(step) * 1e-8)
     values = pd.to_numeric(times, errors="coerce")
     if values.isna().any():
@@ -84,8 +82,7 @@ def canonical_grid_indices(
     indices: List[int] = []
     cursor = 0
     raw_times = values.tolist()
-    for output_step in range(intervals + 1):
-        expected = start + output_step * step
+    for expected in grid:
         while (
             cursor + 1 < len(raw_times)
             and raw_times[cursor + 1] <= expected + tolerance
@@ -97,6 +94,16 @@ def canonical_grid_indices(
             )
         indices.append(cursor)
     return indices
+
+
+def canonical_grid_times(sim_setup: Mapping[str, object]) -> List[float]:
+    """Return the one canonical timestamp sequence used by every safe export."""
+
+    start = float(sim_setup["startTime"])
+    stop = float(sim_setup["stopTime"])
+    intervals = int(sim_setup["numberOfIntervals"])
+    step = (stop - start) / intervals
+    return [start + output_step * step for output_step in range(intervals + 1)]
 
 
 def classify_columns(columns: Sequence[str]) -> Tuple[List[str], List[str], List[str]]:
@@ -170,9 +177,12 @@ def export_result_csvs(
     assert_leakage_safe(continuous_columns)
     assert_leakage_safe(discrete_columns)
 
+    canonical_times = canonical_grid_times(sim_setup)
     raw = raw.iloc[canonical_grid_indices(raw["time"], sim_setup)].reset_index(
         drop=True
     )
+    # OMC's equivalent output grids can differ by round-off between runs.
+    raw["time"] = canonical_times
     selected_columns = sorted(
         set(continuous_columns + discrete_columns + verification_columns)
     )

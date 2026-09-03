@@ -49,7 +49,8 @@ model filterModule
     Placement(transformation(origin = {170, -30}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
   Modelica.Fluid.Pipes.StaticPipe pipe3(redeclare package Medium = Medium, diameter(displayUnit = "mm") = 0.01, length = 1) annotation(
     Placement(transformation(origin = {30, -90}, extent = {{-10, 10}, {10, -10}}, rotation = 90)));
-  Modelica.Fluid.Pipes.StaticPipe pipe4(redeclare package Medium = Medium, diameter(displayUnit = "mm") = 0.01, length = 1) annotation(
+  // Permit solver trial values while the upstream filter blocks physical backflow.
+  Modelica.Fluid.Pipes.StaticPipe pipe4(redeclare package Medium = Medium, diameter(displayUnit = "mm") = 0.01, length = 1, allowFlowReversal = true) annotation(
     Placement(transformation(origin = {170, 70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
 
   // valves
@@ -77,7 +78,8 @@ model filterModule
     Placement(transformation(origin = {-150, -190}, extent = {{-10, -10}, {10, 10}})));
 
   //filter
-  Modelica.Fluid.Valves.ValveLinear filter_F101(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
+  // A filter passes product toward B102 but must not let B102 drain into a leak.
+  Modelica.Fluid.Valves.ValveIncompressible filter_F101(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3, checkValve = true, allowFlowReversal = true) annotation(
     Placement(transformation(origin = {30, -48}, extent = {{10, 10}, {-10, -10}}, rotation = -90)));
   Modelica.Blocks.Math.Division division annotation(
     Placement(transformation(origin = {0, 100}, extent = {{-10, -10}, {10, 10}})));
@@ -93,7 +95,8 @@ model filterModule
     Placement(transformation(origin = {-120, 90}, extent = {{-10, -10}, {10, 10}})));  
   Modelica.Blocks.Sources.RealExpression pollution(y = pollution_value)  annotation(
     Placement(transformation(origin = {-120, 70}, extent = {{-10, -10}, {10, 10}})));
-  Modelica.Blocks.Sources.RealExpression mflow_filter(y = filter_F101.port_a.m_flow)  annotation(
+  // Fouling is cumulative throughput; reverse trial flow cannot reverse fouling.
+  Modelica.Blocks.Sources.RealExpression mflow_filter(y = max(0.0, filter_F101.port_a.m_flow))  annotation(
     Placement(transformation(origin = {-120, 50}, extent = {{-10, -10}, {10, 10}})));
 
   // sensors
@@ -166,10 +169,11 @@ equation
   valve_in.opening = if state_filling_tank_B101.active then 1.0 else max(closedValveOpening, var_valve_in);
   valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
   pump_n_in = if state_emptying_tank_B101.active then 150.0 * var_pump_n else 0.0;
-  valve_out.opening = if state_emptying_tank_B102.active then 1.0 else closedValveOpening;
+  // Keep the outlet shut outside its state; a minimum opening here empties B102.
+  valve_out.opening = if state_emptying_tank_B102.active then 1.0 else 0.0;
 
   // anomalies
-  leaking_valve.opening = if (fault_window_active and anom_leaking) then 0.25 else 0.0;
+  leaking_valve.opening = if fault_window_active and anom_leaking then 0.25 else 0.0;
   clogging_valve.opening = 1.0;
   pollution_value = if (fault_window_active and anom_pollution) then 1.0 else 0.5;
   var_valve_in = if (fault_window_active and anom_valve_in0) then 0.2 else 0.0;

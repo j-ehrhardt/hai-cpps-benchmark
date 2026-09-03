@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from config import RunSpec
-from validation import ValidationError, validate_fault_pair
+from validation import ValidationError, _align_pair, validate_fault_pair
 
 
 def _run_spec():
@@ -74,6 +74,21 @@ def _verification(scenario_id, target, non_target=None):
 
 
 class PairValidationTests(unittest.TestCase):
+    def test_alignment_accepts_only_timestamp_roundoff(self):
+        normal = _frame("normal", [1.0] * 7)
+        fault = _frame("fault", [1.0] * 7)
+        fault.loc[4, "simulation_time"] += 1e-10
+
+        self.assertEqual(_align_pair(normal, fault), ["bottling0.tank_B401.level"])
+
+    def test_alignment_rejects_material_timestamp_difference(self):
+        normal = _frame("normal", [1.0] * 7)
+        fault = _frame("fault", [1.0] * 7)
+        fault.loc[4, "simulation_time"] += 1e-5
+
+        with self.assertRaisesRegex(ValidationError, "differ at row 4"):
+            _align_pair(normal, fault)
+
     def _validate(self, fault_signal, fault_target, fault_non_target=None):
         run = _run_spec()
         with tempfile.TemporaryDirectory() as temporary:

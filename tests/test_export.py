@@ -15,7 +15,11 @@ class ExportTests(unittest.TestCase):
                 "mixer0.tank_B201.level": [0.1, 0.2, 0.3],
                 "mixer0.sensor_continuous_pressure_tank_B201.p": [1.0, 1.1, 1.2],
                 "mixer0.sensor_continuous_volumeFlowRate.V_flow": [0.0, 0.1, 0.2],
-                "mixer0.sensor_discrete_tank_B201_high.showActive": [False, False, True],
+                "mixer0.sensor_discrete_tank_B201_high.showActive": [
+                    False,
+                    False,
+                    True,
+                ],
                 "mixer0.pump_n_in": [0.0, 150.0, 150.0],
                 "mixer0.pump_P101.N_in": [0.0, 140.0, 142.0],
                 "mixer0.valve_in0.opening": [1.0, 1.0, 0.0],
@@ -86,6 +90,28 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(
             safe["mixer0.tank_B201.level"].tolist(), [0.1, 0.2, 0.3]
         )
+
+    def test_canonical_export_rewrites_omc_timestamp_roundoff(self):
+        raw = pd.DataFrame(
+            {
+                "time": [0.0, 0.99999999999, 2.00000000001],
+                "mixer0.tank_B201.level": [0.1, 0.2, 0.3],
+                "mixer0.sensor_discrete_tank_B201_high.showActive": [False, False, True],
+            }
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            raw_path = root / "raw.csv"
+            raw.to_csv(raw_path, index=False)
+            bundle = export_result_csvs(
+                raw_path,
+                root / "output",
+                "test",
+                {"startTime": 0, "stopTime": 2, "numberOfIntervals": 2},
+            )
+            safe = pd.read_csv(bundle.hybrid)
+
+        self.assertEqual(safe["simulation_time"].tolist(), [0.0, 1.0, 2.0])
 
 
 if __name__ == "__main__":

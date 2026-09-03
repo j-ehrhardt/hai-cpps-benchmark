@@ -173,8 +173,19 @@ def _align_pair(normal: pd.DataFrame, fault: pd.DataFrame) -> List[str]:
         raise ValidationError(
             "Normal/fault row counts differ: {} versus {}".format(len(normal), len(fault))
         )
-    if not normal["simulation_time"].equals(fault["simulation_time"]):
-        raise ValidationError("Normal/fault simulation time axes differ")
+    normal_times = pd.to_numeric(normal["simulation_time"], errors="coerce")
+    fault_times = pd.to_numeric(fault["simulation_time"], errors="coerce")
+    if normal_times.isna().any() or fault_times.isna().any():
+        raise ValidationError("Normal/fault simulation time axes contain non-numeric values")
+    for index, (normal_time, fault_time) in enumerate(zip(normal_times, fault_times)):
+        if not math.isclose(
+            float(normal_time), float(fault_time), rel_tol=0.0, abs_tol=1e-9
+        ):
+            raise ValidationError(
+                "Normal/fault simulation time axes differ at row {}: {} versus {}".format(
+                    index, normal_time, fault_time
+                )
+            )
     normal_columns = set(_signal_columns(normal))
     fault_columns = set(_signal_columns(fault))
     if normal_columns != fault_columns:
