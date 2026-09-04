@@ -11,6 +11,7 @@ model distillModule
   parameter Real p_ambient = 1e5;
   parameter Real Tmin = 275;
   parameter Real closedValveOpening(min = 0, max = 1) = 1e-4;
+  parameter Modelica.Units.SI.Time leakRampDuration(min = Modelica.Constants.small) = 10;
   parameter Integer noiseSeed = 1;
   
   // anomalies
@@ -25,6 +26,7 @@ model distillModule
   Real var_pump_n(start=1.0);
   Real var_heat(start=1.0);
   Real pump_n_in;
+  Real leakRampProgress(min=0.0, max=1.0);
   Boolean fault_window_active;
 
 
@@ -43,7 +45,7 @@ model distillModule
   // tanks
   Modelica.Fluid.Examples.AST_BatchPlant.BaseClasses.TankWithTopPorts tank_B101(redeclare package Medium = Medium, V0 = 0.0001, crossArea = 0.01431355, height = 0.22, level_start = 0.01, nPorts = 1, nTopPorts = 1, portsData = {Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter = 0.011, height = 0.001, zeta_out = 0, zeta_in = 1)}, stiffCharacteristicForEmptyPort = false, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, p_ambient(displayUnit = "Pa") = 1e5) annotation(
     Placement(transformation(origin = {-110, 0}, extent = {{-20, -20}, {20, 20}})));
-  Modelica.Fluid.Examples.AST_BatchPlant.BaseClasses.TankWith3InletOutletArraysWithEvaporatorCondensor distill(redeclare package Medium = Medium, height = 1.22, n_SidePorts = 1, V0 = 0.001, n_BottomPorts = 1, bottom_pipeArea = {0.0001}, top_pipeArea = {0.0001}, n_TopPorts = 1, min_level_for_heating = 0.0001, level_start = 0.0009, crossArea = 0.01431355, initType = Modelica.Fluid.Examples.AST_BatchPlant.BaseClasses.Init.InitialValues, side_pipeArea = {0.0001}, redeclare model HeatTransfer = Modelica.Fluid.Vessels.BaseClasses.HeatTransfer.IdealHeatTransfer(k = 4.9)) annotation(
+  Modelica.Fluid.Examples.AST_BatchPlant.BaseClasses.TankWith3InletOutletArraysWithEvaporatorCondensor distill(redeclare package Medium = Medium, height = 1.22, n_SidePorts = 1, V0 = 0.001, n_BottomPorts = 1, bottom_pipeArea = {0.0001}, top_pipeArea = {0.0001}, n_TopPorts = 1, min_level_for_heating = 0.0001, level_start = 0.0009, crossArea = 0.01431355, initType = Modelica.Fluid.Examples.AST_BatchPlant.BaseClasses.Init.InitialValues, side_pipeArea = {0.0001}, p_ambient = p_ambient, redeclare model HeatTransfer = Modelica.Fluid.Vessels.BaseClasses.HeatTransfer.IdealHeatTransfer(k = 4.9)) annotation(
     Placement(transformation(origin = {160, 100}, extent = {{-110, -60}, {-30, -20}})));
   Modelica.Fluid.Examples.AST_BatchPlant.BaseClasses.TankWithTopPorts tank_B102(redeclare package Medium = Medium, V0 = 0.0001, nTopPorts = 1, height = 0.22, crossArea = 0.01431355, level_start = 0.01, nPorts = 1, portsData = {Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter = 0.011, height = 0)}, stiffCharacteristicForEmptyPort = false, use_HeatTransfer = true, T_start = 298, redeclare model HeatTransfer = Modelica.Fluid.Vessels.BaseClasses.HeatTransfer.IdealHeatTransfer(k = 4.9)) annotation(
     Placement(transformation(origin = {130, 20}, extent = {{-80, -80}, {-40, -40}})));
@@ -59,11 +61,9 @@ model distillModule
     Placement(transformation(origin = {-110, 50}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
   Modelica.Fluid.Valves.ValveLinear valve_pump_P101(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
     Placement(transformation(origin = {-110, -90}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-  Modelica.Fluid.Valves.ValveLinear valve_distill1(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
+  Modelica.Fluid.Valves.ValveLinear valve_distill1(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3, allowFlowReversal = true) annotation(
     Placement(transformation(origin = {-30, -90}, extent = {{-10, 10}, {10, -10}}, rotation = 90)));
-  Modelica.Fluid.Valves.ValveLinear valve_distill2(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
-    Placement(transformation(origin = {148, 10}, extent = {{-10, 10}, {10, -10}}, rotation = -90)));
-  Modelica.Fluid.Valves.ValveLinear valve_distill3(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
+  Modelica.Fluid.Valves.ValveLinear valve_distill3(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3, allowFlowReversal = true) annotation(
     Placement(transformation(origin = {70, 10}, extent = {{-10, 10}, {10, -10}}, rotation = -90)));
   Modelica.Fluid.Valves.ValveLinear valve_out0(redeclare package Medium = Medium, dp(start = 1e5), dp_nominal = 1, m_flow(start = 0.0001), m_flow_nominal = 1) annotation(
     Placement(transformation(origin = {70, -90}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
@@ -196,18 +196,19 @@ equation
   valve_in.opening = if state_filling_tank_B101.active then 1.0 else max(closedValveOpening, var_valve_in0);
   pump_n_in = if state_emptying_tank_B101.active then 150.0 * var_pump_n else 0.0;
   valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
-  valve_distill1.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
+  valve_distill1.opening = if state_emptying_tank_B101.active then 1.0 else 0.0;
   heater_distill.Q_flow = if state_destillation.active then 20000 * var_heat else 0;
   cooler_B102.Q_flow = if state_destillation.active then 0 else 0;
 // -2000
   cooler_B103.Q_flow = if state_destillation.active then 0 else 0;
 // -2000
-  valve_distill2.opening = if state_emptying_distill.active then 1.0 else 1.0;
-  valve_distill3.opening = if state_emptying_distill.active then 1.0 else closedValveOpening;
-  valve_out0.opening = if state_emptying_output_tanks.active then 1.0 else closedValveOpening;
-  valve_out1.opening = if state_emptying_output_tanks.active then 1.0 else closedValveOpening;
+  valve_distill3.opening = if state_emptying_distill.active then 1.0 else 0.0;
+  valve_out0.opening = if state_emptying_output_tanks.active then 1.0 else 0.0;
+  valve_out1.opening = if state_emptying_output_tanks.active then 1.0 else 0.0;
 // anomalies
-  leaking_valve.opening = if (fault_window_active and anom_leaking) then 0.25 else 0.0;
+  // A smooth command avoids an impulse in the pump pressure derivative at onset.
+  leakRampProgress = if anom_leaking then min(1.0, max(0.0, (time - anom_start) / leakRampDuration)) else 0.0;
+  leaking_valve.opening = 0.25 * leakRampProgress ^ 2 * (3.0 - 2.0 * leakRampProgress);
   clogging_valve.opening = 1.0;
   var_valve_in0 = if (fault_window_active and anom_valve_in0) then 0.2 else 0.0;
   var_pump_n = if (fault_window_active and anom_pump50) then 0.5 else if (fault_window_active and anom_pump75) then 0.75 else 1.0;
@@ -250,16 +251,14 @@ equation
     Line(points = {{70, 0}, {70, -18}}, color = {0, 127, 255}));
   connect(tank_B102.ports[1], valve_out0.port_a) annotation(
     Line(points = {{70, -61}, {70, -81}}, color = {0, 127, 255}));
-  connect(valve_distill2.port_b, tank_B103.topPorts[1]) annotation(
-    Line(points = {{148, 0}, {148, -19}}, color = {0, 127, 255}));
+  connect(distill.Condensed, tank_B103.topPorts[1]) annotation(
+    Line(points = {{130.4, 72}, {148, 72}, {148, -19}}, color = {0, 127, 255}));
   connect(tank_B103.ports[1], valve_out1.port_a) annotation(
     Line(points = {{148, -61}, {148, -81}}, color = {0, 127, 255}));
   connect(cooler_B103.port, tank_B103.heatPort) annotation(
     Line(points = {{110, -80}, {109.5, -80}, {109.5, -70}, {129, -70}, {129, -40}, {128, -40}}, color = {191, 0, 0}));
   connect(distill.BottomFluidPort[1], valve_distill3.port_a) annotation(
     Line(points = {{70, 39.6}, {70, 19.6}}, color = {0, 127, 255}));
-  connect(distill.Condensed, valve_distill2.port_a) annotation(
-    Line(points = {{130.4, 72}, {148, 72}, {148, 20}}, color = {0, 127, 255}));
   connect(condition_is_empty_tank_B101.outPort, state_destillation.inPort[1]) annotation(
     Line(points = {{53.5, 170}, {79, 170}}));
   connect(state_destillation.outPort[1], condition_destillation_done.inPort) annotation(
@@ -334,8 +333,8 @@ equation
     Line(points = {{90, -80}, {70, -80}}, color = {0, 127, 255}));
   connect(sensor_continuous_pressure_tank_B103.port, valve_out1.port_a) annotation(
     Line(points = {{170, -80}, {148, -80}}, color = {0, 127, 255}));
-  connect(sensor_continuous_pressure_distill_out1.port, valve_distill2.port_a) annotation(
-    Line(points = {{170, 20}, {148, 20}}, color = {0, 127, 255}));
+  connect(sensor_continuous_pressure_distill_out1.port, distill.Condensed) annotation(
+    Line(points = {{170, 20}, {170, 72}, {130.4, 72}}, color = {0, 127, 255}));
   connect(sensor_continuous_pressure_distill_out0.port, valve_distill3.port_a) annotation(
     Line(points = {{90, 20}, {70, 20}}, color = {0, 127, 255}));
   connect(pump_P101.port_b, sensor_continuous_pressure_pump_P101.port) annotation(
