@@ -69,7 +69,7 @@ Install OpenModelica by following the install instruction from the [OpenModelica
 For installing all other requirements, install a current version of Mini-Forge and type the following into your terminal: 
 
 ```bash
-mamba env create -f env.yml
+mamba env create -f venv.yml
 ```
 
 **Using Docker:**
@@ -96,35 +96,34 @@ You can find the OpenModelica models for the four different modules in the `mode
 
 ### Anomalies
 
-There are eight different anomalies that can be induced in the CPPS modules. 
+The supported anomaly classes depend on the module type.
 While some anomalies only affect the modules in which they are induced, some propagate directly and indirectly into other modules. 
 
 - **Leaking Anomaly:** The leaking valve is opened and a continuous volume flow is diverted into a separate sink and vanishes from the system.
-
-- **Clogging Anomaly:** The clogging valve is partially closed to impede the the volume flow.
 
 - **Pump Lower Performance 75%:** The pump is only working on 75% of its actual performance.
 
 - **Pump Lower Performance 50%:** The pump is only working on 50% of its actual performance.
 
-- **Pump Noise in Performance:** Noise is injected into the RPM of the pump.
-
 - **Inlet Valve Anomaly:** An inlet valve cannot close completely and remains opened at 20%.
 
-- **Outlet Valve Anomaly:** An outlet valve cannot close completely and remains opened at 20%.
+- **Filter Pollution Anomaly:** The filter pollution factor is increased after fault onset.
 
-- **Filter Pollution Anomaly:** The pollution of the filter is set to 50% from start on.
+- **Heater Lower Performance 75% / 50%:** The distillation heater operates at the corresponding fraction of its nominal heat input.
 
 ## Benchmark Datasets
 
 The idea of HAI-CPPS is to offer a comprehensive benchmark for Machine Learning Algorithms for technical system. HAI-CPPS is especially suited for algorithms from the domains of **anomaly detection, reconfiguration, and diagnosis**. Therefore HAI-CPPS provides ten different datasets that each are recorded from a different, increasingly complex instance of the CPPS. The setup allows you to evaluate and compare your algorithms systematically in the dimensions of CPPS complexity and problem complexity. 
 
-The benchmark datasets come in four different modes:
+Each generated scenario provides three separate measurement views:
 
 - **Discrete mode:** Only discrete values from the process plant are recorded. 
 - **Continuous mode:** Only continuous values from the process plant are recorded. 
 - **Hybrid mode:** All values from the process plant are recorded. 
-- **Including states:** The states from the automatons running the individual models are included.
+
+Simulator-internal states are supplied separately in `oracle_states.parquet`.
+They are intended for offline targets and analysis, never as automatic online
+model inputs.
 
 Below is an image of ten standard setups of HAI-CPPS.
 
@@ -162,6 +161,44 @@ python code/sim.py run \
 `full` generates one normal run and every supported single-fault run for each of
 the ten datasets. The command fails if an OpenModelica result is incomplete, an
 export is unsafe, or a fault is not detectable in the measurement data.
+
+Each generated scenario has this layout:
+
+```text
+<scenario_id>/
+  continuous/measurements.parquet
+  discrete/measurements.parquet
+  hybrid/measurements.parquet
+  oracle_states.parquet
+  fault_events.json
+  system_knowledge.yaml
+  technical_timing.json
+  sim_setup.json
+  provenance.json
+  validation.json
+  audit/internal_verification.csv
+```
+
+Only a `measurements.parquet` file is a deployable feature table. Oracle states
+include selected internal operation, actuator, disturbance, and fault-mechanism
+states, with their exact raw Modelica provenance documented in
+`system_knowledge.yaml`. The audit CSV is used by campaign validation and is not
+a release feature table.
+
+For leakage-safe loading, add `code/` to `PYTHONPATH` and use
+`load_scenario_dataset`. Oracle loading is explicit and remains a separate
+DataFrame:
+
+```python
+from pathlib import Path
+from dataset_io import load_scenario_dataset
+
+online = load_scenario_dataset(Path("data/v2/ds1_normal"), "hybrid")
+online_feature_matrix = online.online_features
+offline = load_scenario_dataset(
+    Path("data/v2/ds1_normal"), "hybrid", include_oracle=True
+)
+```
 
 To regenerate existing outputs, add `--force`. This replaces only the selected
 scenario output and build directories.
