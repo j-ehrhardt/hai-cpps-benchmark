@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
 
@@ -20,7 +21,13 @@ from config import (
     generate_single_fault_campaign,
     load_benchmark_config,
 )
-from export import ExportError, export_result_csvs
+from dataset_metadata import (
+    ORACLE_CATALOGUE_VERSION,
+    RELEASE_SCHEMA_VERSION,
+    update_technical_timing_with_pair,
+    write_release_metadata,
+)
+from export import ExportError, export_result_files
 from runner import SimulationError, check_openmodelica_topologies, run_openmodelica
 from validation import (
     ValidationError,
@@ -28,6 +35,7 @@ from validation import (
     require_valid_report,
     sha256_file,
     validate_fault_pair,
+    validate_release_bundle,
     write_validation_report,
 )
 
@@ -37,6 +45,7 @@ DEFAULT_SEED = 20260831
 RUNTIME_SOURCE_PATHS = (
     Path(__file__).resolve(),
     Path(__file__).resolve().parent / "config.py",
+    Path(__file__).resolve().parent / "dataset_metadata.py",
     Path(__file__).resolve().parent / "export.py",
     Path(__file__).resolve().parent / "model_generation.py",
     Path(__file__).resolve().parent / "runner.py",
@@ -52,7 +61,11 @@ class CompletedRun:
     continuous: Path
     discrete: Path
     hybrid: Path
+    oracle_states: Path
     verification: Path
+    fault_events: Path
+    system_knowledge: Path
+    technical_timing: Path
 
 
 def _run_metadata(run: RunSpec) -> Dict[str, Any]:
@@ -62,11 +75,17 @@ def _run_metadata(run: RunSpec) -> Dict[str, Any]:
         "target_module": run.target_module,
         "target_fault": run.target_fault,
         "data_roles": {
-            "continuous": "measurement_features",
-            "discrete": "measurement_features",
-            "hybrid": "measurement_features",
-            "verification": "internal_non_feature",
+            "continuous/measurements.parquet": "measurement_features",
+            "discrete/measurements.parquet": "measurement_features",
+            "hybrid/measurements.parquet": "measurement_features",
+            "oracle_states.parquet": "offline_oracle_non_feature",
+            "fault_events.json": "labels_and_fault_metadata_non_feature",
+            "system_knowledge.yaml": "structural_knowledge_non_feature",
+            "technical_timing.json": "timing_metadata_non_feature",
+            "audit/internal_verification.csv": "internal_validation_non_feature",
         },
+        "release_schema_version": RELEASE_SCHEMA_VERSION,
+        "oracle_catalogue_version": ORACLE_CATALOGUE_VERSION,
         "setup": run.setup,
     }
 
@@ -93,8 +112,25 @@ def _command_output(command: Sequence[str], cwd: Path) -> Optional[str]:
     return completed.stdout.strip() or None
 
 
+def _package_version(package: str) -> Optional[str]:
+    try:
+        return version(package)
+    except PackageNotFoundError:
+        return None
+
+
 def _runtime_source_hashes() -> Dict[str, str]:
     return {str(path): sha256_file(path) for path in RUNTIME_SOURCE_PATHS}
+
+
+def _refresh_provenance_artifact_hash(output_dir: Path, artifact: Path) -> None:
+    """Refresh a mutable post-pair metadata hash without changing run identity."""
+
+    provenance_path = output_dir / "provenance.json"
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    relative = str(artifact.relative_to(output_dir))
+    provenance["release"]["artifact_sha256"][relative] = sha256_file(artifact)
+    _write_json(provenance_path, provenance)
 
 
 def _provenance(
@@ -103,6 +139,8 @@ def _provenance(
     raw_validation: Mapping[str, Any],
     model_hashes: Mapping[str, str],
     modelica_version: Optional[str],
+    output_dir: Path,
+    release_artifacts: Iterable[Path],
 ) -> Dict[str, Any]:
     repository = Path(__file__).resolve().parent.parent
     git_commit = _command_output(("git", "rev-parse", "HEAD"), repository)
@@ -121,12 +159,28 @@ def _provenance(
         "openmodelica_version": omc_version,
         "modelica_standard_library_version": modelica_version,
         "python_version": platform.python_version(),
+        "python_packages": {
+            "pandas": _package_version("pandas"),
+            "pyarrow": _package_version("pyarrow"),
+            "pyyaml": _package_version("PyYAML"),
+        },
         "platform": platform.platform(),
         "seed": run.setup["sim_setup"]["seed"],
         "solver": {
             "tolerance": 1e-6,
             "output_format": "csv",
             "emit_event_points": False,
+        },
+        "release": {
+            "schema_version": RELEASE_SCHEMA_VERSION,
+            "oracle_catalogue_version": ORACLE_CATALOGUE_VERSION,
+            "table_format": "Apache Parquet",
+            "parquet_engine": "pyarrow",
+            "online_feature_default": "hybrid/measurements.parquet",
+            "artifact_sha256": {
+                str(path.relative_to(output_dir)): sha256_file(path)
+                for path in sorted(release_artifacts, key=lambda item: str(item))
+            },
         },
         "raw_result": dict(raw_validation),
     }
@@ -151,10 +205,14 @@ def _completed_paths(output_root: Path, run: RunSpec) -> CompletedRun:
     return CompletedRun(
         run=run,
         output_dir=output_dir,
-        continuous=output_dir / "{}_continuous.csv".format(run.scenario_id),
-        discrete=output_dir / "{}_discrete.csv".format(run.scenario_id),
-        hybrid=output_dir / "{}_hybrid.csv".format(run.scenario_id),
-        verification=output_dir / "verification.csv",
+        continuous=output_dir / "continuous" / "measurements.parquet",
+        discrete=output_dir / "discrete" / "measurements.parquet",
+        hybrid=output_dir / "hybrid" / "measurements.parquet",
+        oracle_states=output_dir / "oracle_states.parquet",
+        verification=output_dir / "audit" / "internal_verification.csv",
+        fault_events=output_dir / "fault_events.json",
+        system_knowledge=output_dir / "system_knowledge.yaml",
+        technical_timing=output_dir / "technical_timing.json",
     )
 
 
@@ -166,7 +224,11 @@ def _load_resumable_run(
         completed.continuous,
         completed.discrete,
         completed.hybrid,
+        completed.oracle_states,
         completed.verification,
+        completed.fault_events,
+        completed.system_knowledge,
+        completed.technical_timing,
         completed.output_dir / "sim_setup.json",
         completed.output_dir / "provenance.json",
         completed.output_dir / "validation.json",
@@ -196,6 +258,34 @@ def _load_resumable_run(
         stale_reasons.append("benchmark configuration file changed")
     if provenance.get("runtime_source_sha256") != _runtime_source_hashes():
         stale_reasons.append("simulation/export source changed")
+
+    expected_release_paths = (
+        completed.continuous,
+        completed.discrete,
+        completed.hybrid,
+        completed.oracle_states,
+        completed.verification,
+        completed.fault_events,
+        completed.system_knowledge,
+        completed.technical_timing,
+        completed.output_dir / "sim_setup.json",
+    )
+    recorded_release_hashes = provenance.get("release", {}).get(
+        "artifact_sha256", {}
+    )
+    expected_relative_paths = {
+        str(path.relative_to(completed.output_dir)) for path in expected_release_paths
+    }
+    if (
+        not isinstance(recorded_release_hashes, dict)
+        or set(recorded_release_hashes) != expected_relative_paths
+        or any(
+            not (completed.output_dir / relative).is_file()
+            or sha256_file(completed.output_dir / relative) != digest
+            for relative, digest in recorded_release_hashes.items()
+        )
+    ):
+        stale_reasons.append("release artifact changed")
 
     recorded_models = provenance.get("model_sha256", {})
     if not isinstance(recorded_models, dict) or not recorded_models or any(
@@ -246,16 +336,35 @@ def _execute_run(
         force=force or resume,
     )
 
-    exported = export_result_csvs(
+    exported = export_result_files(
         artifacts.raw_result,
         output_dir,
         run.scenario_id,
         run.setup["sim_setup"],
     )
+    metadata = write_release_metadata(output_dir, run, exported)
+    release_validation = validate_release_bundle(
+        exported,
+        run,
+        metadata.fault_events,
+        metadata.system_knowledge,
+        metadata.technical_timing,
+    )
 
     _write_json(
         output_dir / "sim_setup.json",
         _run_metadata(run),
+    )
+    release_artifacts = (
+        exported.continuous,
+        exported.discrete,
+        exported.hybrid,
+        exported.oracle_states,
+        exported.verification,
+        metadata.fault_events,
+        metadata.system_knowledge,
+        metadata.technical_timing,
+        output_dir / "sim_setup.json",
     )
     _write_json(
         output_dir / "provenance.json",
@@ -265,6 +374,8 @@ def _execute_run(
             artifacts.raw_validation,
             artifacts.model_hashes,
             artifacts.modelica_version,
+            output_dir,
+            release_artifacts,
         ),
     )
     _write_json(
@@ -274,6 +385,8 @@ def _execute_run(
             "category": "normal_run" if not run.is_fault else "pending_pair_validation",
             "raw_result": dict(artifacts.raw_validation),
             "safe_columns": list(exported.safe_columns),
+            "oracle_columns": list(exported.oracle_columns),
+            "release_export": dict(release_validation),
         },
     )
     return CompletedRun(
@@ -282,11 +395,18 @@ def _execute_run(
         continuous=exported.continuous,
         discrete=exported.discrete,
         hybrid=exported.hybrid,
+        oracle_states=exported.oracle_states,
         verification=exported.verification,
+        fault_events=metadata.fault_events,
+        system_knowledge=metadata.system_knowledge,
+        technical_timing=metadata.technical_timing,
     )
 
 
 def _validate_pair(normal: CompletedRun, fault: CompletedRun) -> None:
+    existing_validation = json.loads(
+        (fault.output_dir / "validation.json").read_text(encoding="utf-8")
+    )
     report = validate_fault_pair(
         normal_measurements_path=normal.hybrid,
         fault_measurements_path=fault.hybrid,
@@ -295,6 +415,12 @@ def _validate_pair(normal: CompletedRun, fault: CompletedRun) -> None:
         normal_run=normal.run,
         run=fault.run,
     )
+    report["raw_result"] = existing_validation.get("raw_result")
+    report["safe_columns"] = existing_validation.get("safe_columns")
+    report["oracle_columns"] = existing_validation.get("oracle_columns")
+    report["release_export"] = existing_validation.get("release_export")
+    update_technical_timing_with_pair(fault.technical_timing, report)
+    _refresh_provenance_artifact_hash(fault.output_dir, fault.technical_timing)
     write_validation_report(report, fault.output_dir / "validation.json")
     if not report["valid"]:
         print(
