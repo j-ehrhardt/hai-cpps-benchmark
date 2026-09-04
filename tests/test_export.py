@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from export import export_result_csvs
+from export import export_result_files
 
 
 class ExportTests(unittest.TestCase):
@@ -35,13 +35,14 @@ class ExportTests(unittest.TestCase):
             root = Path(temporary)
             raw_path = root / "raw.csv"
             raw.to_csv(raw_path, index=False)
-            bundle = export_result_csvs(
+            bundle = export_result_files(
                 raw_path,
                 root / "output",
                 "test",
                 {"startTime": 0, "stopTime": 2, "numberOfIntervals": 2},
             )
-            safe = pd.read_csv(bundle.hybrid)
+            safe = pd.read_parquet(bundle.hybrid)
+            oracle = pd.read_parquet(bundle.oracle_states)
             verification = pd.read_csv(bundle.verification)
 
         self.assertIn("mixer0.tank_B201.level", safe.columns)
@@ -51,13 +52,34 @@ class ExportTests(unittest.TestCase):
         self.assertNotIn("mixer0.pump_n_in", safe.columns)
         self.assertNotIn("mixer0.valve_in0.opening", safe.columns)
         self.assertIn("mixer0.var_pump_n", verification.columns)
+        self.assertIn(
+            "mixer0.oracle.fault_mechanism.pump.performance_factor",
+            oracle.columns,
+        )
+        self.assertIn(
+            "mixer0.oracle.fault_mechanism.leaking_valve.opening",
+            oracle.columns,
+        )
+        self.assertIn(
+            "filter0.oracle.process_state.filter_F101.effective_opening",
+            oracle.columns,
+        )
+        self.assertIn(
+            "mixer0.oracle.operation_phase.state_filling_tank_B201.active",
+            oracle.columns,
+        )
         self.assertIn("mixer0.leaking_valve.opening", verification.columns)
         self.assertIn("filter0.filter_F101.opening", verification.columns)
         self.assertNotIn("filter0.filter_F101.opening", safe.columns)
         self.assertNotIn("mixer0.clogging_valve.opening", verification.columns)
+        self.assertFalse(any("clogging" in column for column in oracle.columns))
         self.assertNotIn("mixer0.fault_window_active", safe.columns)
         self.assertIn("mixer0.fault_window_active", verification.columns)
         self.assertNotIn("Unnamed: 0", safe.columns)
+        self.assertEqual(bundle.continuous.parent.name, "continuous")
+        self.assertEqual(bundle.discrete.parent.name, "discrete")
+        self.assertEqual(bundle.hybrid.parent.name, "hybrid")
+        self.assertEqual(bundle.continuous.name, "measurements.parquet")
 
     def test_event_rows_are_removed_from_canonical_export(self):
         raw = pd.DataFrame(
@@ -78,13 +100,13 @@ class ExportTests(unittest.TestCase):
             root = Path(temporary)
             raw_path = root / "raw.csv"
             raw.to_csv(raw_path, index=False)
-            bundle = export_result_csvs(
+            bundle = export_result_files(
                 raw_path,
                 root / "output",
                 "test",
                 {"startTime": 0, "stopTime": 2, "numberOfIntervals": 2},
             )
-            safe = pd.read_csv(bundle.hybrid)
+            safe = pd.read_parquet(bundle.hybrid)
 
         self.assertEqual(safe["simulation_time"].tolist(), [0.0, 1.0, 2.0])
         self.assertEqual(
@@ -103,13 +125,13 @@ class ExportTests(unittest.TestCase):
             root = Path(temporary)
             raw_path = root / "raw.csv"
             raw.to_csv(raw_path, index=False)
-            bundle = export_result_csvs(
+            bundle = export_result_files(
                 raw_path,
                 root / "output",
                 "test",
                 {"startTime": 0, "stopTime": 2, "numberOfIntervals": 2},
             )
-            safe = pd.read_csv(bundle.hybrid)
+            safe = pd.read_parquet(bundle.hybrid)
 
         self.assertEqual(safe["simulation_time"].tolist(), [0.0, 1.0, 2.0])
 

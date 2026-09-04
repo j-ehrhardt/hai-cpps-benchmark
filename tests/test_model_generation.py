@@ -111,6 +111,28 @@ class ModelGenerationTests(unittest.TestCase):
             self.assertIn("useAutomaticLocalSeed = false", model)
             self.assertIn("fault_window_active = time >= anom_start;", model)
 
+    def test_distill_condensate_uses_direct_pressure_aligned_connection(self):
+        model = (REPOSITORY / "models" / "Distill.mo").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("p_ambient = p_ambient", model)
+        self.assertIn(
+            "connect(distill.Condensed, tank_B103.topPorts[1])", model
+        )
+        self.assertNotIn("valve_distill2", model)
+
+    def test_distill_leak_opening_is_continuous_at_fault_onset(self):
+        model = (REPOSITORY / "models" / "Distill.mo").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "(time - anom_start) / leakRampDuration", model
+        )
+        self.assertIn(
+            "0.25 * leakRampProgress ^ 2 * (3.0 - 2.0 * leakRampProgress)",
+            model,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
