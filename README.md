@@ -3,10 +3,10 @@
 [![OpenModelica](https://img.shields.io/badge/OpenModelica-1.25-cyan)]()
 [![Documentation](https://img.shields.io/badge/docs-v2.0-orange)](https://j-ehrhardt.github.io/hai-cps-benchmark/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![DOI:XXX](https://img.shields.io/badge/DOI-XXXX-blue)](<doi link>)
+[![DOI: https://dx.doi.org/10.21227/5ewb-cn40](https://img.shields.io/badge/DOI-10.21227/5ewb-cn40)]([https://dx.doi.org/10.21227/5ewb-cn40](https://dx.doi.org/10.21227/5ewb-cn40))
 
 
-<img title="" src="./figs/logo.png" alt="alt text" width="200">
+<img title="" src="./figs/logo-v2-celebrate.gif" alt="alt text" width="200">
 
 # Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS) v2
 
