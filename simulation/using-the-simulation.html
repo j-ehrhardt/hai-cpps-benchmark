@@ -6,12 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using the Simulation &mdash; HAI-CPS 2.0 documentation</title>
+  <title>Using the Simulation &mdash; HAI-CPPS v2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8593dde2" />
 
-  
+
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=60dbed4a"></script>
@@ -20,20 +20,20 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API" href="api.html" />
-    <link rel="prev" title="Simulation" href="index.html" /> 
+    <link rel="next" title="Command-Line Interface and Python Loader" href="api.html" />
+    <link rel="prev" title="Simulation" href="index.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-          
-          
+
+
           <a href="../index.html" class="icon icon-home">
-            HAI-CPS
+            HAI-CPPS
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -46,67 +46,21 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#id1">Installation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../overview/cps-modules.html">CPS Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../overview/cps-modules.html#mixer">Mixer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/cps-modules.html#filter">Filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/cps-modules.html#distill">Distill</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/cps-modules.html#bottling">Bottling</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/cps-modules.html#source">Source</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/cps-modules.html#sink">Sink</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../overview/anomalies.html">Anomalies and Diagnosis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../overview/anomalies.html#leaking-anomaly-anom-leaking">Leaking Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/anomalies.html#clogging-anomaly-anom-clogging">Clogging Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_clogging</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/anomalies.html#filter-pollution-anomaly-anom-pollution">Filter Pollution Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/anomalies.html#pump-lower-performance-75-anom-pump75">Pump Lower Performance (75%) — <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/anomalies.html#pump-lower-performance-50-anom-pump50">Pump Lower Performance (50%) — <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/anomalies.html#inlet-valve-anomaly-anom-valve-inx">Inlet Valve Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_valve_inX</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../overview/benchmark.html">Benchmark</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../overview/benchmark.html#cps-complexity">CPS Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/benchmark.html#anomaly-complexity">Anomaly Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../overview/benchmark.html#data-formats">Data Formats</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Simulation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Using the Simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#replicate-the-benchmark-datasets">Replicate the Benchmark Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replicate-the-benchmark-datasets">Replicate the Benchmark Datasets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parallel-execution">Parallel execution</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#create-your-own-simulation">Create Your Own Simulation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api.html">API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.html#configuration-file">Configuration File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api.html#functions-overview">Functions Overview</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api.html#create-sim-setup-mos-path-dict-setup"><code class="docutils literal notranslate"><span class="pre">create_sim_setup(mos_path,</span> <span class="pre">dict_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api.html#create-plant-sim-model-model-dir-sim-setup"><code class="docutils literal notranslate"><span class="pre">create_plant_sim_model(model_dir,</span> <span class="pre">sim_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api.html#write-anomaly-in-module-module-module-dict-reset-false"><code class="docutils literal notranslate"><span class="pre">write_anomaly_in_module(module,</span> <span class="pre">module_dict,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api.html#induce-anomalies-in-plant-sim-setup-reset-false"><code class="docutils literal notranslate"><span class="pre">induce_anomalies_in_plant(sim_setup,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api.html#data-cleaning-data-dir-sim-setup-modus"><code class="docutils literal notranslate"><span class="pre">data_cleaning(data_dir,</span> <span class="pre">sim_setup,</span> <span class="pre">modus)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api.html#run-sim-sim-setup-mos-path-call-mos-model-dir-models-data-dir-data-modus-hybrid-states-true"><code class="docutils literal notranslate"><span class="pre">run_sim(sim_setup,</span> <span class="pre">mos_path='./call.mos',</span> <span class="pre">model_dir='../models',</span> <span class="pre">data_dir='../data',</span> <span class="pre">modus='hybrid',</span> <span class="pre">states=True)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api.html#process-faults-all-combinations-data-file-path"><code class="docutils literal notranslate"><span class="pre">process_faults_all_combinations(data,</span> <span class="pre">file_path)</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">Command-Line Interface and Python Loader</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api.html#main-execution">Main Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api.html#directory-structure-assumptions">Directory Structure Assumptions</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../datasets.html#download">Download</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 
         </div>
@@ -115,7 +69,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">HAI-CPS</a>
+          <a href="../index.html">HAI-CPPS</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -133,33 +87,77 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="using-the-simulation">
 <h1>Using the Simulation<a class="headerlink" href="#using-the-simulation" title="Link to this heading"></a></h1>
-<p>You can use the code and models from this repository in two ways.
-Either, you simulate your own scenarios or you recreate the benchmark.</p>
+<p>You can use the HAI-CPPS v2 code and models to recreate the benchmark or to generate a validated custom topology. The supported entry point is <code class="docutils literal notranslate"><span class="pre">code/sim.py</span></code>.</p>
 <div style="border-left: 4px solid #007acc; padding: 0.5em 1em; background: #f0f8ff;">
-<strong>Note:</strong>  
-If you want to use the models in Simulink, you can export to FMU models from the OMEdit and import them into Simulink.
+<strong>Note:</strong><br>
+If you want to use the models in Simulink, you can export FMU models from OMEdit and import them into Simulink.
 </div>
-</br>
 <section id="replicate-the-benchmark-datasets">
 <h2>Replicate the Benchmark Datasets<a class="headerlink" href="#replicate-the-benchmark-datasets" title="Link to this heading"></a></h2>
-<p>If you simply want to replicate all datasets from the benchmark run the <code class="docutils literal notranslate"><span class="pre">sim.py</span></code> file with the virtual environemtn activated (either from the docker container or your terminal)
-The script will automatically select the <code class="docutils literal notranslate"><span class="pre">benchmark_setup.json</span></code> file and run all simulations.</p>
-<div style="border-left: 4px solid #ffa500; padding: 0.5em 1em; background-color: #fff8e1;">
-<p><strong>⚠️ Warning:</strong><br />
-Attention! The simulations takes time, so be prepared to let your computer run for a while.</p>
+<p>With the project environment activated and <code class="docutils literal notranslate"><span class="pre">omc</span></code> available on <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, validate the configuration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>validate<span class="w"> </span>--config<span class="w"> </span>code/benchmark_setup.json
+</pre></div>
 </div>
-</br>
+<p>Generate the complete v2 campaign with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>code/benchmark_setup.json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--campaign<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>output/v2<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--build-root<span class="w"> </span>work/v2<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--seed<span class="w"> </span><span class="m">20260831</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">full</span></code> generates the ten normal scenarios and all 110 enabled one-fault scenarios in the supplied configuration. A run stops with an error if the simulator result, export bundle, or normal/fault validation is invalid.</p>
+<p>To run only one normal scenario, use <code class="docutils literal notranslate"><span class="pre">--campaign</span> <span class="pre">normal</span> <span class="pre">--scenario</span> <span class="pre">ds1</span></code>. To execute a particular normal/fault pair, specify the target module and fault:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>code/benchmark_setup.json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--scenario<span class="w"> </span>ds1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--module<span class="w"> </span>mixer0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fault<span class="w"> </span>anom_pump50<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>output/smoke<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--build-root<span class="w"> </span>work/smoke<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--seed<span class="w"> </span><span class="m">20260831</span>
+</pre></div>
+</div>
+<p>Existing scenario releases are protected. Use <code class="docutils literal notranslate"><span class="pre">--resume</span></code> to reuse only complete, compatible releases; use <code class="docutils literal notranslate"><span class="pre">--force</span></code> to intentionally regenerate a selected scenario. The two options cannot be combined.</p>
+<section id="parallel-execution">
+<h3>Parallel execution<a class="headerlink" href="#parallel-execution" title="Link to this heading"></a></h3>
+<p>Run different base topologies in parallel and give every process a distinct output and build root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>parallel<span class="w"> </span>-j<span class="w"> </span><span class="m">4</span><span class="w"> </span>--line-buffer<span class="w"> </span>--halt<span class="w"> </span>soon,fail<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;python code/sim.py run \</span>
+<span class="s1">    --config code/benchmark_setup.json \</span>
+<span class="s1">    --campaign full \</span>
+<span class="s1">    --scenario {} \</span>
+<span class="s1">    --output output/{} \</span>
+<span class="s1">    --build-root work/{} \</span>
+<span class="s1">    --seed 20260831&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>:::<span class="w"> </span>ds1<span class="w"> </span>ds2<span class="w"> </span>ds3<span class="w"> </span>ds4<span class="w"> </span>ds5<span class="w"> </span>ds6<span class="w"> </span>ds7<span class="w"> </span>ds8<span class="w"> </span>ds9<span class="w"> </span>ds10
+</pre></div>
+</div>
+<p>Adjust <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">4</span></code> to the number of simulations the host can sustain. Do not share a build root between concurrent simulations.</p>
+<div style="border-left: 4px solid #ffa500; padding: 0.5em 1em; background-color: #fff8e1;">
+<strong>⚠️ Warning:</strong><br>
+Complete campaigns take time. Start with a normal scenario or one explicit normal/fault pair to verify the local installation.
+</div>
+</section>
 </section>
 <section id="create-your-own-simulation">
 <h2>Create Your Own Simulation<a class="headerlink" href="#create-your-own-simulation" title="Link to this heading"></a></h2>
-<p>If you want to create your own CPS configurations and simulations, you can either use the OpenModelica Editor (OMEdit) or you use the python interface provided in this repository.</p>
-<p>When using the OMEdit, simply load the models from the <code class="docutils literal notranslate"><span class="pre">models</span></code> directory and assemble them into new configurations within the <code class="docutils literal notranslate"><span class="pre">ProcessPlant.mo</span></code> file.</p>
-<p>When using the Python interface, create your unique setup as a <code class="docutils literal notranslate"><span class="pre">config.json</span></code> and run the <code class="docutils literal notranslate"><span class="pre">sim.py</span></code> file within the virtual environment. (This is especially suited for the docker usage).
-You can orient yourself on the setup file for the benchmark <code class="docutils literal notranslate"><span class="pre">benchmark_setup.json</span></code> in the <code class="docutils literal notranslate"><span class="pre">code</span></code> directory.
-Make sure to insert your <code class="docutils literal notranslate"><span class="pre">config.json</span></code> in the <code class="docutils literal notranslate"><span class="pre">sim.py</span></code> file.</p>
+<p>To create a custom CPPS configuration, use <code class="docutils literal notranslate"><span class="pre">code/benchmark_setup.json</span></code> as a template. It defines modules, connections, enabled fault proxies, and simulation timing. Keep model-file paths relative to the configuration file.</p>
+<p>Validate a custom configuration before running it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>validate<span class="w"> </span>--config<span class="w"> </span>/path/to/benchmark_setup.json
+python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>/path/to/benchmark_setup.json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--campaign<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>output/custom<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--build-root<span class="w"> </span>work/custom<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--seed<span class="w"> </span><span class="m">20260831</span>
+</pre></div>
+</div>
+<p>The validator checks the JSON schema, module types, port connectivity, supported fault names, mutually exclusive fault pairs, timing, and referenced model files. The export workflow does not modify the checked-in simulation models or calls.</p>
 </section>
 </section>
 
@@ -168,19 +166,19 @@ Make sure to insert your <code class="docutils literal notranslate"><span class=
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="Command-Line Interface and Python Loader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -191,7 +189,7 @@ Make sure to insert your <code class="docutils literal notranslate"><span class=
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

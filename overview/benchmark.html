@@ -6,12 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Benchmark &mdash; HAI-CPS 2.0 documentation</title>
+  <title>Benchmark &mdash; HAI-CPPS v2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8593dde2" />
 
-  
+
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=60dbed4a"></script>
@@ -21,19 +21,19 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Simulation" href="../simulation/index.html" />
-    <link rel="prev" title="Anomalies and Diagnosis" href="anomalies.html" /> 
+    <link rel="prev" title="Fault Proxies and Diagnosis" href="anomalies.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-          
-          
+
+
           <a href="../index.html" class="icon icon-home">
-            HAI-CPS
+            HAI-CPPS
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -46,67 +46,20 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#id1">Installation</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="cps-modules.html">CPS Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cps-modules.html#mixer">Mixer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cps-modules.html#filter">Filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cps-modules.html#distill">Distill</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cps-modules.html#bottling">Bottling</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cps-modules.html#source">Source</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cps-modules.html#sink">Sink</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="anomalies.html">Anomalies and Diagnosis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#leaking-anomaly-anom-leaking">Leaking Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#clogging-anomaly-anom-clogging">Clogging Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_clogging</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#filter-pollution-anomaly-anom-pollution">Filter Pollution Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#pump-lower-performance-75-anom-pump75">Pump Lower Performance (75%) — <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#pump-lower-performance-50-anom-pump50">Pump Lower Performance (50%) — <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#inlet-valve-anomaly-anom-valve-inx">Inlet Valve Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_valve_inX</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="cps-modules.html">CPS Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomalies.html">Fault Proxies and Diagnosis</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Benchmark</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cps-complexity">CPS Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#anomaly-complexity">Anomaly Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#data-formats">Data Formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cpps-complexity">CPPS Complexity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fault-complexity">Fault Complexity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#measurement-views-and-offline-artifacts">Measurement Views and Offline Artifacts</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation/index.html">Simulation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../simulation/using-the-simulation.html">Using the Simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/using-the-simulation.html#replicate-the-benchmark-datasets">Replicate the Benchmark Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/using-the-simulation.html#create-your-own-simulation">Create Your Own Simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../simulation/api.html">API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#configuration-file">Configuration File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#functions-overview">Functions Overview</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#create-sim-setup-mos-path-dict-setup"><code class="docutils literal notranslate"><span class="pre">create_sim_setup(mos_path,</span> <span class="pre">dict_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#create-plant-sim-model-model-dir-sim-setup"><code class="docutils literal notranslate"><span class="pre">create_plant_sim_model(model_dir,</span> <span class="pre">sim_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#write-anomaly-in-module-module-module-dict-reset-false"><code class="docutils literal notranslate"><span class="pre">write_anomaly_in_module(module,</span> <span class="pre">module_dict,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#induce-anomalies-in-plant-sim-setup-reset-false"><code class="docutils literal notranslate"><span class="pre">induce_anomalies_in_plant(sim_setup,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#data-cleaning-data-dir-sim-setup-modus"><code class="docutils literal notranslate"><span class="pre">data_cleaning(data_dir,</span> <span class="pre">sim_setup,</span> <span class="pre">modus)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#run-sim-sim-setup-mos-path-call-mos-model-dir-models-data-dir-data-modus-hybrid-states-true"><code class="docutils literal notranslate"><span class="pre">run_sim(sim_setup,</span> <span class="pre">mos_path='./call.mos',</span> <span class="pre">model_dir='../models',</span> <span class="pre">data_dir='../data',</span> <span class="pre">modus='hybrid',</span> <span class="pre">states=True)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#process-faults-all-combinations-data-file-path"><code class="docutils literal notranslate"><span class="pre">process_faults_all_combinations(data,</span> <span class="pre">file_path)</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#main-execution">Main Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#directory-structure-assumptions">Directory Structure Assumptions</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../datasets.html#download">Download</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation/index.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 
         </div>
@@ -115,7 +68,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">HAI-CPS</a>
+          <a href="../index.html">HAI-CPPS</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -133,40 +86,39 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="benchmark">
 <h1>Benchmark<a class="headerlink" href="#benchmark" title="Link to this heading"></a></h1>
-<p>The goal of <strong>HAI-CPS</strong> is to provide a comprehensive benchmark that enables you to evaluate your machine learning algorithms along two axes:</p>
+<p>The goal of <strong>HAI-CPPS</strong> is to provide a comprehensive benchmark for evaluating machine-learning algorithms along two axes:</p>
 <ul class="simple">
-<li><p><strong>CPS complexity</strong></p></li>
-<li><p><strong>Anomaly complexity</strong></p></li>
+<li><p><strong>CPPS complexity</strong></p></li>
+<li><p><strong>Fault complexity</strong></p></li>
 </ul>
-<p>HAI-CPS includes <strong>ten different datasets</strong>, each recorded from a unique process plant setup.<br />
-The datasets are available in <strong>discrete</strong>, <strong>continuous</strong>, and <strong>hybrid</strong> formats to suit a wide range of algorithmic needs.</p>
-<p>You can find a full overview of all datasets <a class="reference internal" href="../datasets.html"><span class="std std-doc">here</span></a>.</p>
+<p>HAI-CPPS includes <strong>ten different datasets</strong>, each recorded from a unique process-plant setup. Every release provides <strong>discrete</strong>, <strong>continuous</strong>, and <strong>hybrid</strong> measurement views. The associated oracle states and metadata are separate offline artifacts; they are not online features.</p>
+<p>You can find the release structure and loader example <a class="reference internal" href="../datasets.html"><span class="doc std std-doc">here</span></a>.</p>
 <hr class="docutils" />
-<section id="cps-complexity">
-<h2>CPS Complexity<a class="headerlink" href="#cps-complexity" title="Link to this heading"></a></h2>
-<p>HAI-CPS features ten different process plant configurations, each exhibiting increasing structural and behavioral complexity.</p>
-<img src="../_static/imgs/cpps-setups.png" alt="HAI-CPS setups" width="100%" />
+<section id="cpps-complexity">
+<h2>CPPS Complexity<a class="headerlink" href="#cpps-complexity" title="Link to this heading"></a></h2>
+<p>HAI-CPPS features ten different process-plant configurations, each exhibiting increasing structural and behavioral complexity.</p>
+<img src="../_static/imgs/cpps-setups.png" alt="HAI-CPPS setups" width="100%" />
 </section>
 <hr class="docutils" />
-<section id="anomaly-complexity">
-<h2>Anomaly Complexity<a class="headerlink" href="#anomaly-complexity" title="Link to this heading"></a></h2>
-<p>For each individual anomaly — and all meaningful combinations of anomalies — a dedicated dataset has been recorded.<br />
-This allows for a systematic evaluation of your model’s performance under varying anomaly scenarios and interactions.</p>
+<section id="fault-complexity">
+<h2>Fault Complexity<a class="headerlink" href="#fault-complexity" title="Link to this heading"></a></h2>
+<p>For every enabled module fault proxy, the campaign generator creates a dedicated one-fault scenario and validates it against its matching normal run. This enables systematic evaluation across fault types without multi-fault confounding.</p>
 </section>
 <hr class="docutils" />
-<section id="data-formats">
-<h2>Data Formats<a class="headerlink" href="#data-formats" title="Link to this heading"></a></h2>
-<p>HAI-CPS datasets are provided in four formats, depending on what your model requires:</p>
+<section id="measurement-views-and-offline-artifacts">
+<h2>Measurement Views and Offline Artifacts<a class="headerlink" href="#measurement-views-and-offline-artifacts" title="Link to this heading"></a></h2>
+<p>The v2 release distinguishes between online measurement views and offline artifacts:</p>
 <ul class="simple">
-<li><p><strong>discrete</strong>: Includes only binary/discrete control and sensor values.</p></li>
-<li><p><strong>continuous</strong>: Includes only real-valued sensor data and process measurements.</p></li>
-<li><p><strong>hybrid</strong>: A combination of discrete and continuous features.</p></li>
-<li><p><strong>including-states</strong>: Hybrid data <strong>plus</strong> automaton states from each module (i.e., internal process states during execution).</p></li>
+<li><p><strong>continuous</strong>: real-valued process measurements;</p></li>
+<li><p><strong>discrete</strong>: binary and discrete control or sensor values;</p></li>
+<li><p><strong>hybrid</strong>: a combination of continuous and discrete measurement features;</p></li>
+<li><p><strong>oracle states</strong>: simulator-derived internal states for offline evaluation, stored separately from measurements; and</p></li>
+<li><p><strong>metadata</strong>: fault events, system knowledge, technical timing, validation, and provenance stored in separate files.</p></li>
 </ul>
-<hr class="docutils" />
+<p>Use only the chosen measurement view as an online model input. The provided loader removes scenario and time identifiers through its <code class="docutils literal notranslate"><span class="pre">online_features</span></code> property and exposes oracle information only by explicit opt-in.</p>
 </section>
 </section>
 
@@ -174,20 +126,20 @@ This allows for a systematic evaluation of your model’s performance under vary
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="anomalies.html" class="btn btn-neutral float-left" title="Anomalies and Diagnosis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="anomalies.html" class="btn btn-neutral float-left" title="Fault Proxies and Diagnosis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../simulation/index.html" class="btn btn-neutral float-right" title="Simulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -198,7 +150,7 @@ This allows for a systematic evaluation of your model’s performance under vary
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

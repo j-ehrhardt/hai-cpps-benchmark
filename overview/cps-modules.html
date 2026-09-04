@@ -6,12 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPS Modules &mdash; HAI-CPS 2.0 documentation</title>
+  <title>CPS Modules &mdash; HAI-CPPS v2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8593dde2" />
 
-  
+
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=60dbed4a"></script>
@@ -20,20 +20,20 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Anomalies and Diagnosis" href="anomalies.html" />
-    <link rel="prev" title="Overview" href="index.html" /> 
+    <link rel="next" title="Fault Proxies and Diagnosis" href="anomalies.html" />
+    <link rel="prev" title="Overview" href="index.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-          
-          
+
+
           <a href="../index.html" class="icon icon-home">
-            HAI-CPS
+            HAI-CPPS
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -46,11 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#id1">Installation</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">CPS Modules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mixer">Mixer</a></li>
@@ -61,52 +57,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#sink">Sink</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="anomalies.html">Anomalies and Diagnosis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#leaking-anomaly-anom-leaking">Leaking Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#clogging-anomaly-anom-clogging">Clogging Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_clogging</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#filter-pollution-anomaly-anom-pollution">Filter Pollution Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#pump-lower-performance-75-anom-pump75">Pump Lower Performance (75%) — <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#pump-lower-performance-50-anom-pump50">Pump Lower Performance (50%) — <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="anomalies.html#inlet-valve-anomaly-anom-valve-inx">Inlet Valve Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_valve_inX</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomalies.html">Fault Proxies and Diagnosis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmark</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmark</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchmark.html#cps-complexity">CPS Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchmark.html#anomaly-complexity">Anomaly Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchmark.html#data-formats">Data Formats</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation/index.html">Simulation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../simulation/using-the-simulation.html">Using the Simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/using-the-simulation.html#replicate-the-benchmark-datasets">Replicate the Benchmark Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/using-the-simulation.html#create-your-own-simulation">Create Your Own Simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../simulation/api.html">API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#configuration-file">Configuration File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#functions-overview">Functions Overview</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#create-sim-setup-mos-path-dict-setup"><code class="docutils literal notranslate"><span class="pre">create_sim_setup(mos_path,</span> <span class="pre">dict_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#create-plant-sim-model-model-dir-sim-setup"><code class="docutils literal notranslate"><span class="pre">create_plant_sim_model(model_dir,</span> <span class="pre">sim_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#write-anomaly-in-module-module-module-dict-reset-false"><code class="docutils literal notranslate"><span class="pre">write_anomaly_in_module(module,</span> <span class="pre">module_dict,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#induce-anomalies-in-plant-sim-setup-reset-false"><code class="docutils literal notranslate"><span class="pre">induce_anomalies_in_plant(sim_setup,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#data-cleaning-data-dir-sim-setup-modus"><code class="docutils literal notranslate"><span class="pre">data_cleaning(data_dir,</span> <span class="pre">sim_setup,</span> <span class="pre">modus)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#run-sim-sim-setup-mos-path-call-mos-model-dir-models-data-dir-data-modus-hybrid-states-true"><code class="docutils literal notranslate"><span class="pre">run_sim(sim_setup,</span> <span class="pre">mos_path='./call.mos',</span> <span class="pre">model_dir='../models',</span> <span class="pre">data_dir='../data',</span> <span class="pre">modus='hybrid',</span> <span class="pre">states=True)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../simulation/api.html#process-faults-all-combinations-data-file-path"><code class="docutils literal notranslate"><span class="pre">process_faults_all_combinations(data,</span> <span class="pre">file_path)</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#main-execution">Main Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../simulation/api.html#directory-structure-assumptions">Directory Structure Assumptions</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../datasets.html#download">Download</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation/index.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
 </ul>
 
         </div>
@@ -115,7 +71,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">HAI-CPS</a>
+          <a href="../index.html">HAI-CPPS</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -133,10 +89,10 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="cps-modules">
 <h1>CPS Modules<a class="headerlink" href="#cps-modules" title="Link to this heading"></a></h1>
-<p>The HAI-CPS benchmark consists of ten datasets derived from different configurations of a modular Cyber-Physical Process plant.<br />
+<p>The HAI-CPPS benchmark consists of ten datasets derived from different configurations of a modular Cyber-Physical Process plant.<br />
 The process plant features four types of modules that can be interconnected in various ways.<br />
 Each module is implemented as an OpenModelica model containing multiple components and controlled by its own automaton.</p>
 <p>To enhance the realism of the simulation data, stochastic noise has been introduced into the pump rotational speed (RPM), resulting in fluctuations in volume flow throughout the system. This addition better reflects the inherent variability present in real-world industrial environments.</p>
@@ -157,7 +113,7 @@ Each module is implemented as an OpenModelica model containing multiple componen
 <li><p>Open the outlet valve of B204 to pass fluid to the next module via <code class="docutils literal notranslate"><span class="pre">out0</span></code></p></li>
 </ol>
 <img src="../_static/imgs/mixer.png" alt="Mixer module" width="100%" />
-<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Mixer.mo"><code class="docutils literal notranslate"><span class="pre">models/Mixer.mo</span></code></a></p>
+<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/main/models/Mixer.mo"><code class="docutils literal notranslate"><span class="pre">models/Mixer.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="filter">
@@ -171,7 +127,7 @@ Each module is implemented as an OpenModelica model containing multiple componen
 <li><p>Drain B102</p></li>
 </ol>
 <img src="../_static/imgs/filter.png" alt="Filter module" width="100%" />
-<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Filter.mo"><code class="docutils literal notranslate"><span class="pre">models/Filter.mo</span></code></a></p>
+<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/main/models/Filter.mo"><code class="docutils literal notranslate"><span class="pre">models/Filter.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="distill">
@@ -192,7 +148,7 @@ The vaporized (distilled) components are cooled and collected in B103, while the
 <li><p>Drain B102 and B103 via <code class="docutils literal notranslate"><span class="pre">out0</span></code> and <code class="docutils literal notranslate"><span class="pre">out1</span></code></p></li>
 </ol>
 <img src="../_static/imgs/distill.png" alt="Distill module" width="100%" />
-<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Distill.mo"><code class="docutils literal notranslate"><span class="pre">models/Distill.mo</span></code></a></p>
+<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/main/models/Distill.mo"><code class="docutils literal notranslate"><span class="pre">models/Distill.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="bottling">
@@ -205,21 +161,21 @@ The vaporized (distilled) components are cooled and collected in B103, while the
 <li><p>Perform bottling by pulsing the outlet valve of B402 in fixed intervals</p></li>
 </ol>
 <img src="../_static/imgs/bottling.png" alt="Bottling module" width="100%" />
-<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Bottling.mo"><code class="docutils literal notranslate"><span class="pre">models/Bottling.mo</span></code></a></p>
+<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/main/models/Bottling.mo"><code class="docutils literal notranslate"><span class="pre">models/Bottling.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="source">
 <h2>Source<a class="headerlink" href="#source" title="Link to this heading"></a></h2>
 <p>The <strong>Source</strong> module continuously outputs a flow of fluid to simulate a live feed into the system.</p>
 <img src="../_static/imgs/source.png" alt="Source module" width="40%" />
-<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Source.mo"><code class="docutils literal notranslate"><span class="pre">models/Source.mo</span></code></a></p>
+<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/main/models/Source.mo"><code class="docutils literal notranslate"><span class="pre">models/Source.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="sink">
 <h2>Sink<a class="headerlink" href="#sink" title="Link to this heading"></a></h2>
 <p>The <strong>Sink</strong> module serves as a continuous fluid consumer, simulating a live drain from the system.</p>
 <img src="../_static/imgs/sink.png" alt="Sink module" width="40%" />
-<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Sink.mo"><code class="docutils literal notranslate"><span class="pre">models/Sink.mo</span></code></a></p>
+<p>Modelica file (link): <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/main/models/Sink.mo"><code class="docutils literal notranslate"><span class="pre">models/Sink.mo</span></code></a></p>
 </section>
 </section>
 
@@ -228,19 +184,19 @@ The vaporized (distilled) components are cooled and collected in B103, while the
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="anomalies.html" class="btn btn-neutral float-right" title="Anomalies and Diagnosis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="anomalies.html" class="btn btn-neutral float-right" title="Fault Proxies and Diagnosis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -251,7 +207,7 @@ The vaporized (distilled) components are cooled and collected in B103, while the
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

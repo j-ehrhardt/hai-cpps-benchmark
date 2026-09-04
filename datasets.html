@@ -6,12 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Datasets &mdash; HAI-CPS 2.0 documentation</title>
+  <title>Datasets &mdash; HAI-CPPS v2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=8593dde2" />
 
-  
+
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=60dbed4a"></script>
@@ -20,19 +20,19 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="API" href="simulation/api.html" /> 
+    <link rel="prev" title="Command-Line Interface and Python Loader" href="simulation/api.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-          
-          
+
+
           <a href="index.html" class="icon icon-home">
-            HAI-CPS
+            HAI-CPPS
               <img src="_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -45,63 +45,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#id1">Installation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview/cps-modules.html">CPS Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="overview/cps-modules.html#mixer">Mixer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/cps-modules.html#filter">Filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/cps-modules.html#distill">Distill</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/cps-modules.html#bottling">Bottling</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/cps-modules.html#source">Source</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/cps-modules.html#sink">Sink</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="overview/anomalies.html">Anomalies and Diagnosis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="overview/anomalies.html#leaking-anomaly-anom-leaking">Leaking Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/anomalies.html#clogging-anomaly-anom-clogging">Clogging Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_clogging</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/anomalies.html#filter-pollution-anomaly-anom-pollution">Filter Pollution Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/anomalies.html#pump-lower-performance-75-anom-pump75">Pump Lower Performance (75%) — <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/anomalies.html#pump-lower-performance-50-anom-pump50">Pump Lower Performance (50%) — <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/anomalies.html#inlet-valve-anomaly-anom-valve-inx">Inlet Valve Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_valve_inX</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="overview/benchmark.html">Benchmark</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="overview/benchmark.html#cps-complexity">CPS Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/benchmark.html#anomaly-complexity">Anomaly Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview/benchmark.html#data-formats">Data Formats</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="simulation/index.html">Simulation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="simulation/using-the-simulation.html">Using the Simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="simulation/using-the-simulation.html#replicate-the-benchmark-datasets">Replicate the Benchmark Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation/using-the-simulation.html#create-your-own-simulation">Create Your Own Simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="simulation/api.html">API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="simulation/api.html#configuration-file">Configuration File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation/api.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation/api.html#functions-overview">Functions Overview</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#create-sim-setup-mos-path-dict-setup"><code class="docutils literal notranslate"><span class="pre">create_sim_setup(mos_path,</span> <span class="pre">dict_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#create-plant-sim-model-model-dir-sim-setup"><code class="docutils literal notranslate"><span class="pre">create_plant_sim_model(model_dir,</span> <span class="pre">sim_setup)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#write-anomaly-in-module-module-module-dict-reset-false"><code class="docutils literal notranslate"><span class="pre">write_anomaly_in_module(module,</span> <span class="pre">module_dict,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#induce-anomalies-in-plant-sim-setup-reset-false"><code class="docutils literal notranslate"><span class="pre">induce_anomalies_in_plant(sim_setup,</span> <span class="pre">reset=False)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#data-cleaning-data-dir-sim-setup-modus"><code class="docutils literal notranslate"><span class="pre">data_cleaning(data_dir,</span> <span class="pre">sim_setup,</span> <span class="pre">modus)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#run-sim-sim-setup-mos-path-call-mos-model-dir-models-data-dir-data-modus-hybrid-states-true"><code class="docutils literal notranslate"><span class="pre">run_sim(sim_setup,</span> <span class="pre">mos_path='./call.mos',</span> <span class="pre">model_dir='../models',</span> <span class="pre">data_dir='../data',</span> <span class="pre">modus='hybrid',</span> <span class="pre">states=True)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="simulation/api.html#process-faults-all-combinations-data-file-path"><code class="docutils literal notranslate"><span class="pre">process_faults_all_combinations(data,</span> <span class="pre">file_path)</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="simulation/api.html#main-execution">Main Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation/api.html#directory-structure-assumptions">Directory Structure Assumptions</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation/index.html">Simulation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#download">Download</a></li>
 </ul>
@@ -114,7 +60,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">HAI-CPS</a>
+          <a href="index.html">HAI-CPPS</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -131,53 +77,57 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="datasets">
 <h1>Datasets<a class="headerlink" href="#datasets" title="Link to this heading"></a></h1>
-<p>The HAI-CPS benchmark constist of a total of 10 Datasets showing increasing system complexity</p>
-<img src="../_static/imgs/cpps-setups.png" alt="HAI-CPS" width="100%" />
-<p>Each dataset is available in four recording modes:</p>
+<p>The HAI-CPPS v2 benchmark consists of ten datasets with increasing system complexity.</p>
+<img src="_static/imgs/cpps-setups.png" alt="HAI-CPPS process-plant configurations" width="100%" />
+<p>Each generated scenario contains three measurement views:</p>
 <ul class="simple">
-<li><p><strong>normal discrete</strong>: Includes only binary/discrete control and sensor values with its states of the normal working system.</p></li>
-<li><p><strong>anomalous discrete</strong>: Includes only binary/discrete control and sensor values with its states of the non-normal working system.</p></li>
-<li><p><strong>normal continuous</strong>: Includes only real-valued sensor data and process measurements with its states of the normal working system.</p></li>
-<li><p><strong>anomalous continuous</strong>: Includes only real-valued sensor data and process measurements with its states of the normal working system.</p></li>
+<li><p><strong>continuous</strong>: real-valued process measurements;</p></li>
+<li><p><strong>discrete</strong>: binary and discrete control or sensor values; and</p></li>
+<li><p><strong>hybrid</strong>: the combination of continuous and discrete measurement features.</p></li>
 </ul>
-<p>Within each recording mode all anomalies in all modules and all their permutations are saved as a separate <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file, along with a recording of without any anomaly, to foster unsupervised ML methods.</p>
-<p>The naming convention of the channels within the recordings follows the schema <code class="docutils literal notranslate"><span class="pre">&lt;module&gt;&lt;component&gt;&lt;sensor&gt;</span></code>.</p>
-<p>The recordings of HAI-CPS are structured as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>HAI-CPS
-├──<span class="w"> </span>normal-continuous
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds2
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds2_continuous_s.csv
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>sim_setup.json
-...
-├──<span class="w"> </span>anomalous-continuous
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1_mixer0_anom_clogging
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1_mixer0_anom_pump50
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1_mixer0_anom_pump50_continuous_s.csv
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>sim_setup.json
-...
-├──<span class="w"> </span>normal-discrete
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds2
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds2_discrete_s.csv
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>sim_setup.json
-...
-├──<span class="w"> </span>anomalous-discrete
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1_mixer0_anom_clogging
-<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1_mixer0_anom_pump50
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>ds1_mixer0_anom_pump50_discrete_s.csv
-<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>sim_setup.json
-...
+<p>The measurement views are release feature tables. Simulator-derived states are kept separately in <code class="docutils literal notranslate"><span class="pre">oracle_states.parquet</span></code> and are intended only for offline analysis or evaluation. They are never automatically merged into a measurement table.</p>
+<p>Every scenario release has the following layout:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;scenario-id&gt;/
+├── continuous/measurements.parquet
+├── discrete/measurements.parquet
+├── hybrid/measurements.parquet
+├── oracle_states.parquet
+├── fault_events.json
+├── system_knowledge.yaml
+├── technical_timing.json
+├── sim_setup.json
+├── provenance.json
+├── validation.json
+└── audit/internal_verification.csv
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code> describes the normal or one-fault-at-a-time scenario and its fault window. <code class="docutils literal notranslate"><span class="pre">system_knowledge.yaml</span></code> provides structural and component metadata. <code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code> describes sampling, event alignment, and timing details. The validation and provenance files record the checks and runtime context used to produce the release.</p>
+<p>To load a release without mixing oracle information into model inputs, use the supplied loader from the repository’s <code class="docutils literal notranslate"><span class="pre">code</span></code> directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataset_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_scenario_dataset</span>
+
+<span class="n">online</span> <span class="o">=</span> <span class="n">load_scenario_dataset</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/scenario&quot;</span><span class="p">),</span> <span class="n">measurement_view</span><span class="o">=</span><span class="s2">&quot;hybrid&quot;</span>
+<span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">online</span><span class="o">.</span><span class="n">online_features</span>
+
+<span class="c1"># Explicit opt-in for offline analysis; oracle remains a separate table.</span>
+<span class="n">offline</span> <span class="o">=</span> <span class="n">load_scenario_dataset</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/scenario&quot;</span><span class="p">),</span>
+    <span class="n">measurement_view</span><span class="o">=</span><span class="s2">&quot;hybrid&quot;</span><span class="p">,</span>
+    <span class="n">include_oracle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">oracle</span> <span class="o">=</span> <span class="n">offline</span><span class="o">.</span><span class="n">oracle_states</span>
 </pre></div>
 </div>
 <section id="download">
 <h2>Download<a class="headerlink" href="#download" title="Link to this heading"></a></h2>
-<p>HAI-CPS is hosted on IEEE-Dataport.
-You can find and download all datasets, follwing this <a class="reference external" href="https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-sytems">link</a>.</p>
-<img src="https://ieee-dataport.org/themes/custom/dataport_bootstrap/logo.svg" alt="Dataport-logo" width="20%" />
+<p>HAI-CPPS is hosted on IEEE DataPort. You can find and download the published benchmark <a class="reference external" href="https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-systems-v2">here</a>.</p>
+<img src="https://ieee-dataport.org/themes/custom/dataport_bootstrap/logo.svg" alt="Dataport logo" width="20%" />
 </section>
 </section>
 
@@ -185,19 +135,19 @@ You can find and download all datasets, follwing this <a class="reference extern
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="simulation/api.html" class="btn btn-neutral float-left" title="API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simulation/api.html" class="btn btn-neutral float-left" title="Command-Line Interface and Python Loader" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -208,7 +158,7 @@ You can find and download all datasets, follwing this <a class="reference extern
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>
