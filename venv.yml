@@ -75,6 +75,7 @@ dependencies:
   - overrides=7.4.0
   - packaging=24.1
   - pandas=2.2.3
+  - pyarrow=17.0.0
   - pandocfilters=1.5.0
   - parso=0.8.3
   - pexpect=4.8.0
@@ -96,7 +97,7 @@ dependencies:
   - python-tzdata=2023.3
   - pytz=2024.1
   - pyyaml=6.0.2
-  - pytest=8.3.3
+  - pytest=9.0.3
   - pyzmq=25.1.2
   - readline=8.2
   - referencing=0.30.2
