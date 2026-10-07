@@ -2,3 +2,6 @@
 **/__pycache__/
 data/*
 /build/
+/.temp
+/analysis
+/docs
