@@ -28,6 +28,9 @@ from dataset_metadata import (
     write_release_metadata,
 )
 from export import ExportError, export_result_files
+from export_v2_1 import (AUDIT_PATH, EXTRA_ARTIFACTS, enrich_release,
+                        validate_diagnosis_release, update_diagnosis_pair_timing)
+from actuator_channels import SCHEMA_VERSION as DIAGNOSIS_SCHEMA_VERSION
 from runner import SimulationError, check_openmodelica_topologies, run_openmodelica
 from validation import (
     ValidationError,
@@ -47,6 +50,9 @@ RUNTIME_SOURCE_PATHS = (
     Path(__file__).resolve().parent / "config.py",
     Path(__file__).resolve().parent / "dataset_metadata.py",
     Path(__file__).resolve().parent / "export.py",
+    Path(__file__).resolve().parent / "export_v2_1.py",
+    Path(__file__).resolve().parent / "actuator_channels.py",
+    Path(__file__).resolve().parent / "diagnosis_campaign.py",
     Path(__file__).resolve().parent / "model_generation.py",
     Path(__file__).resolve().parent / "runner.py",
     Path(__file__).resolve().parent / "validation.py",
@@ -68,8 +74,8 @@ class CompletedRun:
     technical_timing: Path
 
 
-def _run_metadata(run: RunSpec) -> Dict[str, Any]:
-    return {
+def _run_metadata(run: RunSpec, release_version: str = "v2") -> Dict[str, Any]:
+    result = {
         "scenario_id": run.scenario_id,
         "base_dataset": run.base_dataset,
         "target_module": run.target_module,
@@ -88,6 +94,15 @@ def _run_metadata(run: RunSpec) -> Dict[str, Any]:
         "oracle_catalogue_version": ORACLE_CATALOGUE_VERSION,
         "setup": run.setup,
     }
+    if release_version == "v2.1":
+        result["release_schema_version"] = DIAGNOSIS_SCHEMA_VERSION
+        result["oracle_catalogue_version"] = DIAGNOSIS_SCHEMA_VERSION
+        result["data_roles"].pop("audit/internal_verification.csv")
+        result["data_roles"].update({AUDIT_PATH: "internal_validation_non_feature",
+                                     "commands.parquet": "controller_command_features",
+                                     "channel_catalogue.yaml": "channel_metadata_non_feature",
+                                     "permitted_inputs.json": "diagnostic_input_policy"})
+    return result
 
 
 def _write_json(path: Path, data: Mapping[str, Any]) -> None:
@@ -141,6 +156,7 @@ def _provenance(
     modelica_version: Optional[str],
     output_dir: Path,
     release_artifacts: Iterable[Path],
+    release_version: str = "v2",
 ) -> Dict[str, Any]:
     repository = Path(__file__).resolve().parent.parent
     git_commit = _command_output(("git", "rev-parse", "HEAD"), repository)
@@ -172,8 +188,8 @@ def _provenance(
             "emit_event_points": False,
         },
         "release": {
-            "schema_version": RELEASE_SCHEMA_VERSION,
-            "oracle_catalogue_version": ORACLE_CATALOGUE_VERSION,
+            "schema_version": DIAGNOSIS_SCHEMA_VERSION if release_version == "v2.1" else RELEASE_SCHEMA_VERSION,
+            "oracle_catalogue_version": DIAGNOSIS_SCHEMA_VERSION if release_version == "v2.1" else ORACLE_CATALOGUE_VERSION,
             "table_format": "Apache Parquet",
             "parquet_engine": "pyarrow",
             "online_feature_default": "hybrid/measurements.parquet",
@@ -200,7 +216,7 @@ def _safe_remove_output(path: Path, output_root: Path) -> None:
     shutil.rmtree(resolved_path)
 
 
-def _completed_paths(output_root: Path, run: RunSpec) -> CompletedRun:
+def _completed_paths(output_root: Path, run: RunSpec, release_version: str = "v2") -> CompletedRun:
     output_dir = output_root / run.scenario_id
     return CompletedRun(
         run=run,
@@ -209,7 +225,7 @@ def _completed_paths(output_root: Path, run: RunSpec) -> CompletedRun:
         discrete=output_dir / "discrete" / "measurements.parquet",
         hybrid=output_dir / "hybrid" / "measurements.parquet",
         oracle_states=output_dir / "oracle_states.parquet",
-        verification=output_dir / "audit" / "internal_verification.csv",
+        verification=output_dir / (AUDIT_PATH if release_version == "v2.1" else "audit/internal_verification.csv"),
         fault_events=output_dir / "fault_events.json",
         system_knowledge=output_dir / "system_knowledge.yaml",
         technical_timing=output_dir / "technical_timing.json",
@@ -217,9 +233,9 @@ def _completed_paths(output_root: Path, run: RunSpec) -> CompletedRun:
 
 
 def _load_resumable_run(
-    output_root: Path, run: RunSpec, config_path: Path
+    output_root: Path, run: RunSpec, config_path: Path, release_version: str = "v2"
 ) -> Optional[CompletedRun]:
-    completed = _completed_paths(output_root, run)
+    completed = _completed_paths(output_root, run, release_version)
     required = (
         completed.continuous,
         completed.discrete,
@@ -233,6 +249,8 @@ def _load_resumable_run(
         completed.output_dir / "provenance.json",
         completed.output_dir / "validation.json",
     )
+    if release_version == "v2.1":
+        required += tuple(completed.output_dir / name for name in EXTRA_ARTIFACTS)
     if not all(path.is_file() for path in required):
         return None
 
@@ -250,7 +268,7 @@ def _load_resumable_run(
             )
         ) from exc
 
-    expected_setup = _run_metadata(run)
+    expected_setup = _run_metadata(run, release_version)
     stale_reasons = []
     if sim_setup != expected_setup:
         stale_reasons.append("scenario configuration differs")
@@ -270,6 +288,8 @@ def _load_resumable_run(
         completed.technical_timing,
         completed.output_dir / "sim_setup.json",
     )
+    if release_version == "v2.1":
+        expected_release_paths += tuple(completed.output_dir / name for name in EXTRA_ARTIFACTS)
     recorded_release_hashes = provenance.get("release", {}).get(
         "artifact_sha256", {}
     )
@@ -300,6 +320,8 @@ def _load_resumable_run(
                 completed.output_dir, "; ".join(stale_reasons)
             )
         )
+    if release_version == "v2.1":
+        validate_diagnosis_release(completed.output_dir, run)
     return completed
 
 
@@ -310,9 +332,10 @@ def _execute_run(
     build_root: Path,
     force: bool,
     resume: bool,
+    release_version: str = "v2",
 ) -> CompletedRun:
     if resume:
-        existing = _load_resumable_run(output_root, run, config_path)
+        existing = _load_resumable_run(output_root, run, config_path, release_version)
         if existing is not None:
             print("[resume] {}".format(run.scenario_id))
             return existing
@@ -350,10 +373,17 @@ def _execute_run(
         metadata.system_knowledge,
         metadata.technical_timing,
     )
+    diagnosis_validation = None
+    if release_version == "v2.1":
+        exported, diagnosis_validation = enrich_release(output_dir, run, exported, artifacts.model_hashes,
+                                                        require_recorded=True)
+        release_validation = validate_release_bundle(exported, run, metadata.fault_events,
+                                                      metadata.system_knowledge, metadata.technical_timing)
+        validate_diagnosis_release(output_dir, run)
 
     _write_json(
         output_dir / "sim_setup.json",
-        _run_metadata(run),
+        _run_metadata(run, release_version),
     )
     release_artifacts = (
         exported.continuous,
@@ -366,6 +396,8 @@ def _execute_run(
         metadata.technical_timing,
         output_dir / "sim_setup.json",
     )
+    if release_version == "v2.1":
+        release_artifacts += tuple(output_dir / name for name in EXTRA_ARTIFACTS)
     _write_json(
         output_dir / "provenance.json",
         _provenance(
@@ -376,6 +408,7 @@ def _execute_run(
             artifacts.modelica_version,
             output_dir,
             release_artifacts,
+            release_version,
         ),
     )
     _write_json(
@@ -387,6 +420,7 @@ def _execute_run(
             "safe_columns": list(exported.safe_columns),
             "oracle_columns": list(exported.oracle_columns),
             "release_export": dict(release_validation),
+            "diagnosis_extension": diagnosis_validation,
         },
     )
     return CompletedRun(
@@ -419,7 +453,10 @@ def _validate_pair(normal: CompletedRun, fault: CompletedRun) -> None:
     report["safe_columns"] = existing_validation.get("safe_columns")
     report["oracle_columns"] = existing_validation.get("oracle_columns")
     report["release_export"] = existing_validation.get("release_export")
+    report["diagnosis_extension"] = existing_validation.get("diagnosis_extension")
     update_technical_timing_with_pair(fault.technical_timing, report)
+    if report.get("diagnosis_extension"):
+        update_diagnosis_pair_timing(normal.output_dir, fault.output_dir, fault.run, report)
     _refresh_provenance_artifact_hash(fault.output_dir, fault.technical_timing)
     write_validation_report(report, fault.output_dir / "validation.json")
     if not report["valid"]:
@@ -454,6 +491,7 @@ def _normal_outputs_for_faults(
     benchmark: Mapping[str, Any],
     fault_runs: Iterable[RunSpec],
     config_path: Path,
+    release_version: str = "v2",
 ) -> Dict[str, CompletedRun]:
     needed = sorted({run.base_dataset for run in fault_runs})
     normal_specs = {
@@ -463,7 +501,7 @@ def _normal_outputs_for_faults(
     outputs: Dict[str, CompletedRun] = {}
     missing = []
     for dataset_name, normal_spec in normal_specs.items():
-        completed = _load_resumable_run(output_root, normal_spec, config_path)
+        completed = _load_resumable_run(output_root, normal_spec, config_path, release_version)
         if completed is None:
             missing.append(normal_spec.scenario_id)
         else:
@@ -525,6 +563,7 @@ def run_command(args: argparse.Namespace) -> int:
             build_root,
             args.force,
             args.resume,
+            args.release_version,
         )
         normal_outputs[normal_spec.base_dataset] = normal
         fault = _execute_run(
@@ -534,6 +573,7 @@ def run_command(args: argparse.Namespace) -> int:
             build_root,
             args.force,
             args.resume,
+            args.release_version,
         )
         _validate_pair(normal, fault)
         fault_outputs.append(fault)
@@ -547,6 +587,7 @@ def run_command(args: argparse.Namespace) -> int:
                     build_root,
                     args.force,
                     args.resume,
+                    args.release_version,
                 )
                 normal_outputs[run.base_dataset] = completed
 
@@ -554,7 +595,7 @@ def run_command(args: argparse.Namespace) -> int:
             fault_runs = generate_single_fault_campaign(benchmark, selected)
             if args.campaign == "single-fault":
                 normal_outputs = _normal_outputs_for_faults(
-                    output_root, benchmark, fault_runs, config_path
+                    output_root, benchmark, fault_runs, config_path, args.release_version
                 )
             for run in fault_runs:
                 completed = _execute_run(
@@ -564,6 +605,7 @@ def run_command(args: argparse.Namespace) -> int:
                     build_root,
                     args.force,
                     args.resume,
+                    args.release_version,
                 )
                 _validate_pair(normal_outputs[run.base_dataset], completed)
                 fault_outputs.append(completed)
@@ -651,6 +693,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="isolated OpenModelica build root",
     )
     run_parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    run_parser.add_argument("--release-version", choices=("v2", "v2.1"), default="v2",
+                            help="v2.1 adds nominal commands and diagnosis metadata")
     output_policy = run_parser.add_mutually_exclusive_group()
     output_policy.add_argument(
         "--force", action="store_true", help="replace this campaign's existing run paths"

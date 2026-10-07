@@ -655,6 +655,10 @@ def validate_release_bundle(
         raise ValidationError("The release has no exported oracle states")
     equations_checked = _validate_oracle_equations(oracle, run, bundle)
 
+    if fault_events.get("schema_version") == "2.1.0":
+        from export_v2_1 import validate_diagnosis_release
+        validate_diagnosis_release(bundle.hybrid.parent.parent, run)
+
     return {
         "valid": True,
         "measurement_rows": len(hybrid),

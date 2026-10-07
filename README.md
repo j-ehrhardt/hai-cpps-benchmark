@@ -22,6 +22,8 @@ HAI-CPPS consists of
 
 In addition to the existing setups, you can create and simulate your own simulations and system constellations, using the OpenModelica models and the HAI-CPPS python API.
 
+For directly recorded nominal commands, independent healthy splits and paired faulty test runs, use the [diagnosis rerun pipeline](docs/source/diagnosis-rerun.md). Planning is the default; simulations start only with `--run`.
+
 You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
 
 > [!NOTE]
@@ -261,6 +263,8 @@ python code/sim.py run \
 The validator checks the configuration schema, module types, port connectivity, enabled fault names, exclusive fault pairs, timing, and referenced model files.
 
 # Using the Benchmark
+
+The v2.1 post-processing extension adds nominal controller commands, explicit actuator reference roles, and a leakage-safe diagnosis loader. See [the v2.1 diagnosis guide](docs/source/diagnosis-v2.1.md) for migration commands, timing semantics, and the remaining need for independent healthy training/calibration recordings.
 
 Using HAI-CPPS benchmark is pretty self-explanatory. Download or create the datasets yourself. Select the discrete, continuous, or hybrid measurement view in which you want to operate. Train your models using normal runs and test them on an anomalous test scenario. Fault onset and its relation to the sampled measurement timestamps are recorded in `technical_timing.json`; the target module and fault proxy are recorded in `fault_events.json`.
 

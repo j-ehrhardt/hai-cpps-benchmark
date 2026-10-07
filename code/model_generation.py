@@ -21,9 +21,10 @@ RESULT_VARIABLE_FILTER = (
     "[A-Za-z0-9_]*valve[A-Za-z0-9_]*[.]opening|"
     "pump_[A-Za-z0-9_]+[.]N_in|pump_n_in|uniformNoise[.]y|"
     "fault_window_active|"
+    "command_[A-Za-z0-9_]+|"
     "var_[A-Za-z0-9_]+|leaking_valve[.]m_flow|"
     "filter_[A-Za-z0-9_]+[.]opening|"
-    "pollution_value|heater_[A-Za-z0-9_]+[.]Q_flow"
+    "pollution_value|(heater|cooler)_[A-Za-z0-9_]+[.]Q_flow"
     ")"
 )
 

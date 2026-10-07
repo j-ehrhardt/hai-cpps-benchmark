@@ -909,6 +909,7 @@ def update_technical_timing_with_pair(
     )
     measurement_summaries = report.get("safe_channel_differences", {})
     internal_summaries = report.get("verification_channel_differences", {})
+    document["fault_timing"].update(paired_consequences(report))
     document["fault_timing"]["paired_run_observations"] = {
         "method": report.get("difference_detection"),
         "first_changed_internal_output": _first_observed_change(
@@ -926,3 +927,146 @@ def update_technical_timing_with_pair(
         ),
     }
     _write_json(technical_timing_path, document)
+
+
+def paired_consequences(report):
+    """Summarize sampled consequences without conflating them with injection."""
+    result = {}
+    for key, summaries, modules, scope in (
+        ("first_internal_consequence", report.get("verification_channel_differences", {}),
+         [str(report.get("target_module"))], "faulted_module_internal_channels"),
+        ("first_measurement_consequence", report.get("safe_channel_differences", {}),
+         None, "all_permitted_sensor_measurements"),
+    ):
+        result[key] = dict(_first_observed_change(summaries, modules))
+        result[key].update({
+            "scope": scope,
+            "method": report.get("difference_detection"),
+            "interpretation": "First qualifying sampled difference, not exact continuous-time physical onset",
+        })
+    return result
+
+
+def enrich_diagnosis_metadata(output_dir, run, bundle, commands, hashes, renames):
+    """Add the separately versioned diagnosis contract without changing v2 exports."""
+    import re
+    from actuator_channels import SCHEMA_VERSION, REGISTRY_VERSION, MODELS
+    from export_v2_1 import read_json, write_json
+
+    output_dir = Path(output_dir)
+    period = (run.setup["sim_setup"]["stopTime"] - run.setup["sim_setup"]["startTime"]) / run.setup["sim_setup"]["numberOfIntervals"]
+    knowledge = yaml.safe_load((output_dir / "system_knowledge.yaml").read_text())
+    variables = []
+    for entry in knowledge["variables"]:
+        item = dict(entry)
+        item["role"] = "measurement" if item["online_feature_allowed"] else "offline_reference"
+        item["sample_period_s"] = period
+        item.setdefault("component", (item.get("raw_result_column") or item["name"]).rsplit(".", 1)[0])
+        item.setdefault("physical_meaning", item["kind"])
+        unit = item["unit"]
+        item.setdefault("sign_convention", {
+            "m": "positive height above tank bottom", "Pa": "absolute pressure", "K": "absolute temperature",
+            "m3/s": "positive from sensor port_a to port_b", "kg/s": "positive from component port_a to port_b",
+            "rev/min": "positive nominal forward shaft rotation", "W": "positive heat supplied to fluid",
+            "1": "Boolean, fraction or factor according to physical meaning",
+        }.get(unit, "see source equation"))
+        item.setdefault("limits", {"status": "see verified source equation; no additional clipping applied"})
+        item.setdefault("delay", {"status": "not_modelled" if item["role"] == "measurement" else "see actuator dynamics"})
+        variables.append(item)
+    for command in commands:
+        command["sample_period_s"] = period
+    raw_lookup = {v.raw_column: v.oracle_column for v in bundle.oracle_variables}
+    for command in commands:
+        raw = command["effective_raw_column"]
+        source_variable = raw or command.get("effective_source_variable")
+        command["effective_reference_column"] = raw_lookup.get(source_variable)
+        command["effective_reference_status"] = (
+            "equation_derived_offline" if raw is None and source_variable in raw_lookup
+            else "exported_offline" if raw in raw_lookup else "unavailable"
+        )
+    catalogue = {
+        "schema_version": SCHEMA_VERSION, "registry_version": REGISTRY_VERSION,
+        "scenario_id": run.scenario_id, "base_dataset": run.base_dataset,
+        "commands": commands, "recorded_channels": variables,
+        "oracle_renames": renames,
+        "unavailable": {"actuator_response_measurements": "No speed/position/power response sensors are modeled; effective internals are not measurements",
+                        "sensor_faults": "not_configured", "continuous_event_history": "not_available_in_canonical_tables"},
+    }
+    (output_dir / "channel_catalogue.yaml").write_text(yaml.safe_dump(catalogue, sort_keys=False))
+    write_json(output_dir / "permitted_inputs.json", {
+        "schema_version": SCHEMA_VERSION, "base_dataset": run.base_dataset,
+        "module_types": {name: module["type"] for name, module in sorted(run.setup["model"]["modules"].items())},
+        "measurements": sorted(bundle.safe_columns), "commands": [c["name"] for c in commands],
+        "actuator_responses": [], "excluded_identifiers": ["scenario_id", "simulation_step", "simulation_time"],
+        "observation_assumption": "Controller outputs can be logged; see each command's availability and source equation",
+        "offline_only": ["oracle_states.parquet", "fault_events.json", "system_knowledge.yaml", "technical_timing.json", "audit_for_verification/internal_verification.csv"],
+    })
+    knowledge["diagnosis_extension"] = {"channel_catalogue": "channel_catalogue.yaml", "permitted_inputs": "permitted_inputs.json",
+                                          "commands": [c["name"] for c in commands]}
+    (output_dir / "system_knowledge.yaml").write_text(yaml.safe_dump(knowledge, sort_keys=False))
+    events = read_json(output_dir / "fault_events.json")
+    for event in events["events"]:
+        module = run.target_module
+        kind = run.setup["model"]["modules"][module]["type"]
+        filename = Path(run.setup["model"]["modules"][module]["files"]).name
+        fault = run.target_fault
+        source = (MODELS / filename).read_text()
+        if fault.startswith("anom_pump"):
+            targets = ["var_pump_n", "pump_n_in"]
+            component = "pump_P401" if kind == "bottling" else "pump_P101"
+            direct = [f"{module}.var_pump_n", f"{module}.pump_n_in", f"{module}.{component}.N_in"]
+            mechanism = "scaling requested pump speed before noise and first-order lag; mechanical efficiency is not independently modeled"
+        elif fault.startswith("anom_heat"):
+            targets = ["var_heat", "heater_distill.Q_flow"]
+            component = "heater_distill"
+            direct = [f"{module}.var_heat", f"{module}.heater_distill.Q_flow"]
+            mechanism = "scaling prescribed heater heat input"
+        elif fault.startswith("anom_valve_in"):
+            component = fault.replace("anom_", "") if kind == "mixer" else "valve_in"
+            factor = "var_" + component if kind != "distill" else "var_valve_in0"
+            targets = [factor, component + ".opening"]
+            direct = [f"{module}.{v}" for v in targets]
+            mechanism = "minimum inlet-valve opening imposed while controller requests closure"
+        elif fault == "anom_leaking":
+            component = "leaking_valve"
+            targets = ["leaking_valve.opening"] + (["leakRampProgress"] if kind == "distill" else [])
+            direct = [f"{module}.leaking_valve.opening", f"{module}.leaking_valve.m_flow"]
+            mechanism = "material loss through an artificial leak path; not a commanded operational actuator failure"
+        else:
+            component = "filter_F101"
+            targets = ["pollution_value"]
+            direct = [f"{module}.pollution_value", f"{module}.filter_F101.opening"]
+            mechanism = "increased filter pollution factor changes the effective process restriction"
+        equations = []
+        for target in targets:
+            match = re.search(r"^\s*" + re.escape(target) + r"\s*=.*?;", source, re.M | re.S)
+            if not match:
+                raise ValueError(f"Missing intervention equation: {filename}:{target}")
+            equations.append(match.group(0).strip())
+        ramp = fault == "anom_leaking" and kind == "distill"
+        event.update({
+            "physical_mechanism": mechanism,
+            "intervention_category": "process_fault" if fault in {"anom_leaking", "anom_pollution"} else "actuator_fault",
+            "modified_equations": equations, "model_source": filename, "model_sha256": hashes[filename],
+            "direct_effective_or_reference_channels": [raw_lookup[v] for v in direct if v in raw_lookup],
+            "direct_observable_actuator_channels": [],
+            "associated_nominal_commands": [c["name"] for c in commands if c["component"] == f"{module}.{component}"],
+            "nominal_command_directly_modified": False,
+            "deactivation_time": None, "deactivation_status": "no_deactivation_modelled; active_through_recording_end",
+            "recording_end": run.setup["sim_setup"]["stopTime"],
+            "injected_profile": {"kind": "smoothstep" if ramp else "step", "start_time": run.setup["sim_setup"]["faultStart"],
+                                 "duration_s": 10.0 if ramp else 0.0, "nominal_value": event["normal_value"], "injected_value": event["fault_value"],
+                                 "expression": "0.25*p^2*(3-2*p), p=clip((time-start)/10,0,1)" if ramp else "injected value while configured fault is active"},
+            "propagated_controller_responses": "not direct fault interventions",
+        })
+    write_json(output_dir / "fault_events.json", events)
+    timing = read_json(output_dir / "technical_timing.json")
+    timing["command_channels"] = [{"column": c["name"], "sample_period": period, "role": "controller_command",
+                                   "sampling": "same_canonical_grid_no_interpolation", "delay": c["command_delay"]} for c in commands]
+    timing["fault_timing"]["deactivation"] = {"time": None, "status": "not_modelled" if run.is_fault else "not_applicable"}
+    timing["fault_timing"]["diagnosis_observations"] = {"status": "pending_paired_run" if run.is_fault else "not_applicable"}
+    recorded = all(c["availability"] == "recorded_controller_output" for c in commands)
+    timing["reconstruction"] = {"operation": "directly recorded nominal controller outputs; state equations used only for verification" if recorded else "healthy controller equations evaluated at recorded phases/time",
+                                 "resampling": "none", "boundary_policy": "reject inconsistent command/effective equations; no interpolation",
+                                 "exact_between_sample_effects": "unavailable"}
+    write_json(output_dir / "technical_timing.json", timing)

@@ -24,7 +24,20 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_checked_in_configuration_and_campaign_size(self):
         self.assertEqual(len(self.config), 10)
-        self.assertEqual(len(generate_single_fault_campaign(self.config)), 110)
+        self.assertEqual(len(generate_single_fault_campaign(self.config)), 100)
+
+    def test_ds10_campaign_contains_only_mixer_faults(self):
+        runs = generate_single_fault_campaign(self.config, selected=["ds10"])
+        self.assertEqual(len(runs), 12)
+        self.assertEqual({run.target_module for run in runs}, {"mixer0", "mixer1"})
+
+    def test_unsupported_campaign_fault_is_rejected(self):
+        invalid = copy.deepcopy(self.config)
+        invalid["ds10"]["model"]["modules"]["bottling0"]["campaign_faults"] = [
+            "anom_heat50"
+        ]
+        with self.assertRaisesRegex(ConfigError, "unsupported campaign faults"):
+            normalize_and_validate(invalid, CONFIG_DIR)
 
     def test_all_checked_in_faults_are_neutral(self):
         for scenario in self.config.values():

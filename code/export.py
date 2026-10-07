@@ -58,6 +58,7 @@ _DISCRETE_PATTERNS = (
     re.compile(r"^[^.]+\.sensor_discrete_[A-Za-z0-9_]+\.showActive$"),
 )
 _VERIFICATION_PATTERNS = (
+    re.compile(r"^[^.]+\.command_[A-Za-z0-9_]+$"),
     re.compile(r"^[^.]+\.state_[A-Za-z0-9_]+\.active$"),
     re.compile(r"^[^.]+\.[A-Za-z0-9_]*valve[A-Za-z0-9_]*\.opening$"),
     re.compile(r"^[^.]+\.filter_[A-Za-z0-9_]+\.opening$"),
@@ -69,6 +70,7 @@ _VERIFICATION_PATTERNS = (
     re.compile(r"^[^.]+\.leaking_valve\.m_flow$"),
     re.compile(r"^[^.]+\.pollution_value$"),
     re.compile(r"^[^.]+\.heater_[A-Za-z0-9_]+\.Q_flow$"),
+    re.compile(r"^[^.]+\.cooler_[A-Za-z0-9_]+\.Q_flow$"),
 )
 
 FORBIDDEN_SAFE_FRAGMENTS = (
@@ -240,7 +242,7 @@ def _oracle_variable(column: str) -> Optional[OracleVariable]:
             "process_state",
         )
 
-    heater_match = re.fullmatch(r"(heater_[A-Za-z0-9_]+)\.Q_flow", local)
+    heater_match = re.fullmatch(r"((?:heater|cooler)_[A-Za-z0-9_]+)\.Q_flow", local)
     if heater_match:
         component = heater_match.group(1)
         return OracleVariable(

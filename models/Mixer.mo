@@ -22,6 +22,15 @@ model mixerModule
   Real var_valve_in1(start = 0.0);
   Real var_valve_in2(start = 0.0);
   Real var_pump_n(start = 1.0);
+  output Real command_pump_P101_speed(unit="rev/min") "Nominal controller request before faults";
+  output Real command_valve_in0_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_in1_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_in2_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_tank_B201_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_tank_B202_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_tank_B203_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_tank_B204_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_out_opening(unit="1") "Nominal controller request before faults";
   Real pump_n_in;
   Boolean fault_window_active;
   // ports
@@ -198,6 +207,15 @@ model mixerModule
   Modelica.Fluid.Pipes.StaticPipe pipe7(redeclare package Medium = Medium, diameter(displayUnit = "mm") = 0.01, length = 1, m_flow_start = 0.0005) annotation(
     Placement(transformation(origin = {-110, -130}, extent = {{-10, 10}, {10, -10}})));
 equation
+  command_pump_P101_speed = if state_emptying_tank_B201.active or state_emptying_tank_B202.active or state_emptying_tank_B203.active then 150 else 0;
+  command_valve_in0_opening = if state_filling_tank_B201.active then 1.0 else closedValveOpening;
+  command_valve_in1_opening = if state_filling_tank_B202.active then 1.0 else closedValveOpening;
+  command_valve_in2_opening = if state_filling_tank_B203.active then 1.0 else closedValveOpening;
+  command_valve_pump_tank_B201_opening = if state_emptying_tank_B201.active then 1.0 else closedValveOpening;
+  command_valve_pump_tank_B202_opening = if state_emptying_tank_B202.active then 1.0 else closedValveOpening;
+  command_valve_pump_tank_B203_opening = if state_emptying_tank_B203.active then 1.0 else closedValveOpening;
+  command_valve_pump_tank_B204_opening = if state_emptying_tank_B201.active or state_emptying_tank_B202.active or state_emptying_tank_B203.active then 1.0 else closedValveOpening;
+  command_valve_out_opening = if state_emptying_tank_B204.active then 1.0 else closedValveOpening;
   assert(not (anom_pump50 and anom_pump75), "Mixer pump50 and pump75 faults are mutually exclusive");
   fault_window_active = time >= anom_start;
   condition_is_full_tank_B201.condition = tank_B201.level >= tank_B201.height*tankMaxVol;
@@ -207,16 +225,15 @@ equation
   condition_is_empty_tank_B202.condition = tank_B202.level <= tank_B202.height*tankMinVol;
   condition_is_empty_tank_B203.condition = tank_B203.level <= tank_B203.height*tankMinVol;
   condition_is_empty_tank_B204.condition = tank_B204.level <= tank_B204.height*tankMinVol;
-  valve_in0.opening = smooth(1, if state_filling_tank_B201.active then 1.0 else max(closedValveOpening, var_valve_in0));
-  valve_in1.opening = smooth(1, if state_filling_tank_B202.active then 1.0 else max(closedValveOpening, var_valve_in1));
-  valve_in2.opening = smooth(1, if state_filling_tank_B203.active then 1.0 else max(closedValveOpening, var_valve_in2));
-  valve_pump_tank_B201.opening = smooth(1, if state_emptying_tank_B201.active then 1.0 else closedValveOpening);
-  valve_pump_tank_B202.opening = smooth(1, if state_emptying_tank_B202.active then 1.0 else closedValveOpening);
-  valve_pump_tank_B203.opening = smooth(1, if state_emptying_tank_B203.active then 1.0 else closedValveOpening);
-  valve_pump_tank_B204.opening = smooth(1, if state_emptying_tank_B201.active then 1.0 elseif state_emptying_tank_B202.active then 1.0 elseif state_emptying_tank_B203.active then 1.0 else closedValveOpening);
-  pump_n_in = if state_emptying_tank_B201.active then 150.0*var_pump_n elseif state_emptying_tank_B202.active then 150.0*var_pump_n
-   elseif state_emptying_tank_B203.active then 150.0*var_pump_n else 0.0;
-  valve_out.opening = if state_emptying_tank_B204.active then 1.0 else closedValveOpening;
+  valve_in0.opening = smooth(1, max(command_valve_in0_opening, var_valve_in0));
+  valve_in1.opening = smooth(1, max(command_valve_in1_opening, var_valve_in1));
+  valve_in2.opening = smooth(1, max(command_valve_in2_opening, var_valve_in2));
+  valve_pump_tank_B201.opening = smooth(1, command_valve_pump_tank_B201_opening);
+  valve_pump_tank_B202.opening = smooth(1, command_valve_pump_tank_B202_opening);
+  valve_pump_tank_B203.opening = smooth(1, command_valve_pump_tank_B203_opening);
+  valve_pump_tank_B204.opening = smooth(1, command_valve_pump_tank_B204_opening);
+  pump_n_in = command_pump_P101_speed * var_pump_n;
+  valve_out.opening = command_valve_out_opening;
 // anomalies
   leaking_valve.opening = if (fault_window_active and anom_leaking) then 0.25 else 0.0;
   clogging_valve.opening = 1.0;
