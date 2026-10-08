@@ -5,10 +5,10 @@
 This repository generates the HAI-CPPS v2.2 simulation benchmark with OpenModelica. It contains ten predefined plant topologies (`ds1` through `ds10`). Each topology has healthy recordings and single-fault recordings with persistent and temporary fault windows. A complete campaign has **350 recordings**: 160 healthy and 190 faulty.
 
 > [!NOTE]
-> HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/benchmark_v1).
+> HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/berfipl).
 
 > [!NOTE]
-> We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `hai-cpps-v1` in this repository. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
+> We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `v1.0` in this repository. All other versions are versioned on separate branches. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
 
 You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
 
