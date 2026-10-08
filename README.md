@@ -188,7 +188,7 @@ As a reference, you can have a look at the following repository [Discret2Di](htt
 When using the HAI-CPPS benchmark, please use the following citations:
 
 ```bibtex
-   @data{haicpps,
+   @data{Ehrhardt2025HAICPPSDATASET,
    doi = {10.21227/5ewb-cn40},
    url = {https://dx.doi.org/10.21227/5ewb-cn40},
    author = {Jonas Ehrhardt and Lukas Moddemann and Alexander Diedrich and Oliver Niggemann},
@@ -210,7 +210,7 @@ When using the HAI-CPPS benchmark, please use the following citations:
 When using the original benchmark (BeRFiPl) please cite:
 
 ```bibtex
-@INPROCEEDINGS{Ehrhardt2022,
+@INPROCEEDINGS{Ehrhardt2022BERFIPL,
   author={Ehrhardt, Jonas and Ramonat, Malte and Heesch, René and Balzereit, Kaja and Diedrich, Alexander and Niggemann, Oliver},
   booktitle={2022 IEEE 27th International Conference on Emerging Technologies and Factory Automation (ETFA)},
   title={An AI benchmark for Diagnosis, Reconfiguration & Planning},
