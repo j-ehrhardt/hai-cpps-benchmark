@@ -1,0 +1,11 @@
+/.doctrees/
+/build/
+/output/
+/code/
+/data/
+
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
