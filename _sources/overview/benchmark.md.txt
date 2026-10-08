@@ -1,39 +1,15 @@
 # Benchmark
 
-The goal of **HAI-CPS** is to provide a comprehensive benchmark that enables you to evaluate your machine learning algorithms along two axes:
+HAI-CPPS evaluates machine-learning methods along two axes: **plant complexity** and **fault complexity**. The ten topologies use different combinations of mixer, filter, distill, and bottling modules with source and sink modules.
 
-- **CPS complexity**  
-- **Anomaly complexity**
+<img src="../_static/imgs/cpps-setups.png" alt="HAI-CPPS setups" width="100%" />
 
-HAI-CPS includes **ten different datasets**, each recorded from a unique process plant setup.  
-The datasets are available in **discrete**, **continuous**, and **hybrid** formats to suit a wide range of algorithmic needs.
+## Campaign design
 
-You can find a full overview of all datasets [here](../datasets.md).
+A complete v2.2 campaign has 350 recordings: 160 healthy and 190 single-fault. Each topology supplies 10 healthy training, 3 validation, 2 calibration, and 1 test recording. Every selected fault proxy produces a persistent and a temporary recording, both paired with the seed-42 healthy test control. Fault activation begins at time 2,500; the temporary variant ends at 7,500. The [campaign output guide](../campaign-output) gives per-topology counts and scenario names.
 
----
+## Measurement and diagnosis inputs
 
-## CPS Complexity
+Each recording offers continuous, discrete, and hybrid measurement views. Nominal controller commands are saved separately and can be added if they are observable in the intended application. `permitted_inputs.json` defines the allowlists. Simulator oracle states, injected-fault labels, technical timing, and verification traces remain offline artifacts.
 
-HAI-CPS features ten different process plant configurations, each exhibiting increasing structural and behavioral complexity.
-
-<img src="../_static/imgs/cpps-setups.png" alt="HAI-CPS setups" width="100%" />
-
----
-
-## Anomaly Complexity
-
-For each individual anomaly — and all meaningful combinations of anomalies — a dedicated dataset has been recorded.  
-This allows for a systematic evaluation of your model's performance under varying anomaly scenarios and interactions.
-
----
-
-## Data Formats
-
-HAI-CPS datasets are provided in four formats, depending on what your model requires:
-
-- **discrete**: Includes only binary/discrete control and sensor values.
-- **continuous**: Includes only real-valued sensor data and process measurements.
-- **hybrid**: A combination of discrete and continuous features.
-- **including-states**: Hybrid data **plus** automaton states from each module (i.e., internal process states during execution).
-
----
+The campaign validates raw results, exported tables, channel alignment, fault pairs, and release structure. Each recording has a `validation.json` and `provenance.json`; each topology shard has a `campaign.json` manifest and a frozen copy of generation sources.

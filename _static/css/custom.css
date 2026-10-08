@@ -1,34 +1,41 @@
-/* 1) Let html/body fill the viewport */
-html, body {
-  height: 100%;
+/* Let the page grow with its content as well as the viewport. */
+html,
+body {
+  min-height: 100%;
   margin: 0;
 }
 
-/* 2) Make the RTD “main” area a column-flex container */
+.wy-grid-for-nav {
+  position: relative;
+  height: auto;
+  min-height: 100vh;
+}
+
+.wy-nav-content-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* The theme's 800px cap leaves a large unused strip on wider screens. */
 .wy-nav-content {
+  box-sizing: border-box;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
-  height: 100vh;       /* span the full viewport height */
+  width: 100%;
+  height: auto;
+  max-width: 1400px;
+  margin: 0;
 }
 
-/* 3) Inside that, let the page content grow */
 .rst-content {
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
-  flex: 1 0 auto;      /* fill available space above the footer */
+  min-width: 0;
 }
 
-/* 4) Push the Sphinx‐generated footer down */
-.rst-footer {
-  margin-top: auto;    /* this footer (copyright, authors…) sticks to bottom of .rst-content */
-}
-
-/* 5) Now push the RTD site‐footer down under everything */
-footer.wy-nav-footer {
-  margin-top: auto;    /* this footer (“Built with Sphinx…”) sticks to bottom of .wy-nav-content */
-}
-
-/* 6) Prevent your text from being hidden behind the bottom footer */
-.rst-content {
-  padding-bottom: 4rem;  /* adjust if your combined footers are taller */
+.rst-content > footer {
+  margin-top: auto;
 }

@@ -1,0 +1,135 @@
+# Campaign Output and Data Directory
+
+A v2.2 benchmark campaign writes a **release of recordings**, not one combined CSV. The default staging root is `output/v2.2/` when you run `python code/campaign.py --jobs 4` from the v2.2 repository root. This page describes the files created by that launcher. The separate `code/simulate.py` custom workflow writes a raw CSV instead; see [Using the Simulation](simulation/using-the-simulation).
+
+## Campaign size and recording splits
+
+The ten topologies, `ds1` through `ds10`, contain **160 healthy recordings** and **190 single-fault recordings** in a complete campaign. Each topology has 10 healthy training, 3 validation, 2 calibration, and 1 test recording. Its enabled fault inventory determines how many fault recordings it has. Each fault proxy produces one persistent and one temporary test recording.
+
+| Topology | Enabled fault proxies | Healthy | Fault recordings | Total |
+| --- | ---: | ---: | ---: | ---: |
+| ds1 | 6 | 16 | 12 | 28 |
+| ds2 | 6 | 16 | 12 | 28 |
+| ds3 | 5 | 16 | 10 | 26 |
+| ds4 | 4 | 16 | 8 | 24 |
+| ds5 | 10 | 16 | 20 | 36 |
+| ds6 | 14 | 16 | 28 | 44 |
+| ds7 | 9 | 16 | 18 | 34 |
+| ds8 | 15 | 16 | 30 | 46 |
+| ds9 | 19 | 16 | 38 | 54 |
+| ds10 | 7 | 16 | 14 | 30 |
+| **All** | **95** | **160** | **190** | **350** |
+
+The healthy test recording has ordinal `016` and seed **42** in every topology. Both variants of each fault use that same seed, so they can be compared with the matching healthy control. Other healthy recordings receive campaign-assigned seeds.
+
+## Directory layout
+
+The campaign stores each topology as a **shard**. The topology name appears twice: first as the shard folder and then as the recordings folder. For example:
+
+```text
+output/v2.2/
+├── release_manifest.json                 # full validated campaign only
+├── ds1_release_manifest.json             # one-dataset run only
+├── ds1/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── campaign.json
+│   ├── generation/                       # frozen code, models, config, dependencies
+│   │   ├── README.md
+│   │   ├── LICENSE
+│   │   ├── requirements.txt
+│   │   ├── requested_configuration.json
+│   │   ├── code/campaign_configuration.json
+│   │   ├── code/...
+│   │   └── models/...
+│   └── ds1/
+│       ├── ds1_001_healthy/
+│       ├── ...
+│       ├── ds1_016_healthy/
+│       ├── ds1_001_mixer0_anom_pump50_persistent/
+│       ├── ds1_002_mixer0_anom_pump50_temporal/
+│       └── ...
+├── ds2/
+└── ... ds10/
+```
+
+A full campaign writes `release_manifest.json` at the root after validation. A selected topology, for example `--dataset ds1`, writes `ds1_release_manifest.json`. Each summary records schema version, recording count, shard summaries, and the path to its validation report. The report and individual worker logs are under `build/v2.2/campaign/logs/` by default, outside the release tree.
+
+To check a finished **full** campaign again, run `python code/campaign_check.py output/v2.2`. The checker verifies expected counts and files, table alignment and time grids, artifact hashes, fault windows, and per-recording validation status.
+
+`campaign.json` is the shard's detailed manifest. It lists every `scenario_id`, split, seed, paired healthy recording, fault variant, start/end times, active duration, completion state, and coverage observations. Its status can be `planned`, `running`, `failed`, `complete`, or a coverage/signal review status. The `generation/` snapshot freezes the generation code, Modelica models, requested configuration, replay configuration, requirements, and their SHA-256 digests.
+
+The launcher uses `output/v2.2/` as **staging output**. The source branch does not contain a generated `data/` release. `data/v2.2` is reserved for later promotion, and the campaign command refuses to write there directly. Do not mistake `build/` logs or a custom run's `output/custom/` directory for benchmark recordings.
+
+## Scenario names and fault windows
+
+A healthy name has the form `ds1_016_healthy`. A fault name has the form `<topology>_<ordinal>_<module>_<fault>_<variant>`, such as `ds1_002_mixer0_anom_pump50_temporal`. The fault ordinal `001` means persistent; `002` means temporary. The module and fault fields identify the single enabled intervention.
+
+Each benchmark simulation has **25,000 one-second intervals** from time 0 through 25,000. The canonical exported tables therefore have **25,001 rows**, including both endpoints. The fault is configured to start at time **2,500**:
+
+- **Persistent:** active from time 2,500 through the recording end; `faultEnd` is null and the active duration is 22,500 intervals.
+- **Temporary:** active on `[2500, 7500)`; `faultEnd` is 7,500 and the active duration is 5,000 intervals.
+
+The exact sampled value at an OpenModelica event boundary can be pre-event or post-event. Use `technical_timing.json` and the offline oracle flags when assessing boundary samples; do not infer physical onset from the first changed measurement alone.
+
+## Files inside one recording
+
+Every folder such as `output/v2.2/ds1/ds1/ds1_016_healthy/` contains:
+
+```text
+<scenario-id>/
+├── continuous/measurements.parquet
+├── discrete/measurements.parquet
+├── hybrid/measurements.parquet
+├── commands.parquet
+├── oracle_states.parquet
+├── audit_for_verification/internal_verification.csv
+├── fault_events.json
+├── channel_catalogue.yaml
+├── permitted_inputs.json
+├── system_knowledge.yaml
+├── technical_timing.json
+├── sim_setup.json
+├── provenance.json
+└── validation.json
+```
+
+| File | What it contains | Use |
+| --- | --- | --- |
+| `continuous/measurements.parquet` | Real-valued online sensors such as level, pressure, flow, and temperature. | Select one measurement view for model input. |
+| `discrete/measurements.parquet` | Discrete sensor states. | Select one measurement view for model input. |
+| `hybrid/measurements.parquet` | Continuous and discrete measurement columns together. | General combined measurement view. |
+| `commands.parquet` | Directly recorded nominal controller commands on the same time grid. | Optional diagnostic inputs if controller outputs are available in your setting. |
+| `oracle_states.parquet` | Simulator internals, controller phases, effective references, and fault-window indicators. | Offline analysis and targets only. |
+| `audit_for_verification/internal_verification.csv` | Raw internal channels used to check exports and paired fault effects. | Internal validation only. |
+| `fault_events.json` | Empty `events` for healthy runs; otherwise target module, fault mechanism, window, and intervention details. | Offline labels and interpretation. |
+| `channel_catalogue.yaml` | Channel meanings, units, command availability, source equations, and links to effective offline references. | Interpret and verify channels. |
+| `permitted_inputs.json` | Explicit allowlists of measurement and command columns; excluded identifiers and offline files. | Define diagnostic inputs. |
+| `system_knowledge.yaml` | Module/edge structure, variable catalogue, and model-based rules. | Structural and semantic metadata. |
+| `technical_timing.json` | Sample period, channel timing, fault boundaries, and observed differences from the paired healthy control. | Interpret timing and align comparisons. |
+| `sim_setup.json` | Exact run setup, target module/fault, variant, data roles, and release schema. | Identify/reproduce a recording. |
+| `provenance.json` | Config, model and runtime source hashes; software versions; seed; solver settings; artifact hashes. | Trace and verify provenance. |
+| `validation.json` | Raw-result, export, diagnosis, and healthy/fault-pair checks. | Check recording validity. |
+
+The measurement, command, and oracle tables share `scenario_id`, `simulation_step`, and `simulation_time` identifiers. They are aligned row by row, but these three fields are **excluded diagnostic features**. The v2.2 release schema is `2.2.0`.
+
+## Choose permitted diagnostic inputs
+
+Read exactly one measurement view. The `measurements` list in `permitted_inputs.json` names allowed sensor columns; `commands` lists separately available controller outputs. `actuator_responses` is empty because independent speed, position, or power response sensors are not modeled. Oracle states, fault events, system knowledge, timing, and audit files remain separate offline information. This prevents a fault indicator or effective internal signal from leaking into an online diagnosis model.
+
+```python
+import json
+from pathlib import Path
+import pandas as pd
+
+recording = Path("output/v2.2/ds1/ds1/ds1_016_healthy")
+policy = json.loads((recording / "permitted_inputs.json").read_text())
+hybrid = pd.read_parquet(recording / "hybrid/measurements.parquet")
+X = hybrid[policy["measurements"]]
+
+# Use this only when controller commands are observable in your application.
+commands = pd.read_parquet(recording / "commands.parquet")
+X_with_commands = X.join(commands[policy["commands"]])
+```
+
+Use `fault_events.json` for labels **after** choosing inputs. The paired fault timing fields report threshold-qualified sampled differences, not an exact continuous-time causal onset. For reproducibility, retain each recording's `sim_setup.json` and `provenance.json` with the tables you use.

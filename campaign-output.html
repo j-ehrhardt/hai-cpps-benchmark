@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaign Output and Data Directory &mdash; HAI-CPPS v2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0bcac001" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=e09f69a6"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/js/current-year.js?v=76165a1e"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Datasets" href="datasets.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HAI-CPPS
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation/index.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Campaign Output and Data Directory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#campaign-size-and-recording-splits">Campaign size and recording splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#directory-layout">Directory layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scenario-names-and-fault-windows">Scenario names and fault windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#files-inside-one-recording">Files inside one recording</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choose-permitted-diagnostic-inputs">Choose permitted diagnostic inputs</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HAI-CPPS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Campaign Output and Data Directory</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/campaign-output.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="campaign-output-and-data-directory">
+<h1>Campaign Output and Data Directory<a class="headerlink" href="#campaign-output-and-data-directory" title="Link to this heading"></a></h1>
+<p>A v2.2 benchmark campaign writes a <strong>release of recordings</strong>, not one combined CSV. The default staging root is <code class="docutils literal notranslate"><span class="pre">output/v2.2/</span></code> when you run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">code/campaign.py</span> <span class="pre">--jobs</span> <span class="pre">4</span></code> from the v2.2 repository root. This page describes the files created by that launcher. The separate <code class="docutils literal notranslate"><span class="pre">code/simulate.py</span></code> custom workflow writes a raw CSV instead; see <a class="reference internal" href="simulation/using-the-simulation.html"><span class="doc std std-doc">Using the Simulation</span></a>.</p>
+<section id="campaign-size-and-recording-splits">
+<h2>Campaign size and recording splits<a class="headerlink" href="#campaign-size-and-recording-splits" title="Link to this heading"></a></h2>
+<p>The ten topologies, <code class="docutils literal notranslate"><span class="pre">ds1</span></code> through <code class="docutils literal notranslate"><span class="pre">ds10</span></code>, contain <strong>160 healthy recordings</strong> and <strong>190 single-fault recordings</strong> in a complete campaign. Each topology has 10 healthy training, 3 validation, 2 calibration, and 1 test recording. Its enabled fault inventory determines how many fault recordings it has. Each fault proxy produces one persistent and one temporary test recording.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Topology</p></th>
+<th class="head text-right"><p>Enabled fault proxies</p></th>
+<th class="head text-right"><p>Healthy</p></th>
+<th class="head text-right"><p>Fault recordings</p></th>
+<th class="head text-right"><p>Total</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ds1</p></td>
+<td class="text-right"><p>6</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>12</p></td>
+<td class="text-right"><p>28</p></td>
+</tr>
+<tr class="row-odd"><td><p>ds2</p></td>
+<td class="text-right"><p>6</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>12</p></td>
+<td class="text-right"><p>28</p></td>
+</tr>
+<tr class="row-even"><td><p>ds3</p></td>
+<td class="text-right"><p>5</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>10</p></td>
+<td class="text-right"><p>26</p></td>
+</tr>
+<tr class="row-odd"><td><p>ds4</p></td>
+<td class="text-right"><p>4</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>8</p></td>
+<td class="text-right"><p>24</p></td>
+</tr>
+<tr class="row-even"><td><p>ds5</p></td>
+<td class="text-right"><p>10</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>20</p></td>
+<td class="text-right"><p>36</p></td>
+</tr>
+<tr class="row-odd"><td><p>ds6</p></td>
+<td class="text-right"><p>14</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>28</p></td>
+<td class="text-right"><p>44</p></td>
+</tr>
+<tr class="row-even"><td><p>ds7</p></td>
+<td class="text-right"><p>9</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>18</p></td>
+<td class="text-right"><p>34</p></td>
+</tr>
+<tr class="row-odd"><td><p>ds8</p></td>
+<td class="text-right"><p>15</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>30</p></td>
+<td class="text-right"><p>46</p></td>
+</tr>
+<tr class="row-even"><td><p>ds9</p></td>
+<td class="text-right"><p>19</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>38</p></td>
+<td class="text-right"><p>54</p></td>
+</tr>
+<tr class="row-odd"><td><p>ds10</p></td>
+<td class="text-right"><p>7</p></td>
+<td class="text-right"><p>16</p></td>
+<td class="text-right"><p>14</p></td>
+<td class="text-right"><p>30</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>All</strong></p></td>
+<td class="text-right"><p><strong>95</strong></p></td>
+<td class="text-right"><p><strong>160</strong></p></td>
+<td class="text-right"><p><strong>190</strong></p></td>
+<td class="text-right"><p><strong>350</strong></p></td>
+</tr>
+</tbody>
+</table>
+<p>The healthy test recording has ordinal <code class="docutils literal notranslate"><span class="pre">016</span></code> and seed <strong>42</strong> in every topology. Both variants of each fault use that same seed, so they can be compared with the matching healthy control. Other healthy recordings receive campaign-assigned seeds.</p>
+</section>
+<section id="directory-layout">
+<h2>Directory layout<a class="headerlink" href="#directory-layout" title="Link to this heading"></a></h2>
+<p>The campaign stores each topology as a <strong>shard</strong>. The topology name appears twice: first as the shard folder and then as the recordings folder. For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output/v2.2/
+├── release_manifest.json                 # full validated campaign only
+├── ds1_release_manifest.json             # one-dataset run only
+├── ds1/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── campaign.json
+│   ├── generation/                       # frozen code, models, config, dependencies
+│   │   ├── README.md
+│   │   ├── LICENSE
+│   │   ├── requirements.txt
+│   │   ├── requested_configuration.json
+│   │   ├── code/campaign_configuration.json
+│   │   ├── code/...
+│   │   └── models/...
+│   └── ds1/
+│       ├── ds1_001_healthy/
+│       ├── ...
+│       ├── ds1_016_healthy/
+│       ├── ds1_001_mixer0_anom_pump50_persistent/
+│       ├── ds1_002_mixer0_anom_pump50_temporal/
+│       └── ...
+├── ds2/
+└── ... ds10/
+</pre></div>
+</div>
+<p>A full campaign writes <code class="docutils literal notranslate"><span class="pre">release_manifest.json</span></code> at the root after validation. A selected topology, for example <code class="docutils literal notranslate"><span class="pre">--dataset</span> <span class="pre">ds1</span></code>, writes <code class="docutils literal notranslate"><span class="pre">ds1_release_manifest.json</span></code>. Each summary records schema version, recording count, shard summaries, and the path to its validation report. The report and individual worker logs are under <code class="docutils literal notranslate"><span class="pre">build/v2.2/campaign/logs/</span></code> by default, outside the release tree.</p>
+<p>To check a finished <strong>full</strong> campaign again, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">code/campaign_check.py</span> <span class="pre">output/v2.2</span></code>. The checker verifies expected counts and files, table alignment and time grids, artifact hashes, fault windows, and per-recording validation status.</p>
+<p><code class="docutils literal notranslate"><span class="pre">campaign.json</span></code> is the shard’s detailed manifest. It lists every <code class="docutils literal notranslate"><span class="pre">scenario_id</span></code>, split, seed, paired healthy recording, fault variant, start/end times, active duration, completion state, and coverage observations. Its status can be <code class="docutils literal notranslate"><span class="pre">planned</span></code>, <code class="docutils literal notranslate"><span class="pre">running</span></code>, <code class="docutils literal notranslate"><span class="pre">failed</span></code>, <code class="docutils literal notranslate"><span class="pre">complete</span></code>, or a coverage/signal review status. The <code class="docutils literal notranslate"><span class="pre">generation/</span></code> snapshot freezes the generation code, Modelica models, requested configuration, replay configuration, requirements, and their SHA-256 digests.</p>
+<p>The launcher uses <code class="docutils literal notranslate"><span class="pre">output/v2.2/</span></code> as <strong>staging output</strong>. The source branch does not contain a generated <code class="docutils literal notranslate"><span class="pre">data/</span></code> release. <code class="docutils literal notranslate"><span class="pre">data/v2.2</span></code> is reserved for later promotion, and the campaign command refuses to write there directly. Do not mistake <code class="docutils literal notranslate"><span class="pre">build/</span></code> logs or a custom run’s <code class="docutils literal notranslate"><span class="pre">output/custom/</span></code> directory for benchmark recordings.</p>
+</section>
+<section id="scenario-names-and-fault-windows">
+<h2>Scenario names and fault windows<a class="headerlink" href="#scenario-names-and-fault-windows" title="Link to this heading"></a></h2>
+<p>A healthy name has the form <code class="docutils literal notranslate"><span class="pre">ds1_016_healthy</span></code>. A fault name has the form <code class="docutils literal notranslate"><span class="pre">&lt;topology&gt;_&lt;ordinal&gt;_&lt;module&gt;_&lt;fault&gt;_&lt;variant&gt;</span></code>, such as <code class="docutils literal notranslate"><span class="pre">ds1_002_mixer0_anom_pump50_temporal</span></code>. The fault ordinal <code class="docutils literal notranslate"><span class="pre">001</span></code> means persistent; <code class="docutils literal notranslate"><span class="pre">002</span></code> means temporary. The module and fault fields identify the single enabled intervention.</p>
+<p>Each benchmark simulation has <strong>25,000 one-second intervals</strong> from time 0 through 25,000. The canonical exported tables therefore have <strong>25,001 rows</strong>, including both endpoints. The fault is configured to start at time <strong>2,500</strong>:</p>
+<ul class="simple">
+<li><p><strong>Persistent:</strong> active from time 2,500 through the recording end; <code class="docutils literal notranslate"><span class="pre">faultEnd</span></code> is null and the active duration is 22,500 intervals.</p></li>
+<li><p><strong>Temporary:</strong> active on <code class="docutils literal notranslate"><span class="pre">[2500,</span> <span class="pre">7500)</span></code>; <code class="docutils literal notranslate"><span class="pre">faultEnd</span></code> is 7,500 and the active duration is 5,000 intervals.</p></li>
+</ul>
+<p>The exact sampled value at an OpenModelica event boundary can be pre-event or post-event. Use <code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code> and the offline oracle flags when assessing boundary samples; do not infer physical onset from the first changed measurement alone.</p>
+</section>
+<section id="files-inside-one-recording">
+<h2>Files inside one recording<a class="headerlink" href="#files-inside-one-recording" title="Link to this heading"></a></h2>
+<p>Every folder such as <code class="docutils literal notranslate"><span class="pre">output/v2.2/ds1/ds1/ds1_016_healthy/</span></code> contains:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;scenario-id&gt;/
+├── continuous/measurements.parquet
+├── discrete/measurements.parquet
+├── hybrid/measurements.parquet
+├── commands.parquet
+├── oracle_states.parquet
+├── audit_for_verification/internal_verification.csv
+├── fault_events.json
+├── channel_catalogue.yaml
+├── permitted_inputs.json
+├── system_knowledge.yaml
+├── technical_timing.json
+├── sim_setup.json
+├── provenance.json
+└── validation.json
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>What it contains</p></th>
+<th class="head"><p>Use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">continuous/measurements.parquet</span></code></p></td>
+<td><p>Real-valued online sensors such as level, pressure, flow, and temperature.</p></td>
+<td><p>Select one measurement view for model input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">discrete/measurements.parquet</span></code></p></td>
+<td><p>Discrete sensor states.</p></td>
+<td><p>Select one measurement view for model input.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hybrid/measurements.parquet</span></code></p></td>
+<td><p>Continuous and discrete measurement columns together.</p></td>
+<td><p>General combined measurement view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">commands.parquet</span></code></p></td>
+<td><p>Directly recorded nominal controller commands on the same time grid.</p></td>
+<td><p>Optional diagnostic inputs if controller outputs are available in your setting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oracle_states.parquet</span></code></p></td>
+<td><p>Simulator internals, controller phases, effective references, and fault-window indicators.</p></td>
+<td><p>Offline analysis and targets only.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">audit_for_verification/internal_verification.csv</span></code></p></td>
+<td><p>Raw internal channels used to check exports and paired fault effects.</p></td>
+<td><p>Internal validation only.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code></p></td>
+<td><p>Empty <code class="docutils literal notranslate"><span class="pre">events</span></code> for healthy runs; otherwise target module, fault mechanism, window, and intervention details.</p></td>
+<td><p>Offline labels and interpretation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">channel_catalogue.yaml</span></code></p></td>
+<td><p>Channel meanings, units, command availability, source equations, and links to effective offline references.</p></td>
+<td><p>Interpret and verify channels.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code></p></td>
+<td><p>Explicit allowlists of measurement and command columns; excluded identifiers and offline files.</p></td>
+<td><p>Define diagnostic inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">system_knowledge.yaml</span></code></p></td>
+<td><p>Module/edge structure, variable catalogue, and model-based rules.</p></td>
+<td><p>Structural and semantic metadata.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code></p></td>
+<td><p>Sample period, channel timing, fault boundaries, and observed differences from the paired healthy control.</p></td>
+<td><p>Interpret timing and align comparisons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sim_setup.json</span></code></p></td>
+<td><p>Exact run setup, target module/fault, variant, data roles, and release schema.</p></td>
+<td><p>Identify/reproduce a recording.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">provenance.json</span></code></p></td>
+<td><p>Config, model and runtime source hashes; software versions; seed; solver settings; artifact hashes.</p></td>
+<td><p>Trace and verify provenance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">validation.json</span></code></p></td>
+<td><p>Raw-result, export, diagnosis, and healthy/fault-pair checks.</p></td>
+<td><p>Check recording validity.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The measurement, command, and oracle tables share <code class="docutils literal notranslate"><span class="pre">scenario_id</span></code>, <code class="docutils literal notranslate"><span class="pre">simulation_step</span></code>, and <code class="docutils literal notranslate"><span class="pre">simulation_time</span></code> identifiers. They are aligned row by row, but these three fields are <strong>excluded diagnostic features</strong>. The v2.2 release schema is <code class="docutils literal notranslate"><span class="pre">2.2.0</span></code>.</p>
+</section>
+<section id="choose-permitted-diagnostic-inputs">
+<h2>Choose permitted diagnostic inputs<a class="headerlink" href="#choose-permitted-diagnostic-inputs" title="Link to this heading"></a></h2>
+<p>Read exactly one measurement view. The <code class="docutils literal notranslate"><span class="pre">measurements</span></code> list in <code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code> names allowed sensor columns; <code class="docutils literal notranslate"><span class="pre">commands</span></code> lists separately available controller outputs. <code class="docutils literal notranslate"><span class="pre">actuator_responses</span></code> is empty because independent speed, position, or power response sensors are not modeled. Oracle states, fault events, system knowledge, timing, and audit files remain separate offline information. This prevents a fault indicator or effective internal signal from leaking into an online diagnosis model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">recording</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"output/v2.2/ds1/ds1/ds1_016_healthy"</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"permitted_inputs.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">hybrid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"hybrid/measurements.parquet"</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">hybrid</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">"measurements"</span><span class="p">]]</span>
+
+<span class="c1"># Use this only when controller commands are observable in your application.</span>
+<span class="n">commands</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"commands.parquet"</span><span class="p">)</span>
+<span class="n">X_with_commands</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">"commands"</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code> for labels <strong>after</strong> choosing inputs. The paired fault timing fields report threshold-qualified sampled differences, not an exact continuous-time causal onset. For reproducibility, retain each recording’s <code class="docutils literal notranslate"><span class="pre">sim_setup.json</span></code> and <code class="docutils literal notranslate"><span class="pre">provenance.json</span></code> with the tables you use.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="datasets.html" class="btn btn-neutral float-left" title="Datasets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

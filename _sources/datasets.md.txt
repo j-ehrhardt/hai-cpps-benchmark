@@ -1,55 +1,17 @@
 # Datasets
 
-The HAI-CPS benchmark constist of a total of 10 Datasets showing increasing system complexity
+HAI-CPPS v2.2 provides ten modular process-plant topologies with increasing complexity. A complete generated campaign has **350 recordings**: 160 healthy and 190 single-fault recordings. Each topology has training, validation, calibration, and healthy test recordings. Every enabled fault proxy has persistent and temporary test recordings paired with a seed-matched healthy control.
 
-<img src="../_static/imgs/cpps-setups.png" alt="HAI-CPS" width="100%" />
+<img src="_static/imgs/cpps-setups.png" alt="HAI-CPPS process-plant configurations" width="100%" />
 
+Each benchmark recording has three Parquet measurement views: **continuous** process values, **discrete** sensor states, and **hybrid** combined measurements. A separate `commands.parquet` table contains directly recorded nominal controller commands. The `permitted_inputs.json` policy lists which measurement and command columns can be used for diagnosis.
 
-Each dataset is available in four recording modes: 
-- **normal discrete**: Includes only binary/discrete control and sensor values with its states of the normal working system.
-- **anomalous discrete**: Includes only binary/discrete control and sensor values with its states of the non-normal working system.
-- **normal continuous**: Includes only real-valued sensor data and process measurements with its states of the normal working system.
-- **anomalous continuous**: Includes only real-valued sensor data and process measurements with its states of the normal working system.
+Simulator-derived `oracle_states.parquet`, fault labels, structural knowledge, timing, and audit data are separate **offline** artifacts. Do not join them into online model inputs. The three identifier columns are for alignment and are excluded as diagnostic features.
 
-Within each recording mode all anomalies in all modules and all their permutations are saved as a separate `.csv` file, along with a recording of without any anomaly, to foster unsupervised ML methods. 
-
-The naming convention of the channels within the recordings follows the schema `<module><component><sensor>`. 
-
-The recordings of HAI-CPS are structured as follows: 
-```bash
-
-HAI-CPS
-├── normal-continuous
-|   ├── ds1
-|   ├── ds2
-|   |   ├── ds2_continuous_s.csv
-|   |   ├── sim_setup.json
-...
-├── anomalous-continuous
-|   ├── ds1_mixer0_anom_clogging
-|   ├── ds1_mixer0_anom_pump50
-|   |   ├── ds1_mixer0_anom_pump50_continuous_s.csv
-|   |   ├── sim_setup.json
-...
-├── normal-discrete
-|   ├── ds1
-|   ├── ds2
-|   |   ├── ds2_discrete_s.csv
-|   |   ├── sim_setup.json
-...
-├── anomalous-discrete
-|   ├── ds1_mixer0_anom_clogging
-|   ├── ds1_mixer0_anom_pump50
-|   |   ├── ds1_mixer0_anom_pump50_discrete_s.csv
-|   |   ├── sim_setup.json
-...
-
-
+The release is organized in topology shards, such as `output/v2.2/ds1/ds1/ds1_016_healthy/`. Every recording spans times 0–25,000 with 25,001 rows. See [Campaign Output and Data Directory](campaign-output) for the complete tree, file-by-file roles, naming scheme, fault windows, and an input-loading example.
 
 ## Download
 
-HAI-CPS is hosted on IEEE-Dataport. 
-You can find and download all datasets, follwing this [link](https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-sytems). 
+HAI-CPPS datasets are hosted on IEEE DataPort. You can find the [published benchmark](https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-systems-v2) there. Check the publication's version before comparing it with a locally generated v2.2 campaign.
 
-<img src="https://ieee-dataport.org/themes/custom/dataport_bootstrap/logo.svg" alt="Dataport-logo" width="20%" />
-
+<img src="https://ieee-dataport.org/themes/custom/dataport_bootstrap/logo.svg" alt="Dataport logo" width="20%" />

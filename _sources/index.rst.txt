@@ -1,29 +1,28 @@
-Welcome to the Documentation of HAI-CPS
-=======================================
+Welcome to the Documentation of HAI-CPPS v2.2
+=============================================
 
-The **Hamburg AI Benchmark for Cyber-Physical Systems (HAI-CPS)** is a comprehensive dataset designed for evaluating AI models in the domains of **anomaly detection, diagnosis, and reconfiguration** for Cyber-Physical Systems (CPS).
+The **Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS)** is a benchmark for evaluating AI methods in anomaly detection, diagnosis, reconfiguration, and planning for modular cyber-physical process plants.
 
-HAI-CPS is structured as a benchmark comprising ten different scenarios of a modular process plant, each demonstrating various functionalities and increasing complexities.  
-This enables you to comprehensively test your algorithms not only on a single use-case but systematically across increasingly complex examples within the same domain.  
-Each scenario can feature multiple anomalies occurring within a single module or across multiple modules of the CPS.
+HAI-CPPS comprises ten process-plant topologies with increasing complexity. The v2.2 campaign contains 350 recordings: 160 healthy and 190 recordings with one enabled fault proxy in one module. Each fault has persistent and temporary variants paired with a seed-matched healthy test control.
 
 .. image:: /_static/imgs/banner.png
-   :alt: banner
+   :alt: HAI-CPPS process plant
    :class: align-center
    :width: 100%
 
-HAI-CPS includes:
+HAI-CPPS includes:
 
 - OpenModelica simulation models
-- Pre-simulated datasets for benchmarking
-- Docker integration for easy execution
+- Published benchmark datasets
+- Validated generation, export, and release checks
+- A parallel campaign launcher with per-topology manifests and frozen generation source
 
-In addition to the provided setups, you can also create and simulate your own system constellations using the OpenModelica models and the HAI-CPS Python API.
+The release separates online measurements and recorded controller commands from simulator-derived oracle states and offline metadata. You can also simulate a custom topology or module and obtain a raw OpenModelica CSV.
 
 .. note::
 
-   **HAI-CPS** extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**.  
-   You can access the previous version here:  
+   **HAI-CPPS** extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**.
+   You can access the previous version here:
    `BeRfiPl Benchmark <https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/benchmark_v1>`_
 
 .. toctree::
@@ -34,22 +33,50 @@ In addition to the provided setups, you can also create and simulate your own sy
    overview/index
    simulation/index
    datasets
+   campaign-output
 
 
-When using HAI-CPS, please cite
+When using the HAI-CPPS benchmark, please use the following citation:
 
-.. code-block::
+.. code-block:: bibtex
 
-    @misc{Ehrhardt2025,
-    author = {Ehrhardt, Jonas and Moddemann, Lukas and Niggemann, Oliver},
-    year = {2025},
-    title = {The Hamburg Artificial Intelligence Benchmark for Cyber-Pyhsical Sytems - HAI-CPS},
-    howpublished = {\url=https://github.com/j-ehrhardt/hai-cps-benchmark},
-    doi = {},
-    }
+    @data{Ehrhardt2025HAICPPSDATASET,
+    doi = {10.21227/5ewb-cn40},
+    url = {https://dx.doi.org/10.21227/5ewb-cn40},
+    author = {Jonas Ehrhardt and Lukas Moddemann and Alexander Diedrich and Oliver Niggemann},
+    publisher = {IEEE Dataport},
+    title = {HAI-CPPS: The Hamburg AI Benchmark for Cyber-Physical Production Sytems},
+    year = {2025} }
 
 
-HAI-CPS was developed at the Chair of Informatics in Mechanical Engineering at Helmut-Schmidt-Universtiy.
+When using the HAI-CPPS benchmark, please also cite the `HAI-CPPS paper <https://doi.org/10.1109/ETFA65518.2025.11205680>`_:
+
+.. code-block:: bibtex
+
+    @INPROCEEDINGS{Moddemann2025HAICPPS,
+      author={Moddemann, Lukas and Ehrhardt, Jonas and Diedrich, Alexander and Niggemann, Oliver},
+      booktitle={2025 IEEE 30th International Conference on Emerging Technologies and Factory Automation (ETFA)},
+      title={The HAI-CPPS Benchmark: Evaluating AI Capabilities Across Hybrid Data Spaces},
+      year={2025},
+      pages={1-8},
+      doi={10.1109/ETFA65518.2025.11205680}}
+
+
+When using the original benchmark (BeRFiPl) please cite:
+
+.. code-block:: bibtex
+
+    @INPROCEEDINGS{Ehrhardt2022BERFIPL,
+      author={Ehrhardt, Jonas and Ramonat, Malte and Heesch, René and Balzereit, Kaja and Diedrich, Alexander and Niggemann, Oliver},
+      booktitle={2022 IEEE 27th International Conference on Emerging Technologies and Factory Automation (ETFA)},
+      title={An AI benchmark for Diagnosis, Reconfiguration & Planning},
+      year={2022},
+      pages={1-8},
+      organization = {IEEE},
+      doi={10.1109/ETFA52439.2022.9921546}}
+
+
+HAI-CPPS was developed at the Chair of Informatics in Mechanical Engineering at Helmut-Schmidt-University.
 
 |hsu|  |imb|
 
@@ -58,7 +85,3 @@ HAI-CPS was developed at the Chair of Informatics in Mechanical Engineering at H
 
 .. |imb| image:: https://www.hsu-hh.de/imb/wp-content/uploads/sites/677/2021/01/IMB_1080.png
    :width: 10%
-   
-
-   
-   

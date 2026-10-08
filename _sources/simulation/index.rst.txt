@@ -1,11 +1,10 @@
 Simulation
 ==========
 
-Besides downloading the datasets, you can use the simulation models of HAI-CPS benchmark to create your own scenarios. 
-The following section gives an overview on how to use the simulation models to replicate the datasets or create your own simulations with HAI-CPS. 
+Use the HAI-CPPS v2.2 campaign launcher to generate validated benchmark recordings, or the custom launcher to simulate your own topology as a raw CSV.
 
 .. toctree::
    :maxdepth: 2
-   
+
    using-the-simulation
    api

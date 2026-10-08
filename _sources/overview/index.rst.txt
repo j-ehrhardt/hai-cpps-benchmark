@@ -1,11 +1,7 @@
 Overview
 ========
 
-The following section introduces the four different modules of the HAI-CPS process plant. 
-Each module has a unique functionality.
-Multiple anomalies can be introduced into each module.
-We finally introudce the setups of the HAI-CPS benchmark.
-
+The following section introduces the four process modules, the supported fault proxies, and the ten HAI-CPPS v2.2 benchmark topologies. Each fault recording activates exactly one proxy at a time.
 
 .. toctree::
    :maxdepth: 2

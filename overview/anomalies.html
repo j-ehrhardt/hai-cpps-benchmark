@@ -1,37 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fault Proxies and Diagnosis &mdash; HAI-CPPS v2 documentation</title>
+  <title>Fault Proxies and Diagnosis &mdash; HAI-CPPS v2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8593dde2" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
-
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=60dbed4a"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Benchmark" href="benchmark.html" />
-    <link rel="prev" title="CPS Modules" href="cps-modules.html" />
+    <link rel="prev" title="CPS Modules" href="cps-modules.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-
-
+          
+          
           <a href="../index.html" class="icon icon-home">
             HAI-CPPS
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
@@ -50,11 +53,11 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cps-modules.html">CPS Modules</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Fault Proxies and Diagnosis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#leaking-anomaly-anom-leaking">Leaking Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#filter-pollution-anomaly-anom-pollution">Filter Pollution Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pump-lower-performance-anom-pump75-and-anom-pump50">Pump Lower Performance — <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#inlet-valve-anomaly-anom-valve-inx">Inlet Valve Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_valve_inX</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#heater-lower-performance-anom-heat75-and-anom-heat50">Heater Lower Performance — <code class="docutils literal notranslate"><span class="pre">anom_heat75</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_heat50</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#leak">Leak</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#filter-pollution">Filter pollution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reduced-pump-performance">Reduced pump performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inlet-valve-cannot-close">Inlet valve cannot close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reduced-heater-performance">Reduced heater performance</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="benchmark.html">Benchmark</a></li>
@@ -62,6 +65,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation/index.html">Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../campaign-output.html">Campaign Output and Data Directory</a></li>
 </ul>
 
         </div>
@@ -88,56 +92,42 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-
+             
   <section id="fault-proxies-and-diagnosis">
 <h1>Fault Proxies and Diagnosis<a class="headerlink" href="#fault-proxies-and-diagnosis" title="Link to this heading"></a></h1>
-<p>HAI-CPPS v2 uses configured component behaviours as fault proxies. A generated fault scenario activates <strong>one proxy in one module</strong>; the campaign generator creates and validates the corresponding normal reference run as well.</p>
-<p>Fault onset is configured per topology in <code class="docutils literal notranslate"><span class="pre">benchmark_setup.json</span></code> and recorded in <code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code> and <code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code>. The fault metadata identifies the target module and proxy. It is an offline evaluation artifact, not an online measurement feature.</p>
-<p>The available proxy depends on the module type:</p>
+<p>HAI-CPPS v2.2 generates one enabled fault proxy in one module per fault recording. Each proxy is released in two variants: <strong>persistent</strong>, active from time 2,500 through the recording end, and <strong>temporary</strong>, active from time 2,500 to 7,500. Both are paired with a seed-42 healthy test control. The exact event-boundary sample can be pre-event or post-event; <code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code> records the timing policy and observed paired differences.</p>
+<p>Fault metadata in <code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code> identifies the target module, mechanism, and window. It is an offline label, not a measurement input. The supported proxies depend on module type:</p>
 <ul class="simple">
-<li><p>all process modules: <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in0</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code>, and <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code> where applicable;</p></li>
-<li><p>mixer modules additionally support <code class="docutils literal notranslate"><span class="pre">anom_valve_in1</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_valve_in2</span></code>;</p></li>
-<li><p>filter modules additionally support <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code>; and</p></li>
-<li><p>distillation modules additionally support <code class="docutils literal notranslate"><span class="pre">anom_heat50</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_heat75</span></code>.</p></li>
+<li><p>Mixer: <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in0</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in1</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in2</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code>.</p></li>
+<li><p>Filter: <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in0</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code>.</p></li>
+<li><p>Distill: <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in0</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_heat50</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_heat75</span></code>.</p></li>
+<li><p>Bottling: <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_valve_in0</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code>, <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code>.</p></li>
 </ul>
-<p>The 50% and 75% variants of the same pump or heater cannot be active together.</p>
-<hr class="docutils" />
-<section id="leaking-anomaly-anom-leaking">
-<h2>Leaking Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code><a class="headerlink" href="#leaking-anomaly-anom-leaking" title="Link to this heading"></a></h2>
-<p>When <code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code> is active, a leaking valve opens between tanks in the affected module. Fluid leaves the process plant through a separate sink.</p>
-<p>Typical observable effects can include:</p>
-<ul class="simple">
-<li><p>reduced pressure in downstream pipes or tanks;</p></li>
-<li><p>lower volume-flow rates in the affected module or its neighbours;</p></li>
-<li><p>decreasing tank levels despite unchanged control signals; and</p></li>
-<li><p>an imbalance between inflow and outflow rates.</p></li>
-</ul>
+<p>The configuration may select only a subset of a module’s supported proxies for a topology’s campaign. Only one of the 50% and 75% pump or heater variants is active in any recording.</p>
+<section id="leak">
+<h2>Leak<a class="headerlink" href="#leak" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">anom_leaking</span></code> opens an artificial leak path, diverting material from the process. The distill leak uses a short smooth ramp after onset; other configured leak interventions use a step. Observable consequences can include changed levels, pressures, and flows, depending on the topology.</p>
 <img src="../_static/imgs/anom_leaking.png" alt="Leaking fault proxy" width="40%" />
-<p>The measurement exports exclude simulator-internal leakage states. Use a measurement view, rather than oracle states or metadata, as the input to an online model.</p>
 </section>
-<hr class="docutils" />
-<section id="filter-pollution-anomaly-anom-pollution">
-<h2>Filter Pollution Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code><a class="headerlink" href="#filter-pollution-anomaly-anom-pollution" title="Link to this heading"></a></h2>
-<p>This proxy is specific to the <strong>Filter</strong> module. It changes the filter-pollution behaviour after fault onset, affecting the pressure difference and flow through the filter.</p>
+<section id="filter-pollution">
+<h2>Filter pollution<a class="headerlink" href="#filter-pollution" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">anom_pollution</span></code> increases the filter pollution factor and changes its effective flow restriction. It applies only to the filter module.</p>
 <img src="../_static/imgs/anom_filter.png" alt="Filter pollution fault proxy" width="40%" />
 </section>
-<hr class="docutils" />
-<section id="pump-lower-performance-anom-pump75-and-anom-pump50">
-<h2>Pump Lower Performance — <code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code><a class="headerlink" href="#pump-lower-performance-anom-pump75-and-anom-pump50" title="Link to this heading"></a></h2>
-<p>These proxies reduce pump performance to 75% or 50% of nominal performance. They can lead to lower flow, reduced pressure, and longer tank-filling times.</p>
+<section id="reduced-pump-performance">
+<h2>Reduced pump performance<a class="headerlink" href="#reduced-pump-performance" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">anom_pump75</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_pump50</span></code> scale requested pump speed to 75% or 50% before noise and lag. They do not directly modify the nominal controller command stored in <code class="docutils literal notranslate"><span class="pre">commands.parquet</span></code>.</p>
 <img src="../_static/imgs/anom_pump.png" alt="Pump performance fault proxy" width="40%" />
-<p>Only one pump-performance proxy may be active in a scenario.</p>
 </section>
-<hr class="docutils" />
-<section id="inlet-valve-anomaly-anom-valve-inx">
-<h2>Inlet Valve Anomaly — <code class="docutils literal notranslate"><span class="pre">anom_valve_inX</span></code><a class="headerlink" href="#inlet-valve-anomaly-anom-valve-inx" title="Link to this heading"></a></h2>
-<p>An inlet valve proxy prevents the specified inlet valve from fully closing. The valve remains partly open, allowing unintended fluid inflow when the module is not in its intended filling state. The mixer can target <code class="docutils literal notranslate"><span class="pre">in0</span></code>, <code class="docutils literal notranslate"><span class="pre">in1</span></code>, or <code class="docutils literal notranslate"><span class="pre">in2</span></code>; the other supported process modules expose <code class="docutils literal notranslate"><span class="pre">in0</span></code>.</p>
+<section id="inlet-valve-cannot-close">
+<h2>Inlet valve cannot close<a class="headerlink" href="#inlet-valve-cannot-close" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">anom_valve_in0</span></code> (and <code class="docutils literal notranslate"><span class="pre">in1</span></code> or <code class="docutils literal notranslate"><span class="pre">in2</span></code> in the mixer) imposes a 20% minimum opening while the controller requests closure. This can admit unintended inflow.</p>
 <img src="../_static/imgs/anom_valve_in.png" alt="Inlet-valve fault proxy" width="20%" />
 </section>
-<hr class="docutils" />
-<section id="heater-lower-performance-anom-heat75-and-anom-heat50">
-<h2>Heater Lower Performance — <code class="docutils literal notranslate"><span class="pre">anom_heat75</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_heat50</span></code><a class="headerlink" href="#heater-lower-performance-anom-heat75-and-anom-heat50" title="Link to this heading"></a></h2>
-<p>These proxies are specific to the <strong>Distill</strong> module and reduce the distillation heater to 75% or 50% of nominal heat input. Only one heater-performance proxy may be active in a scenario.</p>
+<section id="reduced-heater-performance">
+<h2>Reduced heater performance<a class="headerlink" href="#reduced-heater-performance" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">anom_heat75</span></code> and <code class="docutils literal notranslate"><span class="pre">anom_heat50</span></code> scale the distill heater’s prescribed heat input to 75% or 50%. They apply only to the distill module.</p>
+<p>See <a class="reference internal" href="../campaign-output.html"><span class="doc std std-doc">Campaign Output and Data Directory</span></a> for the fault-recording names and artifact roles.</p>
 </section>
 </section>
 
@@ -152,13 +142,13 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2026, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
+   
 
 </footer>
         </div>
@@ -169,7 +159,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
+  </script> 
 
 </body>
 </html>

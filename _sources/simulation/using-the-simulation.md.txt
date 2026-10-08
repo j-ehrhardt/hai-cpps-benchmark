@@ -1,35 +1,51 @@
 # Using the Simulation
 
-You can use the code and models from this repository in two ways. 
-Either, you simulate your own scenarios or you recreate the benchmark.
+Run these commands from the repository root of the [v2.2 branch](https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/v2.2) after [installation](../installation). The campaign launcher exports validated benchmark recordings. The custom launcher produces a raw OpenModelica result.
 
-<div style="border-left: 4px solid #007acc; padding: 0.5em 1em; background: #f0f8ff;">
-<strong>Note:</strong>  
-If you want to use the models in Simulink, you can export to FMU models from the OMEdit and import them into Simulink.
+## Run all ten benchmark datasets
 
-</div>
-</br>
+Inspect the work list, then run up to four simulations at once:
 
+```bash
+python code/campaign.py --plan
+python code/campaign.py --jobs 4
+```
 
-## Replicate the Benchmark Datasets
+The complete campaign has **350 recordings**: 160 healthy and 190 single-fault recordings. Each of the ten topologies has 16 healthy recordings (10 training, 3 validation, 2 calibration, 1 test). Each selected fault proxy has two recordings: a persistent window and a temporary window. The launcher runs the seed-matched healthy test control before its fault recordings.
 
-If you simply want to replicate all datasets from the benchmark run the `sim.py` file with the virtual environemtn activated (either from the docker container or your terminal)
-The script will automatically select the `benchmark_setup.json` file and run all simulations.
+The default release root is `output/v2.2/`; build artifacts and worker logs are under `build/v2.2/campaign/`. Set `--jobs` to the number of concurrent OpenModelica runs your machine can sustain. Every worker receives a separate build directory.
 
-<div style="border-left: 4px solid #ffa500; padding: 0.5em 1em; background-color: #fff8e1;">
+To place generated files elsewhere, use separate output and build roots:
 
-<strong>⚠️ Warning:</strong>  
-Attention! The simulations takes time, so be prepared to let your computer run for a while. 
+```bash
+python code/campaign.py --jobs 8 \
+  --output /path/to/results \
+  --build-root /path/to/build
+```
 
-</div>
-</br>
+After an interruption, rerun the **same command** with unchanged source and configuration. The launcher verifies and reuses complete recordings. Choose fresh output and build roots after changing the source or configuration. It moves an incomplete recording into the build logs' `incomplete/` directory before retrying it. See [Campaign Output and Data Directory](../campaign-output) for the complete layout and validation files.
 
-## Create Your Own Simulation
+## Run one benchmark dataset
 
-If you want to create your own CPS configurations and simulations, you can either use the OpenModelica Editor (OMEdit) or you use the python interface provided in this repository.
+`--dataset` accepts `ds1` through `ds10` and produces a complete shard for that topology:
 
-When using the OMEdit, simply load the models from the `models` directory and assemble them into new configurations within the `ProcessPlant.mo` file.
+```bash
+python code/campaign.py --dataset ds1 --plan
+python code/campaign.py --dataset ds1 --jobs 4
+```
 
-When using the Python interface, create your unique setup as a `config.json` and run the `sim.py` file within the virtual environment. (This is especially suited for the docker usage). 
-You can orient yourself on the setup file for the benchmark `benchmark_setup.json` in the `code` directory. 
-Make sure to insert your `config.json` in the `sim.py` file. 
+For `ds1`, this produces 16 healthy and 12 fault recordings. The release summary is `output/v2.2/ds1_release_manifest.json`. A full ten-dataset run instead writes `output/v2.2/release_manifest.json`.
+
+## Simulate your own topology or module
+
+Copy `examples/custom.json` from the v2.2 branch. It connects a source, the example `PassThrough.mo` module, and a sink. Set `model.modules` and `model.edges` for your plant; every declared port must be connected exactly once. Model paths in `files` are relative to the JSON configuration.
+
+A new module declares `type: custom`, `modelica_class`, `input_ports`, `output_ports`, `files`, and an empty `faults` object. Its Modelica class must define a replaceable `Medium` package. You can also combine the built-in modules without changing their models.
+
+Run the included example:
+
+```bash
+python code/simulate.py --config examples/custom.json --dataset custom1
+```
+
+The raw result is `output/custom/custom1/processPlant_res.csv`. The same run directory contains the generated plant, OpenModelica script, and compiler logs. This command exports **all Modelica variables as raw CSV** and does not create the benchmark's Parquet release or campaign metadata. To run again, pass a fresh `--output` location; an existing run directory is protected from overwrite.

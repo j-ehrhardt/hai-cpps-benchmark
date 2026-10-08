@@ -1,37 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using the Simulation &mdash; HAI-CPPS v2 documentation</title>
+  <title>Using the Simulation &mdash; HAI-CPPS v2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8593dde2" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
-
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=60dbed4a"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Command-Line Interface and Python Loader" href="api.html" />
-    <link rel="prev" title="Simulation" href="index.html" />
+    <link rel="next" title="Command-Line Interface and Configuration" href="api.html" />
+    <link rel="prev" title="Simulation" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-
-
+          
+          
           <a href="../index.html" class="icon icon-home">
             HAI-CPPS
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
@@ -50,17 +53,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Simulation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Using the Simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#replicate-the-benchmark-datasets">Replicate the Benchmark Datasets</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#parallel-execution">Parallel execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-all-ten-benchmark-datasets">Run all ten benchmark datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-one-benchmark-dataset">Run one benchmark dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulate-your-own-topology-or-module">Simulate your own topology or module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#create-your-own-simulation">Create Your Own Simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.html">Command-Line Interface and Python Loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">Command-Line Interface and Configuration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../campaign-output.html">Campaign Output and Data Directory</a></li>
 </ul>
 
         </div>
@@ -87,77 +89,45 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-
+             
   <section id="using-the-simulation">
 <h1>Using the Simulation<a class="headerlink" href="#using-the-simulation" title="Link to this heading"></a></h1>
-<p>You can use the HAI-CPPS v2 code and models to recreate the benchmark or to generate a validated custom topology. The supported entry point is <code class="docutils literal notranslate"><span class="pre">code/sim.py</span></code>.</p>
-<div style="border-left: 4px solid #007acc; padding: 0.5em 1em; background: #f0f8ff;">
-<strong>Note:</strong><br>
-If you want to use the models in Simulink, you can export FMU models from OMEdit and import them into Simulink.
-</div>
-<section id="replicate-the-benchmark-datasets">
-<h2>Replicate the Benchmark Datasets<a class="headerlink" href="#replicate-the-benchmark-datasets" title="Link to this heading"></a></h2>
-<p>With the project environment activated and <code class="docutils literal notranslate"><span class="pre">omc</span></code> available on <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, validate the configuration:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>validate<span class="w"> </span>--config<span class="w"> </span>code/benchmark_setup.json
+<p>Run these commands from the repository root of the <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/v2.2">v2.2 branch</a> after <a class="reference internal" href="../installation.html"><span class="doc std std-doc">installation</span></a>. The campaign launcher exports validated benchmark recordings. The custom launcher produces a raw OpenModelica result.</p>
+<section id="run-all-ten-benchmark-datasets">
+<h2>Run all ten benchmark datasets<a class="headerlink" href="#run-all-ten-benchmark-datasets" title="Link to this heading"></a></h2>
+<p>Inspect the work list, then run up to four simulations at once:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/campaign.py<span class="w"> </span>--plan
+python<span class="w"> </span>code/campaign.py<span class="w"> </span>--jobs<span class="w"> </span><span class="m">4</span>
 </pre></div>
 </div>
-<p>Generate the complete v2 campaign with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--config<span class="w"> </span>code/benchmark_setup.json<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--campaign<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output<span class="w"> </span>output/v2<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--build-root<span class="w"> </span>work/v2<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--seed<span class="w"> </span><span class="m">20260831</span>
+<p>The complete campaign has <strong>350 recordings</strong>: 160 healthy and 190 single-fault recordings. Each of the ten topologies has 16 healthy recordings (10 training, 3 validation, 2 calibration, 1 test). Each selected fault proxy has two recordings: a persistent window and a temporary window. The launcher runs the seed-matched healthy test control before its fault recordings.</p>
+<p>The default release root is <code class="docutils literal notranslate"><span class="pre">output/v2.2/</span></code>; build artifacts and worker logs are under <code class="docutils literal notranslate"><span class="pre">build/v2.2/campaign/</span></code>. Set <code class="docutils literal notranslate"><span class="pre">--jobs</span></code> to the number of concurrent OpenModelica runs your machine can sustain. Every worker receives a separate build directory.</p>
+<p>To place generated files elsewhere, use separate output and build roots:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/campaign.py<span class="w"> </span>--jobs<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>/path/to/results<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--build-root<span class="w"> </span>/path/to/build
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">full</span></code> generates the ten normal scenarios and all 110 enabled one-fault scenarios in the supplied configuration. A run stops with an error if the simulator result, export bundle, or normal/fault validation is invalid.</p>
-<p>To run only one normal scenario, use <code class="docutils literal notranslate"><span class="pre">--campaign</span> <span class="pre">normal</span> <span class="pre">--scenario</span> <span class="pre">ds1</span></code>. To execute a particular normal/fault pair, specify the target module and fault:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--config<span class="w"> </span>code/benchmark_setup.json<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--scenario<span class="w"> </span>ds1<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--module<span class="w"> </span>mixer0<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--fault<span class="w"> </span>anom_pump50<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output<span class="w"> </span>output/smoke<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--build-root<span class="w"> </span>work/smoke<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--seed<span class="w"> </span><span class="m">20260831</span>
-</pre></div>
-</div>
-<p>Existing scenario releases are protected. Use <code class="docutils literal notranslate"><span class="pre">--resume</span></code> to reuse only complete, compatible releases; use <code class="docutils literal notranslate"><span class="pre">--force</span></code> to intentionally regenerate a selected scenario. The two options cannot be combined.</p>
-<section id="parallel-execution">
-<h3>Parallel execution<a class="headerlink" href="#parallel-execution" title="Link to this heading"></a></h3>
-<p>Run different base topologies in parallel and give every process a distinct output and build root:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>parallel<span class="w"> </span>-j<span class="w"> </span><span class="m">4</span><span class="w"> </span>--line-buffer<span class="w"> </span>--halt<span class="w"> </span>soon,fail<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s1">&#39;python code/sim.py run \</span>
-<span class="s1">    --config code/benchmark_setup.json \</span>
-<span class="s1">    --campaign full \</span>
-<span class="s1">    --scenario {} \</span>
-<span class="s1">    --output output/{} \</span>
-<span class="s1">    --build-root work/{} \</span>
-<span class="s1">    --seed 20260831&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>:::<span class="w"> </span>ds1<span class="w"> </span>ds2<span class="w"> </span>ds3<span class="w"> </span>ds4<span class="w"> </span>ds5<span class="w"> </span>ds6<span class="w"> </span>ds7<span class="w"> </span>ds8<span class="w"> </span>ds9<span class="w"> </span>ds10
-</pre></div>
-</div>
-<p>Adjust <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">4</span></code> to the number of simulations the host can sustain. Do not share a build root between concurrent simulations.</p>
-<div style="border-left: 4px solid #ffa500; padding: 0.5em 1em; background-color: #fff8e1;">
-<strong>⚠️ Warning:</strong><br>
-Complete campaigns take time. Start with a normal scenario or one explicit normal/fault pair to verify the local installation.
-</div>
+<p>After an interruption, rerun the <strong>same command</strong> with unchanged source and configuration. The launcher verifies and reuses complete recordings. Choose fresh output and build roots after changing the source or configuration. It moves an incomplete recording into the build logs’ <code class="docutils literal notranslate"><span class="pre">incomplete/</span></code> directory before retrying it. See <a class="reference internal" href="../campaign-output.html"><span class="doc std std-doc">Campaign Output and Data Directory</span></a> for the complete layout and validation files.</p>
 </section>
-</section>
-<section id="create-your-own-simulation">
-<h2>Create Your Own Simulation<a class="headerlink" href="#create-your-own-simulation" title="Link to this heading"></a></h2>
-<p>To create a custom CPPS configuration, use <code class="docutils literal notranslate"><span class="pre">code/benchmark_setup.json</span></code> as a template. It defines modules, connections, enabled fault proxies, and simulation timing. Keep model-file paths relative to the configuration file.</p>
-<p>Validate a custom configuration before running it:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/sim.py<span class="w"> </span>validate<span class="w"> </span>--config<span class="w"> </span>/path/to/benchmark_setup.json
-python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--config<span class="w"> </span>/path/to/benchmark_setup.json<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--campaign<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output<span class="w"> </span>output/custom<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--build-root<span class="w"> </span>work/custom<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--seed<span class="w"> </span><span class="m">20260831</span>
+<section id="run-one-benchmark-dataset">
+<h2>Run one benchmark dataset<a class="headerlink" href="#run-one-benchmark-dataset" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">--dataset</span></code> accepts <code class="docutils literal notranslate"><span class="pre">ds1</span></code> through <code class="docutils literal notranslate"><span class="pre">ds10</span></code> and produces a complete shard for that topology:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/campaign.py<span class="w"> </span>--dataset<span class="w"> </span>ds1<span class="w"> </span>--plan
+python<span class="w"> </span>code/campaign.py<span class="w"> </span>--dataset<span class="w"> </span>ds1<span class="w"> </span>--jobs<span class="w"> </span><span class="m">4</span>
 </pre></div>
 </div>
-<p>The validator checks the JSON schema, module types, port connectivity, supported fault names, mutually exclusive fault pairs, timing, and referenced model files. The export workflow does not modify the checked-in simulation models or calls.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">ds1</span></code>, this produces 16 healthy and 12 fault recordings. The release summary is <code class="docutils literal notranslate"><span class="pre">output/v2.2/ds1_release_manifest.json</span></code>. A full ten-dataset run instead writes <code class="docutils literal notranslate"><span class="pre">output/v2.2/release_manifest.json</span></code>.</p>
+</section>
+<section id="simulate-your-own-topology-or-module">
+<h2>Simulate your own topology or module<a class="headerlink" href="#simulate-your-own-topology-or-module" title="Link to this heading"></a></h2>
+<p>Copy <code class="docutils literal notranslate"><span class="pre">examples/custom.json</span></code> from the v2.2 branch. It connects a source, the example <code class="docutils literal notranslate"><span class="pre">PassThrough.mo</span></code> module, and a sink. Set <code class="docutils literal notranslate"><span class="pre">model.modules</span></code> and <code class="docutils literal notranslate"><span class="pre">model.edges</span></code> for your plant; every declared port must be connected exactly once. Model paths in <code class="docutils literal notranslate"><span class="pre">files</span></code> are relative to the JSON configuration.</p>
+<p>A new module declares <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">custom</span></code>, <code class="docutils literal notranslate"><span class="pre">modelica_class</span></code>, <code class="docutils literal notranslate"><span class="pre">input_ports</span></code>, <code class="docutils literal notranslate"><span class="pre">output_ports</span></code>, <code class="docutils literal notranslate"><span class="pre">files</span></code>, and an empty <code class="docutils literal notranslate"><span class="pre">faults</span></code> object. Its Modelica class must define a replaceable <code class="docutils literal notranslate"><span class="pre">Medium</span></code> package. You can also combine the built-in modules without changing their models.</p>
+<p>Run the included example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>code/simulate.py<span class="w"> </span>--config<span class="w"> </span>examples/custom.json<span class="w"> </span>--dataset<span class="w"> </span>custom1
+</pre></div>
+</div>
+<p>The raw result is <code class="docutils literal notranslate"><span class="pre">output/custom/custom1/processPlant_res.csv</span></code>. The same run directory contains the generated plant, OpenModelica script, and compiler logs. This command exports <strong>all Modelica variables as raw CSV</strong> and does not create the benchmark’s Parquet release or campaign metadata. To run again, pass a fresh <code class="docutils literal notranslate"><span class="pre">--output</span></code> location; an existing run directory is protected from overwrite.</p>
 </section>
 </section>
 
@@ -166,19 +136,19 @@ python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class=
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api.html" class="btn btn-neutral float-right" title="Command-Line Interface and Python Loader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="Command-Line Interface and Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2026, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
+   
 
 </footer>
         </div>
@@ -189,7 +159,7 @@ python<span class="w"> </span>code/sim.py<span class="w"> </span>run<span class=
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
+  </script> 
 
 </body>
 </html>

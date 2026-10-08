@@ -1,36 +1,39 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to the Documentation of HAI-CPPS v2 &mdash; HAI-CPPS v2 documentation</title>
+  <title>Welcome to the Documentation of HAI-CPPS v2.2 &mdash; HAI-CPPS v2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=8593dde2" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0bcac001" />
 
-
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=60dbed4a"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=e09f69a6"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/js/current-year.js?v=76165a1e"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="next" title="Installation" href="installation.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-
-
+          
+          
           <a href="#" class="icon icon-home">
             HAI-CPPS
               <img src="_static/logo.png" class="logo" alt="Logo"/>
@@ -49,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulation/index.html">Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="campaign-output.html">Campaign Output and Data Directory</a></li>
 </ul>
 
         </div>
@@ -65,7 +69,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Welcome to the Documentation of HAI-CPPS v2</li>
+      <li class="breadcrumb-item active">Welcome to the Documentation of HAI-CPPS v2.2</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -74,21 +78,20 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-
-  <section id="welcome-to-the-documentation-of-hai-cpps-v2">
-<h1>Welcome to the Documentation of HAI-CPPS v2<a class="headerlink" href="#welcome-to-the-documentation-of-hai-cpps-v2" title="Link to this heading"></a></h1>
+             
+  <section id="welcome-to-the-documentation-of-hai-cpps-v2-2">
+<h1>Welcome to the Documentation of HAI-CPPS v2.2<a class="headerlink" href="#welcome-to-the-documentation-of-hai-cpps-v2-2" title="Link to this heading"></a></h1>
 <p>The <strong>Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS)</strong> is a benchmark for evaluating AI methods in anomaly detection, diagnosis, reconfiguration, and planning for modular cyber-physical process plants.</p>
-<p>HAI-CPPS comprises ten process-plant topologies with increasing complexity. A campaign run is either normal or contains exactly one enabled fault proxy in one module, enabling controlled and reproducible comparisons across plant and fault complexity.</p>
-<a class="align-center reference internal image-reference" href="_images/banner.png"><img alt="HAI-CPPS process plant" class="align-center" src="_images/banner.png" style="width: 100%;" />
-</a>
+<p>HAI-CPPS comprises ten process-plant topologies with increasing complexity. The v2.2 campaign contains 350 recordings: 160 healthy and 190 recordings with one enabled fault proxy in one module. Each fault has persistent and temporary variants paired with a seed-matched healthy test control.</p>
+<a class="align-center reference internal image-reference" href="_images/banner.png"><img alt="HAI-CPPS process plant" class="align-center" src="_images/banner.png" style="width: 100%;" /></a>
 <p>HAI-CPPS includes:</p>
 <ul class="simple">
 <li><p>OpenModelica simulation models</p></li>
 <li><p>Published benchmark datasets</p></li>
 <li><p>Validated generation, export, and release checks</p></li>
-<li><p>Docker integration for reproducible execution</p></li>
+<li><p>A parallel campaign launcher with per-topology manifests and frozen generation source</p></li>
 </ul>
-<p>The v2 release separates online measurement features from simulator-derived oracle states and offline metadata. You can also create and simulate your own system constellations using the OpenModelica models and the HAI-CPPS command-line workflow.</p>
+<p>The release separates online measurements and recorded controller commands from simulator-derived oracle states and offline metadata. You can also simulate a custom topology or module and obtain a raw OpenModelica CSV.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>HAI-CPPS</strong> extends the <strong>Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)</strong>.
@@ -99,8 +102,8 @@ You can access the previous version here:
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#id1">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#openmodelica-and-modelica-library">OpenModelica and Modelica library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#python-environment">Python environment</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a><ul>
@@ -111,23 +114,52 @@ You can access the previous version here:
 </li>
 <li class="toctree-l1"><a class="reference internal" href="simulation/index.html">Simulation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="simulation/using-the-simulation.html">Using the Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulation/api.html">Command-Line Interface and Python Loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation/api.html">Command-Line Interface and Configuration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="datasets.html#download">Download</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="campaign-output.html">Campaign Output and Data Directory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="campaign-output.html#campaign-size-and-recording-splits">Campaign size and recording splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="campaign-output.html#directory-layout">Directory layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="campaign-output.html#scenario-names-and-fault-windows">Scenario names and fault windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="campaign-output.html#files-inside-one-recording">Files inside one recording</a></li>
+<li class="toctree-l2"><a class="reference internal" href="campaign-output.html#choose-permitted-diagnostic-inputs">Choose permitted diagnostic inputs</a></li>
+</ul>
+</li>
 </ul>
 </div>
-<p>When using HAI-CPPS, please cite</p>
-<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@data</span><span class="p">{</span><span class="nl">haicpps</span><span class="p">,</span>
+<p>When using the HAI-CPPS benchmark, please use the following citation:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@data</span><span class="p">{</span><span class="nl">Ehrhardt2025HAICPPSDATASET</span><span class="p">,</span>
 <span class="na">doi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{10.21227/5ewb-cn40}</span><span class="p">,</span>
 <span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://dx.doi.org/10.21227/5ewb-cn40}</span><span class="p">,</span>
 <span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Jonas Ehrhardt and Lukas Moddemann and Alexander Diedrich and Oliver Niggemann}</span><span class="p">,</span>
 <span class="na">publisher</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{IEEE Dataport}</span><span class="p">,</span>
-<span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{HAI-CPPS: The Hamburg AI Benchmark for Cyber-Physical Production Systems}</span><span class="p">,</span>
+<span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{HAI-CPPS: The Hamburg AI Benchmark for Cyber-Physical Production Sytems}</span><span class="p">,</span>
 <span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2025}</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>When using the HAI-CPPS benchmark, please also cite the <a class="reference external" href="https://doi.org/10.1109/ETFA65518.2025.11205680">HAI-CPPS paper</a>:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@INPROCEEDINGS</span><span class="p">{</span><span class="nl">Moddemann2025HAICPPS</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="p">=</span><span class="s">{Moddemann, Lukas and Ehrhardt, Jonas and Diedrich, Alexander and Niggemann, Oliver}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">booktitle</span><span class="p">=</span><span class="s">{2025 IEEE 30th International Conference on Emerging Technologies and Factory Automation (ETFA)}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="p">=</span><span class="s">{The HAI-CPPS Benchmark: Evaluating AI Capabilities Across Hybrid Data Spaces}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">year</span><span class="p">=</span><span class="s">{2025}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">pages</span><span class="p">=</span><span class="s">{1-8}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">doi</span><span class="p">=</span><span class="s">{10.1109/ETFA65518.2025.11205680}</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>When using the original benchmark (BeRFiPl) please cite:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@INPROCEEDINGS</span><span class="p">{</span><span class="nl">Ehrhardt2022BERFIPL</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="p">=</span><span class="s">{Ehrhardt, Jonas and Ramonat, Malte and Heesch, René and Balzereit, Kaja and Diedrich, Alexander and Niggemann, Oliver}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">booktitle</span><span class="p">=</span><span class="s">{2022 IEEE 27th International Conference on Emerging Technologies and Factory Automation (ETFA)}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="p">=</span><span class="s">{An AI benchmark for Diagnosis, Reconfiguration &amp; Planning}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">year</span><span class="p">=</span><span class="s">{2022}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">pages</span><span class="p">=</span><span class="s">{1-8}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">organization</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{IEEE}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">doi</span><span class="p">=</span><span class="s">{10.1109/ETFA52439.2022.9921546}</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>HAI-CPPS was developed at the Chair of Informatics in Mechanical Engineering at Helmut-Schmidt-University.</p>
@@ -144,13 +176,13 @@ You can access the previous version here:
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2026, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
+   
 
 </footer>
         </div>
@@ -161,7 +193,7 @@ You can access the previous version here:
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
+  </script> 
 
 </body>
 </html>

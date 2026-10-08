@@ -1,37 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Benchmark &mdash; HAI-CPPS v2 documentation</title>
+  <title>Benchmark &mdash; HAI-CPPS v2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8593dde2" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
-
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=60dbed4a"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Simulation" href="../simulation/index.html" />
-    <link rel="prev" title="Fault Proxies and Diagnosis" href="anomalies.html" />
+    <link rel="prev" title="Fault Proxies and Diagnosis" href="anomalies.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-
-
+          
+          
           <a href="../index.html" class="icon icon-home">
             HAI-CPPS
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
@@ -51,15 +54,15 @@
 <li class="toctree-l2"><a class="reference internal" href="cps-modules.html">CPS Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="anomalies.html">Fault Proxies and Diagnosis</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Benchmark</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cpps-complexity">CPPS Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fault-complexity">Fault Complexity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#measurement-views-and-offline-artifacts">Measurement Views and Offline Artifacts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#campaign-design">Campaign design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#measurement-and-diagnosis-inputs">Measurement and diagnosis inputs</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation/index.html">Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../campaign-output.html">Campaign Output and Data Directory</a></li>
 </ul>
 
         </div>
@@ -86,39 +89,19 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-
+             
   <section id="benchmark">
 <h1>Benchmark<a class="headerlink" href="#benchmark" title="Link to this heading"></a></h1>
-<p>The goal of <strong>HAI-CPPS</strong> is to provide a comprehensive benchmark for evaluating machine-learning algorithms along two axes:</p>
-<ul class="simple">
-<li><p><strong>CPPS complexity</strong></p></li>
-<li><p><strong>Fault complexity</strong></p></li>
-</ul>
-<p>HAI-CPPS includes <strong>ten different datasets</strong>, each recorded from a unique process-plant setup. Every release provides <strong>discrete</strong>, <strong>continuous</strong>, and <strong>hybrid</strong> measurement views. The associated oracle states and metadata are separate offline artifacts; they are not online features.</p>
-<p>You can find the release structure and loader example <a class="reference internal" href="../datasets.html"><span class="doc std std-doc">here</span></a>.</p>
-<hr class="docutils" />
-<section id="cpps-complexity">
-<h2>CPPS Complexity<a class="headerlink" href="#cpps-complexity" title="Link to this heading"></a></h2>
-<p>HAI-CPPS features ten different process-plant configurations, each exhibiting increasing structural and behavioral complexity.</p>
+<p>HAI-CPPS evaluates machine-learning methods along two axes: <strong>plant complexity</strong> and <strong>fault complexity</strong>. The ten topologies use different combinations of mixer, filter, distill, and bottling modules with source and sink modules.</p>
 <img src="../_static/imgs/cpps-setups.png" alt="HAI-CPPS setups" width="100%" />
+<section id="campaign-design">
+<h2>Campaign design<a class="headerlink" href="#campaign-design" title="Link to this heading"></a></h2>
+<p>A complete v2.2 campaign has 350 recordings: 160 healthy and 190 single-fault. Each topology supplies 10 healthy training, 3 validation, 2 calibration, and 1 test recording. Every selected fault proxy produces a persistent and a temporary recording, both paired with the seed-42 healthy test control. Fault activation begins at time 2,500; the temporary variant ends at 7,500. The <a class="reference internal" href="../campaign-output.html"><span class="doc std std-doc">campaign output guide</span></a> gives per-topology counts and scenario names.</p>
 </section>
-<hr class="docutils" />
-<section id="fault-complexity">
-<h2>Fault Complexity<a class="headerlink" href="#fault-complexity" title="Link to this heading"></a></h2>
-<p>For every enabled module fault proxy, the campaign generator creates a dedicated one-fault scenario and validates it against its matching normal run. This enables systematic evaluation across fault types without multi-fault confounding.</p>
-</section>
-<hr class="docutils" />
-<section id="measurement-views-and-offline-artifacts">
-<h2>Measurement Views and Offline Artifacts<a class="headerlink" href="#measurement-views-and-offline-artifacts" title="Link to this heading"></a></h2>
-<p>The v2 release distinguishes between online measurement views and offline artifacts:</p>
-<ul class="simple">
-<li><p><strong>continuous</strong>: real-valued process measurements;</p></li>
-<li><p><strong>discrete</strong>: binary and discrete control or sensor values;</p></li>
-<li><p><strong>hybrid</strong>: a combination of continuous and discrete measurement features;</p></li>
-<li><p><strong>oracle states</strong>: simulator-derived internal states for offline evaluation, stored separately from measurements; and</p></li>
-<li><p><strong>metadata</strong>: fault events, system knowledge, technical timing, validation, and provenance stored in separate files.</p></li>
-</ul>
-<p>Use only the chosen measurement view as an online model input. The provided loader removes scenario and time identifiers through its <code class="docutils literal notranslate"><span class="pre">online_features</span></code> property and exposes oracle information only by explicit opt-in.</p>
+<section id="measurement-and-diagnosis-inputs">
+<h2>Measurement and diagnosis inputs<a class="headerlink" href="#measurement-and-diagnosis-inputs" title="Link to this heading"></a></h2>
+<p>Each recording offers continuous, discrete, and hybrid measurement views. Nominal controller commands are saved separately and can be added if they are observable in the intended application. <code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code> defines the allowlists. Simulator oracle states, injected-fault labels, technical timing, and verification traces remain offline artifacts.</p>
+<p>The campaign validates raw results, exported tables, channel alignment, fault pairs, and release structure. Each recording has a <code class="docutils literal notranslate"><span class="pre">validation.json</span></code> and <code class="docutils literal notranslate"><span class="pre">provenance.json</span></code>; each topology shard has a <code class="docutils literal notranslate"><span class="pre">campaign.json</span></code> manifest and a frozen copy of generation sources.</p>
 </section>
 </section>
 
@@ -133,13 +116,13 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
+    <p>&#169; Copyright 2026, Jonas Ehrhardt, Lukas Moddemann, Alexander Diedrich, Oliver Niggemann.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
+   
 
 </footer>
         </div>
@@ -150,7 +133,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
+  </script> 
 
 </body>
 </html>

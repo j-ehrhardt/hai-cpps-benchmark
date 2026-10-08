@@ -1,7 +1,7 @@
 # CPS Modules
 
-The HAI-CPS benchmark consists of ten datasets derived from different configurations of a modular Cyber-Physical Process plant.  
-The process plant features four types of modules that can be interconnected in various ways.  
+The HAI-CPPS benchmark consists of ten datasets derived from different configurations of a modular Cyber-Physical Process plant.
+The process plant features four types of modules that can be interconnected in various ways.
 Each module is implemented as an OpenModelica model containing multiple components and controlled by its own automaton.
 
 To enhance the realism of the simulation data, stochastic noise has been introduced into the pump rotational speed (RPM), resulting in fluctuations in volume flow throughout the system. This addition better reflects the inherent variability present in real-world industrial environments.
@@ -25,7 +25,7 @@ The automaton executes the following steps:
 
 <img src="../_static/imgs/mixer.png" alt="Mixer module" width="100%" />
 
-Modelica file (link): [`models/Mixer.mo`](https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Mixer.mo)
+Modelica file: [`models/Mixer.mo`](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Mixer.mo)
 
 ---
 
@@ -42,7 +42,7 @@ Automaton behavior:
 
 <img src="../_static/imgs/filter.png" alt="Filter module" width="100%" />
 
-Modelica file (link): [`models/Filter.mo`](https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Filter.mo)
+Modelica file: [`models/Filter.mo`](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Filter.mo)
 
 ---
 
@@ -52,7 +52,7 @@ The **Distill** module contains:
 - Three tanks: B101 (input), B102 (residue), B103 (distillate)
 - One distillation unit
 
-Fluid is pumped from B101 into the distillation unit, where it is separated into components.  
+Fluid is pumped from B101 into the distillation unit, where it is separated into components.
 The vaporized (distilled) components are cooled and collected in B103, while the remaining residue is cooled and collected in B102.
 
 Automaton steps:
@@ -64,7 +64,7 @@ Automaton steps:
 
 <img src="../_static/imgs/distill.png" alt="Distill module" width="100%" />
 
-Modelica file (link): [`models/Distill.mo`](https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Distill.mo)
+Modelica file: [`models/Distill.mo`](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Distill.mo)
 
 ---
 
@@ -79,7 +79,7 @@ Automaton steps:
 
 <img src="../_static/imgs/bottling.png" alt="Bottling module" width="100%" />
 
-Modelica file (link): [`models/Bottling.mo`](https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Bottling.mo)
+Modelica file: [`models/Bottling.mo`](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Bottling.mo)
 
 ---
 
@@ -89,7 +89,7 @@ The **Source** module continuously outputs a flow of fluid to simulate a live fe
 
 <img src="../_static/imgs/source.png" alt="Source module" width="40%" />
 
-Modelica file (link): [`models/Source.mo`](https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Source.mo)
+Modelica file: [`models/Source.mo`](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Source.mo)
 
 ---
 
@@ -99,5 +99,4 @@ The **Sink** module serves as a continuous fluid consumer, simulating a live dra
 
 <img src="../_static/imgs/sink.png" alt="Sink module" width="40%" />
 
-Modelica file (link): [`models/Sink.mo`](https://github.com/j-ehrhardt/hai-cps-benchmark/tree/main/models/Sink.mo)
-
+Modelica file: [`models/Sink.mo`](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Sink.mo)
