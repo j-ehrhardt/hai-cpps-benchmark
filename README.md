@@ -1,5 +1,3 @@
-
-
 <img title="" src="./figs/logo-v2.2.png" alt="alt text" width="200">
 
 # Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS) v2.2
@@ -13,6 +11,62 @@ This repository generates the HAI-CPPS v2.2 simulation benchmark with OpenModeli
 > We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `hai-cpps-v1` in this repository. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
 
 You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
+
+
+# HAI-CPPS - Overview
+
+The HAI-CPPS benchmark consists of ten datasets from ten different configurations of a modular Cyber-Physical Process plant. The process plant itself has four different types of modules that can be interchangeably connected. Each dataset in the benchmark is recorded from a different configuration of the Cyber-Physical Process plant.
+
+### CPPS - Modules
+
+The Cyber-Physical Process plant has four different types of modules: **(a) mixing, (b) filtering, (c) distilling, (d) bottling**. In addition there is a source and a sink module.
+
+You can find the OpenModelica models for the four different modules in the `models` directory along. All modules are controlled by their own automaton.
+
+| (a)<img src="figs/mixer.png" width="400"/>       | (b)<img src="figs/filter.png" width="400"/>       |
+| ------------------------------------------------ | ------------------------------------------------- |
+| **(c)**<img src="figs/distill.png" width="400"/> | **(d)**<img src="figs/bottling.png" width="400"/> |
+
+### Anomalies
+
+The supported anomaly classes depend on the module type. While some anomalies only affect the modules in which they are induced, some propagate directly and indirectly into other modules. A fault campaign enables exactly one of the following fault proxies at a time.
+
+- **Leaking Anomaly:** The leaking valve is opened and a continuous volume flow is diverted into a separate sink and vanishes from the system.
+
+- **Pump Lower Performance 75%:** The pump is only working on 75% of its actual performance.
+
+- **Pump Lower Performance 50%:** The pump is only working on 50% of its actual performance.
+
+- **Inlet Valve Anomaly:** An inlet valve cannot close completely and remains opened at 20%.
+
+- **Filter Pollution Anomaly:** The filter pollution factor is increased after fault onset.
+
+- **Heater Lower Performance 75% / 50%:** The distillation heater operates at the corresponding fraction of its nominal heat input.
+
+## Benchmark Datasets
+
+The idea of HAI-CPPS is to offer a comprehensive benchmark for Machine Learning Algorithms for technical systems. HAI-CPPS is especially suited for algorithms from the domains of **anomaly detection, reconfiguration, and diagnosis**. Therefore HAI-CPPS provides ten different datasets that each are recorded from a different, increasingly complex instance of the CPPS. The setup allows you to evaluate and compare your algorithms systematically in the dimensions of CPPS complexity and problem complexity.
+
+Each generated scenario provides three separate measurement views:
+
+- **Discrete mode:** Only discrete values from the process plant are recorded.
+- **Continuous mode:** Only continuous values from the process plant are recorded.
+- **Hybrid mode:** All recorded measurement values from the process plant are included.
+
+Simulator-internal states are supplied separately in `oracle_states.parquet`. They are intended for offline targets and analysis, never as automatic online model inputs. Fault events, system knowledge, and technical timing are also stored separately as metadata so that they do not become accidental measurement features.
+
+Below is an image of ten standard setups of HAI-CPPS.
+
+<img src="figs/cpps-setups.png" width="800"/>
+
+## Access the Benchmark Datasets
+
+<img src="https://ieee-dataport.org/themes/custom/dataport_bootstrap/logo.svg" width="200"/>
+
+The benchmark datasets are published via IEEE Dataport. You can access the datasets by following this [link](https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-systems-v2).
+
+Alternatively, you can replicate the datasets by running the simulation setups yourself. Therefore follow the instructions in [Replicate the Benchmark Datasets](#replicate-the-benchmark-datasets).
+
 
 The three commands below are the supported workflows. Run them from the repository root.
 
