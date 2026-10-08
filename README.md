@@ -1,12 +1,24 @@
-# HAI-CPPS benchmark
+
+
+<img title="" src="./figs/logo-v2-celebrate.gif" alt="alt text" width="200">
+
+# Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS) v2.2
 
 This repository generates the HAI-CPPS v2.2 simulation benchmark with OpenModelica. It contains ten predefined plant topologies (`ds1` through `ds10`). Each topology has healthy recordings and single-fault recordings with persistent and temporary fault windows. A complete campaign has **350 recordings**: 160 healthy and 190 faulty.
+
+> [!NOTE]
+> HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/benchmark_v1).
+
+> [!NOTE]
+> We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `hai-cpps-v1` in this repository. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
+
+You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
 
 The three commands below are the supported workflows. Run them from the repository root.
 
 ## 1. Install on Ubuntu
 
-Install system packages and OpenModelica. The repository setup below follows the [official Ubuntu installation instructions](https://openmodelica.org/download/download-linux/) and uses the [2026 signing key](https://openmodelica.org/news/january-27-2026-new-gpg-key/). Ubuntu 22.04 and 24.04 use their own `VERSION_CODENAME` automatically.
+Install system packages and OpenModelica.
 
 ```bash
 sudo apt update
@@ -107,6 +119,39 @@ For an existing topology or a built-in-only combination, use the same JSON forma
 - `examples/`: a working configuration with an additional Modelica module.
 
 To run the focused Python tests, install `pytest` in the virtual environment and run `python -m pytest -q`.
+
+# Using the Benchmark
+
+Using HAI-CPPS benchmark is pretty self-explanatory. Download or create the datasets yourself. Select the discrete, continuous, or hybrid measurement view in which you want to operate. Train your models using normal runs and test them on an anomalous test scenario. Fault onset and its relation to the sampled measurement timestamps are recorded in `technical_timing.json`; the target module and fault proxy are recorded in `fault_events.json`.
+
+As a reference, you can have a look at the following repository [Discret2Di](https://github.com/lmoddemann/Discret2Di).
+
+# Citation
+
+When using the HAI-CPPS benchmark, please use the following citation:
+
+```bibtex
+   @data{haicpps,
+   doi = {10.21227/5ewb-cn40},
+   url = {https://dx.doi.org/10.21227/5ewb-cn40},
+   author = {Jonas Ehrhardt and Lukas Moddemann and Alexander Diedrich and Oliver Niggemann},
+   publisher = {IEEE Dataport},
+   title = {HAI-CPPS: The Hamburg AI Benchmark for Cyber-Physical Production Sytems},
+   year = {2025} }
+```
+
+When using the original benchmark (BeRFiPl) please cite:
+
+```bibtex
+@INPROCEEDINGS{Ehrhardt2022,
+  author={Ehrhardt, Jonas and Ramonat, Malte and Heesch, René and Balzereit, Kaja and Diedrich, Alexander and Niggemann, Oliver},
+  booktitle={2022 IEEE 27th International Conference on Emerging Technologies and Factory Automation (ETFA)},
+  title={An AI benchmark for Diagnosis, Reconfiguration & Planning},
+  year={2022},
+  pages={1-8},
+  organization = {IEEE},
+  doi={10.1109/ETFA52439.2022.9921546}}
+```
 
 ## License
 
