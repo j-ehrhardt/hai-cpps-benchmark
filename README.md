@@ -185,7 +185,7 @@ As a reference, you can have a look at the following repository [Discret2Di](htt
 
 # Citation
 
-When using the HAI-CPPS benchmark, please use the following citation:
+When using the HAI-CPPS benchmark, please use the following citations:
 
 ```bibtex
    @data{haicpps,
@@ -195,6 +195,16 @@ When using the HAI-CPPS benchmark, please use the following citation:
    publisher = {IEEE Dataport},
    title = {HAI-CPPS: The Hamburg AI Benchmark for Cyber-Physical Production Sytems},
    year = {2025} }
+```
+
+```bibtex
+@INPROCEEDINGS{Moddemann2025HAICPPS,
+  author={Moddemann, Lukas and Ehrhardt, Jonas and Diedrich, Alexander and Niggemann, Oliver},
+  booktitle={2025 IEEE 30th International Conference on Emerging Technologies and Factory Automation (ETFA)},
+  title={The HAI-CPPS Benchmark: Evaluating AI Capabilities Across Hybrid Data Spaces},
+  year={2025},
+  pages={1-8},
+  doi={10.1109/ETFA65518.2025.11205680}}
 ```
 
 When using the original benchmark (BeRFiPl) please cite:
