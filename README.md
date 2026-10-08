@@ -13,7 +13,7 @@ This repository generates the HAI-CPPS v2.2 simulation benchmark with OpenModeli
 You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
 
 
-# HAI-CPPS - Overview
+# Overview
 
 The HAI-CPPS benchmark consists of ten datasets from ten different configurations of a modular Cyber-Physical Process plant. The process plant itself has four different types of modules that can be interchangeably connected. Each dataset in the benchmark is recorded from a different configuration of the Cyber-Physical Process plant.
 
@@ -65,9 +65,12 @@ Below is an image of ten standard setups of HAI-CPPS.
 
 The benchmark datasets are published via IEEE Dataport. You can access the datasets by following this [link](https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-systems-v2).
 
-Alternatively, you can replicate the datasets by running the simulation setups yourself. Therefore follow the instructions in [Replicate the Benchmark Datasets](#replicate-the-benchmark-datasets).
 
 
+# Working with the Repository
+
+Alternatively, you can replicate the datasets by running the simulation setups yourself.
+You can even add your own modules and CPPS setup and simluate them. 
 The three commands below are the supported workflows. Run them from the repository root.
 
 ## 1. Install on Ubuntu
