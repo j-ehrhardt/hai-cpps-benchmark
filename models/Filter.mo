@@ -14,6 +14,7 @@ model filterModule
   
   // anomalies
   parameter Real anom_start = 2500;
+  parameter Real anom_end = Modelica.Constants.inf;
   parameter Boolean anom_leaking = false annotation(Evaluate = false);
   parameter Boolean anom_pollution = false annotation(Evaluate = false);
   parameter Boolean anom_valve_in0 = false annotation(Evaluate = false);
@@ -22,6 +23,10 @@ model filterModule
   Real pollution_value(start=0.5);
   Real var_valve_in(start=0.0);
   Real var_pump_n(start=1.0);
+  output Real command_pump_P101_speed(unit="rev/min") "Nominal controller request before faults";
+  output Real command_valve_in_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_P101_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_out_opening(unit="1") "Nominal controller request before faults";
   Real pump_n_in;
   Boolean fault_window_active;
   
@@ -160,17 +165,21 @@ model filterModule
   Modelica.StateGraph.TransitionWithSignal state_is_empty_tank_B102 annotation(
     Placement(transformation(origin = {152, 170}, extent = {{-10, -10}, {10, 10}})));
 equation
+  command_pump_P101_speed = if state_emptying_tank_B101.active then 150 else 0;
+  command_valve_in_opening = if state_filling_tank_B101.active then 1.0 else closedValveOpening;
+  command_valve_pump_P101_opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
+  command_valve_out_opening = if state_emptying_tank_B102.active then 1.0 else 0;
   assert(not (anom_pump50 and anom_pump75), "Filter pump50 and pump75 faults are mutually exclusive");
-  fault_window_active = time >= anom_start;
+  fault_window_active = time >= anom_start and time < anom_end;
   // state graph equations
   condition_is_full_tank_B101.condition = tank_B101.level >= tank_B101.height*tankMaxVol;
   condition_is_empty_tank_B101.condition = tank_B101.level <= tank_B101.height*tankMinVol;
   state_is_empty_tank_B102.condition = tank_B102.level <= tank_B102.height*tankMinVol;
-  valve_in.opening = if state_filling_tank_B101.active then 1.0 else max(closedValveOpening, var_valve_in);
-  valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
-  pump_n_in = if state_emptying_tank_B101.active then 150.0 * var_pump_n else 0.0;
+  valve_in.opening = max(command_valve_in_opening, var_valve_in);
+  valve_pump_P101.opening = command_valve_pump_P101_opening;
+  pump_n_in = command_pump_P101_speed * var_pump_n;
   // Keep the outlet shut outside its state; a minimum opening here empties B102.
-  valve_out.opening = if state_emptying_tank_B102.active then 1.0 else 0.0;
+  valve_out.opening = command_valve_out_opening;
 
   // anomalies
   leaking_valve.opening = if fault_window_active and anom_leaking then 0.25 else 0.0;

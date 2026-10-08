@@ -56,7 +56,7 @@ def read_dataset_table(path: Path) -> pd.DataFrame:
         except (ImportError, ModuleNotFoundError) as exc:
             raise ValidationError(
                 "Parquet validation requires pyarrow; recreate the project "
-                "environment from venv.yml"
+                "environment from requirements.txt"
             ) from exc
     if path.suffix == ".csv":
         return pd.read_csv(path)
@@ -113,6 +113,26 @@ def validate_matched_run_specs(normal_run: RunSpec, fault_run: RunSpec) -> None:
 
     expected_fault = copy.deepcopy(normal_run.setup)
     expected_fault["ds_name"] = fault_run.setup["ds_name"]
+    variant = fault_run.fault_variant or (
+        "finite_5000"
+        if fault_run.setup["sim_setup"].get("faultEnd") is not None
+        else "continuous"
+    )
+    onset = float(fault_run.setup["sim_setup"]["faultStart"])
+    end = fault_run.setup["sim_setup"].get("faultEnd")
+    if variant in ("continuous", "persistent"):
+        if end is not None:
+            raise ValidationError("Persistent fault run must have a null faultEnd")
+    elif variant in ("finite_5000", "temporal"):
+        if end is None or not math.isclose(float(end) - onset, 5000.0):
+            raise ValidationError("Temporal fault run must have a 5,000-interval window")
+    else:
+        raise ValidationError("Fault run has no supported fault_variant")
+    if (
+        "faultEnd" in expected_fault["sim_setup"]
+        or "faultEnd" in fault_run.setup["sim_setup"]
+    ):
+        expected_fault["sim_setup"]["faultEnd"] = end
     try:
         expected_fault["model"]["modules"][fault_run.target_module]["faults"][
             fault_run.target_fault
@@ -264,6 +284,8 @@ def _validate_oracle_equations(
     }
     times = oracle["simulation_time"].astype(float)
     onset = float(run.setup["sim_setup"]["faultStart"])
+    end_value = run.setup["sim_setup"].get("faultEnd")
+    end = None if end_value is None else float(end_value)
     # With the fixed -noEventEmit simulation call, OMC may serialize either
     # the pre-event or post-event value on a canonical output row exactly at a
     # later event boundary.  Values strictly before and after that row remain
@@ -274,6 +296,13 @@ def _validate_oracle_equations(
     boundary_tolerance = max(1e-9, abs(onset) * 1e-12)
     at_onset = (times - onset).abs() <= boundary_tolerance
     recorded_after_onset = times >= onset if onset_at_start else times > onset
+    at_end = pd.Series(False, index=oracle.index)
+    recorded_before_end = pd.Series(True, index=oracle.index)
+    if end is not None:
+        end_tolerance = max(1e-9, abs(end) * 1e-12)
+        at_end = (times - end).abs() <= end_tolerance
+        recorded_before_end = times < end
+    expected_window = recorded_after_onset & recorded_before_end
     checked: List[str] = []
 
     def raw_series(raw_column: str) -> Optional[pd.Series]:
@@ -286,7 +315,7 @@ def _validate_oracle_equations(
 
         window_raw = "{}.fault_window_active".format(module_name)
         window = raw_series(window_raw)
-        fault_window_active = recorded_after_onset
+        fault_window_active = expected_window
         if window is not None:
             numeric_window = window.astype(float)
             if not numeric_window.isin((0.0, 1.0)).all():
@@ -294,14 +323,13 @@ def _validate_oracle_equations(
                     "Oracle equation {}.fault_window_active contains a "
                     "non-Boolean value".format(module_name)
                 )
-            comparable = (
-                pd.Series(True, index=oracle.index)
-                if onset_at_start
-                else ~at_onset
-            )
+            comparable = pd.Series(True, index=oracle.index)
+            if not onset_at_start:
+                comparable &= ~at_onset
+            comparable &= ~at_end
             _assert_numeric_equation(
                 numeric_window.loc[comparable],
-                recorded_after_onset.loc[comparable].astype(float),
+                expected_window.loc[comparable].astype(float),
                 "{}.fault_window_active".format(module_name),
             )
             fault_window_active = numeric_window.astype(bool)
@@ -416,6 +444,7 @@ def _validate_oracle_equations(
                 if module_type == "distill":
                     progress = ((times - onset) / 10.0).clip(lower=0.0, upper=1.0)
                     expected_leak = 0.25 * progress.pow(2) * (3.0 - 2.0 * progress)
+                    expected_leak = expected_leak.where(fault_window_active, 0.0)
                 else:
                     expected_leak.loc[fault_window_active] = 0.25
             _assert_numeric_equation(
@@ -654,6 +683,10 @@ def validate_release_bundle(
     if not oracle_signals:
         raise ValidationError("The release has no exported oracle states")
     equations_checked = _validate_oracle_equations(oracle, run, bundle)
+
+    if fault_events.get("schema_version") == "2.1.0":
+        from diagnosis_export import validate_diagnosis_release
+        validate_diagnosis_release(bundle.hybrid.parent.parent, run)
 
     return {
         "valid": True,
@@ -970,6 +1003,23 @@ def validate_fault_pair(
         relative_tolerance,
         persistence,
     )
+    end_value = run.setup["sim_setup"].get("faultEnd")
+    fault_end = None if end_value is None else float(end_value)
+    direct_post_end_max: Dict[str, float] = {}
+    direct_effect_returned_to_nominal: Optional[bool] = None
+    if fault_end is not None:
+        after_end = fault_verification["simulation_time"].astype(float) > fault_end
+        for column in target_effect_columns:
+            difference = (
+                fault_verification.loc[after_end, column].astype(float)
+                - normal_verification.loc[after_end, column].astype(float)
+            ).abs()
+            direct_post_end_max[column] = (
+                float(difference.max()) if not difference.empty else 0.0
+            )
+        direct_effect_returned_to_nominal = all(
+            value <= absolute_tolerance for value in direct_post_end_max.values()
+        )
     verification_summary = _change_summary(
         normal_verification,
         fault_verification,
@@ -1067,6 +1117,8 @@ def validate_fault_pair(
 
     if not injection_observed:
         category = "injection_failed_or_effect_channel_missing"
+    elif direct_effect_returned_to_nominal is False:
+        category = "finite_fault_did_not_deactivate"
     elif non_target_changes:
         category = "cross_instance_fault_injection"
     elif not pre_onset_equal:
@@ -1098,7 +1150,9 @@ def validate_fault_pair(
         "base_dataset": run.base_dataset,
         "target_module": run.target_module,
         "target_fault": run.target_fault,
+        "fault_variant": run.fault_variant,
         "fault_onset": onset,
+        "fault_end": fault_end,
         "difference_detection": {
             "absolute_tolerance": absolute_tolerance,
             "relative_tolerance": relative_tolerance,
@@ -1106,6 +1160,8 @@ def validate_fault_pair(
         },
         "injection_observed": injection_observed,
         "target_effect_columns": target_summary,
+        "direct_post_end_max_absolute_difference": direct_post_end_max,
+        "direct_effect_returned_to_nominal": direct_effect_returned_to_nominal,
         "non_target_direct_effects": non_target_changes,
         "safe_effect_observed": safe_effect_observed,
         "changed_safe_channels": changed_safe,

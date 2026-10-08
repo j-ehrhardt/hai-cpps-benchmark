@@ -109,7 +109,13 @@ class ModelGenerationTests(unittest.TestCase):
                 )
             self.assertNotRegex(model, r"parameter\s+Boolean\s+anom_clogging")
             self.assertIn("useAutomaticLocalSeed = false", model)
-            self.assertIn("fault_window_active = time >= anom_start;", model)
+            self.assertIn(
+                "fault_window_active = time >= anom_start and time < anom_end;",
+                model,
+            )
+            self.assertIn(
+                "parameter Real anom_end = Modelica.Constants.inf;", model
+            )
 
     def test_distill_condensate_uses_direct_pressure_aligned_connection(self):
         model = (REPOSITORY / "models" / "Distill.mo").read_text(

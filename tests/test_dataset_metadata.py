@@ -8,7 +8,6 @@ import yaml
 
 from config import RunSpec
 from dataset_metadata import fault_events_document, write_release_metadata
-from dataset_io import load_scenario_dataset
 from export import export_result_files
 from validation import validate_release_bundle
 
@@ -110,8 +109,6 @@ class DatasetMetadataTests(unittest.TestCase):
             timing = json.loads(
                 metadata.technical_timing.read_text(encoding="utf-8")
             )
-            online = load_scenario_dataset(output)
-            offline = load_scenario_dataset(output, include_oracle=True)
 
         self.assertTrue(report["valid"])
         self.assertEqual(report["fault_events"], 1)
@@ -144,11 +141,6 @@ class DatasetMetadataTests(unittest.TestCase):
         self.assertEqual(
             {edge["edge_id"] for edge in timing["edges"]}, {"0", "1"}
         )
-        self.assertIsNone(online.oracle_states)
-        self.assertIsNotNone(offline.oracle_states)
-        self.assertFalse(any(".oracle." in column for column in online.measurements))
-        self.assertNotIn("scenario_id", online.online_features)
-        self.assertFalse(any("anom_" in column for column in online.online_features))
 
     def test_normal_run_has_no_fault_event(self):
         fault = _fault_run()

@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
-from config import normal_run
 from model_generation import model_files_for_setup, write_run_files
 from validation import (
     ValidationError,
@@ -90,6 +89,7 @@ def run_openmodelica(
     build_root: Path,
     scenario_id: str,
     force: bool = False,
+    result_filter: Optional[str] = None,
 ) -> SimulationArtifacts:
     omc_path = _omc_executable()
 
@@ -106,7 +106,10 @@ def run_openmodelica(
 
     reusable_models = model_files_for_setup(setup, config_dir)
     model_hashes = snapshot_hashes(reusable_models)
-    _, mos_path, _ = write_run_files(setup, config_dir, run_dir)
+    if result_filter is None:
+        _, mos_path, _ = write_run_files(setup, config_dir, run_dir)
+    else:
+        _, mos_path, _ = write_run_files(setup, config_dir, run_dir, result_filter=result_filter)
     stdout_path = run_dir / "omc.stdout.log"
     stderr_path = run_dir / "omc.stderr.log"
 
@@ -167,61 +170,3 @@ def run_openmodelica(
         model_hashes=model_hashes,
         modelica_version=modelica_version,
     )
-
-
-def check_openmodelica_topologies(
-    benchmark: Mapping[str, Mapping[str, Any]],
-    config_dir: Path,
-    build_root: Path,
-    force: bool = False,
-) -> Dict[str, Path]:
-    """Run OpenModelica's structural check for every configured topology."""
-
-    omc_path = _omc_executable()
-    build_root.mkdir(parents=True, exist_ok=True)
-    logs: Dict[str, Path] = {}
-    for dataset_name, setup in benchmark.items():
-        scenario_id = "{}_check".format(dataset_name)
-        run_dir = build_root / scenario_id
-        if run_dir.exists():
-            if not force:
-                raise SimulationError(
-                    "Model-check directory already exists: {} (use --force)".format(
-                        run_dir
-                    )
-                )
-            _safe_remove_directory(run_dir, build_root)
-
-        checked_setup = normal_run(dataset_name, setup).setup
-        reusable_models = model_files_for_setup(checked_setup, config_dir)
-        model_hashes = snapshot_hashes(reusable_models)
-        _, mos_path, _ = write_run_files(
-            checked_setup,
-            config_dir,
-            run_dir,
-            include_simulation=False,
-        )
-        stdout_path = run_dir / "omc.stdout.log"
-        stderr_path = run_dir / "omc.stderr.log"
-        try:
-            completed = subprocess.run(
-                [omc_path, mos_path.name],
-                cwd=str(run_dir),
-                env=_compiler_environment(),
-                text=True,
-                capture_output=True,
-                check=False,
-            )
-            stdout_path.write_text(completed.stdout, encoding="utf-8")
-            stderr_path.write_text(completed.stderr, encoding="utf-8")
-            success = "Check of processPlant completed successfully."
-            if completed.returncode != 0 or success not in completed.stdout:
-                raise SimulationError(
-                    "OpenModelica model check failed for {}. Logs: {}, {}".format(
-                        dataset_name, stdout_path, stderr_path
-                    )
-                )
-        finally:
-            assert_hashes_unchanged(model_hashes, reusable_models)
-        logs[dataset_name] = stdout_path
-    return logs

@@ -34,6 +34,7 @@ class RunSpec:
     setup: Dict[str, Any]
     target_module: Optional[str] = None
     target_fault: Optional[str] = None
+    fault_variant: Optional[str] = None
 
     @property
     def is_fault(self) -> bool:
@@ -137,6 +138,19 @@ def _derive_module_type(module: Mapping[str, Any]) -> str:
         raise ConfigError("Cannot derive module type from model file {!r}".format(filename)) from exc
 
 
+def module_spec(module: Mapping[str, Any]) -> ModuleSpec:
+    """Return the fixed benchmark specification or a fault-free user module."""
+
+    if module["type"] != "custom":
+        return MODULE_SPECS[module["type"]]
+    return ModuleSpec(
+        module["modelica_class"],
+        Path(module["files"]).name,
+        tuple(module["input_ports"]),
+        tuple(module["output_ports"]),
+    )
+
+
 def _split_endpoint(endpoint: str) -> Tuple[str, str]:
     if endpoint.count(".") != 1:
         raise ConfigError(
@@ -151,6 +165,7 @@ def _normalize(data: Mapping[str, Any]) -> Dict[str, Any]:
     for dataset_name, scenario in normalized.items():
         sim_setup = scenario["sim_setup"]
         sim_setup.setdefault("faultStart", 2500)
+        sim_setup.setdefault("faultEnd", None)
         sim_setup.setdefault("seed", 20260831)
 
         for module_name, module in scenario["model"]["modules"].items():
@@ -187,6 +202,7 @@ def _validate_semantics(data: Mapping[str, Any], base_dir: Optional[Path]) -> Li
         start = sim_setup["startTime"]
         stop = sim_setup["stopTime"]
         onset = sim_setup["faultStart"]
+        end = sim_setup.get("faultEnd")
         if not all(math.isfinite(float(value)) for value in (start, stop, onset)):
             errors.append("{}: simulation times must be finite".format(dataset_name))
         elif not start < stop:
@@ -197,19 +213,33 @@ def _validate_semantics(data: Mapping[str, Any], base_dir: Optional[Path]) -> Li
                     dataset_name
                 )
             )
+        elif end is not None and not math.isfinite(float(end)):
+            errors.append("{}: faultEnd must be finite or null".format(dataset_name))
+        elif end is not None and not onset < end <= stop:
+            errors.append(
+                "{}: faultEnd must be after faultStart and at or before stopTime".format(
+                    dataset_name
+                )
+            )
 
         specs: Dict[str, ModuleSpec] = {}
         for module_name, module in modules.items():
             module_type = module["type"]
-            spec = MODULE_SPECS.get(module_type)
-            if spec is None:
+            if module_type not in MODULE_SPECS and module_type != "custom":
                 errors.append(
                     "{}: module {!r} has unknown type {!r}".format(
                         dataset_name, module_name, module_type
                     )
                 )
                 continue
+            spec = module_spec(module)
             specs[module_name] = spec
+
+            if module_type == "custom" and (module["faults"] or module.get("campaign_faults")):
+                errors.append(
+                    "{}: custom module {!r} must have no campaign faults; run it with "
+                    "the raw simulate command".format(dataset_name, module_name)
+                )
 
             if Path(module["files"]).name != spec.filename:
                 errors.append(
@@ -381,7 +411,7 @@ def generate_single_fault_campaign(
             continue
         modules = setup["model"]["modules"]
         for module_name, module in modules.items():
-            spec = MODULE_SPECS[module["type"]]
+            spec = module_spec(module)
             for fault_name in module.get("campaign_faults", spec.faults):
                 scenario = _all_faults_false(setup)
                 scenario["model"]["modules"][module_name]["faults"][fault_name] = True
@@ -394,6 +424,7 @@ def generate_single_fault_campaign(
                         scenario,
                         target_module=module_name,
                         target_fault=fault_name,
+                        fault_variant="continuous",
                     )
                 )
     return runs
@@ -428,5 +459,6 @@ def focused_fault_pair(
         fault_setup,
         target_module=module_name,
         target_fault=fault_name,
+        fault_variant="continuous",
     )
     return normal, fault

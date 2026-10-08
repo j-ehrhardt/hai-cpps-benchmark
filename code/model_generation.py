@@ -6,7 +6,7 @@ import hashlib
 from pathlib import Path
 from typing import Any, Iterable, List, Mapping, Tuple
 
-from config import MODULE_SPECS
+from config import MODULE_SPECS, module_spec
 
 
 MODEL_NAME = "processPlant"
@@ -21,9 +21,10 @@ RESULT_VARIABLE_FILTER = (
     "[A-Za-z0-9_]*valve[A-Za-z0-9_]*[.]opening|"
     "pump_[A-Za-z0-9_]+[.]N_in|pump_n_in|uniformNoise[.]y|"
     "fault_window_active|"
+    "command_[A-Za-z0-9_]+|"
     "var_[A-Za-z0-9_]+|leaking_valve[.]m_flow|"
     "filter_[A-Za-z0-9_]+[.]opening|"
-    "pollution_value|heater_[A-Za-z0-9_]+[.]Q_flow"
+    "pollution_value|(heater|cooler)_[A-Za-z0-9_]+[.]Q_flow"
     ")"
 )
 
@@ -54,6 +55,7 @@ def generate_plant_text(setup: Mapping[str, Any]) -> str:
     modules = setup["model"]["modules"]
     edges = setup["model"]["edges"]
     fault_start = sim_setup["faultStart"]
+    fault_end = sim_setup.get("faultEnd")
     global_seed = sim_setup["seed"]
 
     lines = [
@@ -72,10 +74,12 @@ def generate_plant_text(setup: Mapping[str, Any]) -> str:
 
     for instance_name in sorted(modules):
         module = modules[instance_name]
-        spec = MODULE_SPECS[module["type"]]
+        spec = module_spec(module)
         modifiers = ["redeclare package Medium = Medium"]
         if spec.faults:
             modifiers.append("anom_start = {}".format(fault_start))
+            if fault_end is not None:
+                modifiers.append("anom_end = {}".format(fault_end))
             modifiers.append(
                 "noiseSeed = {}".format(stable_local_seed(global_seed, instance_name))
             )
@@ -115,7 +119,7 @@ def generate_plant_text(setup: Mapping[str, Any]) -> str:
 def model_files_for_setup(
     setup: Mapping[str, Any], config_dir: Path
 ) -> List[Path]:
-    """Return each used reusable model file once, in registry order."""
+    """Return each used model file once: built-ins first, then custom files."""
 
     used_types = {module["type"] for module in setup["model"]["modules"].values()}
     files = []
@@ -139,6 +143,12 @@ def model_files_for_setup(
                 "Module type {!r} must resolve to {}".format(module_type, spec.filename)
             )
         files.append(path)
+    custom_files = {
+        (config_dir / module["files"]).resolve()
+        for module in setup["model"]["modules"].values()
+        if module["type"] == "custom"
+    }
+    files.extend(sorted(custom_files))
     return files
 
 
@@ -147,6 +157,7 @@ def generate_mos_text(
     model_files: Iterable[Path],
     plant_path: Path,
     include_simulation: bool = True,
+    result_filter: str = RESULT_VARIABLE_FILTER,
 ) -> str:
     sim_setup = setup["sim_setup"]
     lines = ['loadModel(Modelica, {"4.0.0"});', "getVersion(Modelica);"]
@@ -169,7 +180,7 @@ def generate_mos_text(
                 sim_setup["startTime"],
                 sim_setup["stopTime"],
                 sim_setup["numberOfIntervals"],
-                _modelica_string(RESULT_VARIABLE_FILTER),
+                _modelica_string(result_filter),
             )
         )
     lines.extend(
@@ -186,6 +197,7 @@ def write_run_files(
     config_dir: Path,
     run_dir: Path,
     include_simulation: bool = True,
+    result_filter: str = RESULT_VARIABLE_FILTER,
 ) -> Tuple[Path, Path, List[Path]]:
     run_dir.mkdir(parents=True, exist_ok=False)
     plant_path = run_dir / "Plant.mo"
@@ -199,6 +211,7 @@ def write_run_files(
             model_files,
             plant_path,
             include_simulation=include_simulation,
+            result_filter=result_filter,
         ),
         encoding="utf-8",
     )

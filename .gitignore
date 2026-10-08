@@ -1,7 +1,11 @@
-/.idea
-**/__pycache__/
-data/*
+/.idea/
+/.venv/
+/.pytest_cache/
+/.temp/
+/.tempv22/
+/analysis/
 /build/
-/.temp
-/analysis
-/docs
+/data/
+/output/
+**/__pycache__/
+*.pyc

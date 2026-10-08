@@ -24,7 +24,12 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_checked_in_configuration_and_campaign_size(self):
         self.assertEqual(len(self.config), 10)
-        self.assertEqual(len(generate_single_fault_campaign(self.config)), 110)
+        self.assertEqual(len(generate_single_fault_campaign(self.config)), 95)
+        for setup in self.config.values():
+            self.assertEqual(setup["sim_setup"]["numberOfIntervals"], 25000)
+            self.assertEqual(setup["sim_setup"]["stopTime"], 25000)
+            self.assertEqual(setup["sim_setup"]["faultStart"], 2500)
+            self.assertIsNone(setup["sim_setup"]["faultEnd"])
 
     def test_all_checked_in_faults_are_neutral(self):
         for scenario in self.config.values():
