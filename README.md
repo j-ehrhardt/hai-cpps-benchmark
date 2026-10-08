@@ -23,9 +23,9 @@ The Cyber-Physical Process plant has four different types of modules: **(a) mixi
 
 You can find the OpenModelica models for the four different modules in the `models` directory along. All modules are controlled by their own automaton.
 
-| (a)<img src="figs/mixer.png" width="400"/>       | (b)<img src="figs/filter.png" width="400"/>       |
+| <img src="figs/mixer.png" width="400"/> (a)      | <img src="figs/filter.png" width="400"/>  (b)     |
 | ------------------------------------------------ | ------------------------------------------------- |
-| **(c)**<img src="figs/distill.png" width="400"/> | **(d)**<img src="figs/bottling.png" width="400"/> |
+| <img src="figs/distill.png" width="400"/> (c)    | <img src="figs/bottling.png" width="400"/> (d)    |
 
 ### Anomalies
 
