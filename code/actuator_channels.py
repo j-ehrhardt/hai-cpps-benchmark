@@ -161,8 +161,21 @@ def recorded_commands(audit, setup):
     expected = reconstruct_commands(audit, setup)
     for spec in specs:
         result[spec.name] = audit[spec.recorded_command]
-        if not np.allclose(result[spec.name], expected[spec.name], atol=1e-9, rtol=1e-7):
-            raise ExportError(f"Recorded nominal command violates controller law: {spec.name}")
+        valid = np.isclose(result[spec.name], expected[spec.name], atol=1e-9, rtol=1e-7)
+        if spec.periodic:
+            # With event points suppressed, a grid row at a switching instant
+            # may contain the value immediately before or after the event.
+            phase = audit["simulation_time"].to_numpy(dtype=float) % 4
+            boundary = (np.isclose(phase, 0, atol=1e-8, rtol=0)
+                        | np.isclose(phase, 2, atol=1e-8, rtol=0)
+                        | np.isclose(phase, 4, atol=1e-8, rtol=0))
+            recorded = result[spec.name].to_numpy(dtype=float)
+            endpoint = (np.isclose(recorded, spec.off, atol=1e-9, rtol=1e-7)
+                        | np.isclose(recorded, spec.on, atol=1e-9, rtol=1e-7))
+            valid |= boundary & endpoint
+        if not valid.all():
+            times = audit.loc[~valid, "simulation_time"].head(8).tolist()
+            raise ExportError(f"Recorded nominal command violates controller law: {spec.name} at {times}")
     return result
 
 
