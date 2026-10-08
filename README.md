@@ -1,6 +1,6 @@
 
 
-<img title="" src="./figs/logo-v2-celebrate.gif" alt="alt text" width="200">
+<img title="" src="./figs/logo-v2.2.png" alt="alt text" width="200">
 
 # Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS) v2.2
 
