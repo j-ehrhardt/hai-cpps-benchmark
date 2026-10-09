@@ -1,4 +1,4 @@
-# HAI-CPPS v2 simulation image.
+# HAI-CPPS v2.2 campaign image.
 # The official minimal image supplies the OpenModelica command-line compiler;
 # this stage adds the Python export/validation environment and this repository.
 FROM openmodelica/openmodelica:v1.25.5-minimal
@@ -38,24 +38,21 @@ RUN case "${TARGETARCH}" in \
 ENV PATH="/opt/conda/envs/hai-cps/bin:/opt/conda/bin:${PATH}"
 
 # Keep the environment layer independent of application-code edits.
-COPY venv.yml /tmp/venv.yml
+COPY requirements.txt /tmp/requirements.txt
 RUN "${CONDA_DIR}/bin/conda" tos accept --override-channels \
         --channel https://repo.anaconda.com/pkgs/main \
     && "${CONDA_DIR}/bin/conda" tos accept --override-channels \
         --channel https://repo.anaconda.com/pkgs/r \
-    && "${CONDA_DIR}/bin/conda" env create --file /tmp/venv.yml \
+    && "${CONDA_DIR}/bin/conda" create --yes --name hai-cps python=3.12 pip \
+    && "${CONDA_DIR}/envs/hai-cps/bin/python" -m pip install --no-cache-dir \
+        -r /tmp/requirements.txt \
     && "${CONDA_DIR}/bin/conda" clean --all --yes \
-    && rm /tmp/venv.yml
+    && rm /tmp/requirements.txt
 
 WORKDIR /opt/hai-cpps
 COPY code/ ./code/
 COPY models/ ./models/
-
-# Fail the image build early if the simulator or Parquet export dependencies
-# are unavailable, or if the checked-in benchmark configuration is invalid.
-RUN omc --version \
-    && python -c "import pandas, pyarrow, yaml" \
-    && python code/sim.py validate --config code/benchmark_setup.json
+COPY LICENSE requirements.txt ./
 
 RUN useradd --create-home --shell /bin/bash hai-cpps \
     && mkdir --parents /work/output /work/build \
@@ -73,9 +70,5 @@ RUN printf 'loadModel(Modelica, {"4.0.0"});\ngetErrorString();\n' \
     && omc /tmp/load-modelica.mos \
     | grep --fixed-strings --line-regexp true
 
-# For example:
-# docker run --rm -v "$PWD/output:/work" hai-cpps:v2 run \
-#   --config code/benchmark_setup.json --campaign normal --scenario ds1 \
-#   --output /work/results --build-root /work/build --seed 20260831
-ENTRYPOINT ["python", "code/sim.py"]
-CMD ["validate", "--config", "code/benchmark_setup.json"]
+ENTRYPOINT ["python", "code/campaign.py"]
+CMD ["--config", "code/benchmark_setup.json", "--output", "/work/output/v2.2-ramped", "--build-root", "/work/build/v2.2-ramped", "--jobs", "4"]
