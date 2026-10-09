@@ -12,7 +12,6 @@ from diagnosis_export import AUDIT_PATH, read_json, write_json, digest
 from sim import _set_seed
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE_README = ROOT / "code" / "release_readme.md"
 DEFAULT_COUNTS = {"train": 10, "validation": 3, "calibration": 2, "test": 1}
 # Every released fault recording and its healthy test control use this seed.
 DEFAULT_FAULT_SEED = 42
@@ -125,7 +124,6 @@ def snapshot_campaign(output, config, manifest):
     shutil.copy2(ROOT / "LICENSE", output / "LICENSE")
     shutil.copy2(ROOT / "LICENSE", snapshot / "LICENSE")
     shutil.copy2(ROOT / "requirements.txt", snapshot / "requirements.txt")
-    shutil.copy2(RELEASE_README, snapshot / "README.md")
     shutil.copy2(config, snapshot / "requested_configuration.json")
     replay_config = load_benchmark_config(config)
     for setup in replay_config.values():
@@ -134,7 +132,6 @@ def snapshot_campaign(output, config, manifest):
     write_json(snapshot / "code/campaign_configuration.json", replay_config)
     manifest["generation_sha256"] = {str(p.relative_to(snapshot)): digest(p)
                                       for p in sorted(snapshot.rglob("*")) if p.is_file()}
-    shutil.copy2(RELEASE_README, output / "README.md")
 
 
 def prepare_manifest(config: Path, topology: str, output: Path):
