@@ -3,10 +3,11 @@
 import copy
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import pandas as pd
 
-from actuator_channels import command_specs, reconstruct_commands, validate_command_equations
+from actuator_channels import Command, command_specs, reconstruct_commands, validate_command_equations
 from config import load_benchmark_config, normal_run
 from diagnosis_export import validate_event_audit
 from export import ExportError
@@ -62,6 +63,26 @@ class EventAuditTests(unittest.TestCase):
         _, canonical = self._trace()
         with self.assertRaisesRegex(ExportError, "mixer0.command.valve_out.opening"):
             validate_event_audit(canonical, canonical, self.run_spec)
+
+    def test_derivative_tail_after_full_stroke_is_validated(self):
+        # Values at 12462 s from a completed bottling simulation: the command
+        # switched at 12461.89881668242 s and the limiter is still 0.001114
+        # below its target at the next one-second sample.
+        spec = Command("bottling0", "valve_in", "opening",
+                       ("state_filling_tank_B401",), factor="var_valve_in")
+        times = [0.0, 0.89881668242, 0.89881668242, 1.0, 1.0, 2.0]
+        audit = pd.DataFrame({
+            "simulation_time": times,
+            spec.raw: [0.0001, 0.0001, 0.0001, 0.9988861094450824,
+                       0.9988861094450824, 1.0],
+            "bottling0.var_valve_in": [0.0] * len(times),
+        })
+        commands = pd.DataFrame({spec.name: [0.0001, 0.0001, 1.0, 1.0, 1.0, 1.0]})
+        with patch("actuator_channels.command_specs", return_value=[spec]):
+            self.assertEqual(validate_command_equations(commands, audit, {}), [spec.raw])
+            audit.loc[3, spec.raw] -= 0.01
+            with self.assertRaisesRegex(ExportError, spec.name):
+                validate_command_equations(commands, audit, {})
 
 
 if __name__ == "__main__":
