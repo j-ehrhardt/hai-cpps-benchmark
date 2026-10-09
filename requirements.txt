@@ -1,0 +1,5 @@
+jsonschema>=4.23,<5
+numpy>=1.26,<3
+pandas>=2.2,<3
+pyarrow>=17,<24
+PyYAML>=6,<7
