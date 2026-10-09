@@ -1,112 +1,19 @@
-[![Python Version](https://img.shields.io/badge/python-3.12%2B-brightgreen.svg)](https://www.python.org/downloads/release/python-3120/)
-[![Mamba](https://img.shields.io/badge/Mamba-1.5.8-green)](https://mamba.readthedocs.io)
-[![OpenModelica](https://img.shields.io/badge/OpenModelica-1.25-cyan)]()
-[![Documentation](https://img.shields.io/badge/docs-v2.0-orange)](https://j-ehrhardt.github.io/hai-cps-benchmark/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![DOI: https://dx.doi.org/10.21227/5ewb-cn40](https://img.shields.io/badge/DOI-10.21227/5ewb-cn40)]([https://dx.doi.org/10.21227/5ewb-cn40](https://dx.doi.org/10.21227/5ewb-cn40))
+<img title="" src="./figs/logo-v2.2.png" alt="alt text" width="200">
 
+# Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS) v2.2
 
-<img title="" src="./figs/logo-v2-celebrate.gif" alt="alt text" width="200">
+This repository generates the HAI-CPPS v2.2 simulation benchmark with OpenModelica. It contains ten predefined plant topologies (`ds1` through `ds10`). Each topology has healthy recordings and single-fault recordings with persistent and temporary fault windows. A complete campaign has **350 recordings**: 160 healthy and 190 faulty.
 
-# Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS) v2
+> [!NOTE]
+> HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/berfipl).
 
-The **Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS)** is a comprehensive dataset for evaluating AI models from the domains of **anomaly detection, diagnosis, reconfiguration, and planning** for Cyber-Physical Production Sytems.
-
-HAI-CPPS is constructed as a benchmark, consisting of ten different scenarios of a modular process plant showing different functionalities and increasing complexities. This allows you to comprehensively test your algorithm not only on a single use-case but systematically on increasingly complex examples from the same domain. Each campaign run is either normal or contains one induced fault proxy in one module of the CPS.
-
-HAI-CPPS consists of
-
-- OpenModelica simulation models
-- Pre-simulated datasets for benchmarking
-- Docker integration for easy execution
-
-In addition to the existing setups, you can create and simulate your own simulations and system constellations, using the OpenModelica models and the HAI-CPPS python API.
+> [!NOTE]
+> We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `v1.0` in this repository. All other versions are versioned on separate branches. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
 
 You can find the documentation of HAI-CPPS [here](https://j-ehrhardt.github.io/hai-cpps-benchmark/)
 
-> [!NOTE]
-> HAI-CPPS extends the **Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)**. You can access the previous version [here](https://github.com/j-ehrhardt/benchmark-for-diagnosis-reconf-planning/tree/benchmark_v1).
 
-> [!NOTE]
-> We updated HAI-CPPS to HAI-CPPS v2 (also in IEEE Dataport). The update removed the "clogging" anomaly, as it was not detectable or diagnosable given the available data. We are very sorry for the inconveniences. The code for generating HAI-CPPS v1 lives now in the branch `hai-cpps-v1` in this repository. As IEEE Dataport is versioned, you should be able to access the old datasets there, too.
-
-### Table of Contents
-
-1. [Introduction](#hamburg-ai-benchmark-for-cyber-physical-production-systems-hai-cpps-v2)
-2. [Requirements](#requirements)
-3. [Installation](#installation)
-4. [HAI-CPPS - Overview](#hai-cpps---overview)
-   - [CPPS - Modules](#cpps---modules)
-   - [Anomalies](#anomalies)
-   - [Benchmark Datasets](#benchmark-datasets)
-   - [Access the Benchmark Datasets](#access-the-benchmark-datasets)
-5. [Using the Simulation Models](#using-the-simulation-models)
-   - [Create Your Own Simulations](#create-your-own-simulation)
-   - [Replicating the Benchmark](#replicate-the-benchmark-datasets)
-6. [Using the Benchmark](#using-the-benchmark)
-7. [Citation](#citation)
-
-# Requirements
-
-**For local use**:
-
-> [!NOTE]
-> Local use has only been tested on Ubuntu 22.04 LTS and Ubuntu 24.04 LTS. While the models should work without a problem in the OpenModelica Shell or OpenModelica Editor, the Python API run into problems.
-
-- For running the benchmark you need an installation of OpenModelica `1.25` and OpenModelica Standard Library `4.0.0`.
-- All other requirements can be found in the `venv.yml` file.
-
-**Using Docker:**
-
-- If you want to run the simulation from within the Docker container, you need a current version of Docker.
-
-# Installation
-
-**For local use:**
-
-Install OpenModelica by following the install instruction from the [OpenModelica website](https://openmodelica.org/download/download-linux/).
-
-For installing all other requirements, install a current version of Mini-Forge and type the following into your terminal:
-
-```bash
-mamba env create --file venv.yml
-conda activate hai-cps
-```
-
-Validate the supplied benchmark configuration before starting a simulation:
-
-```bash
-python code/sim.py validate --config code/benchmark_setup.json
-```
-
-**Using Docker:**
-
-Set up the Docker image via the `Dockerfile`, by navigating into the repository root and entering:
-
-```bash
-docker build --tag hai-cpps:v2 .
-```
-
-The default container command validates the bundled configuration:
-
-```bash
-docker run --rm hai-cpps:v2
-```
-
-To run a simulation, mount a host location for the generated release and Modelica build artifacts:
-
-```bash
-mkdir -p output
-docker run --rm -v "$PWD/output:/work" hai-cpps:v2 run \
-  --config code/benchmark_setup.json \
-  --campaign normal \
-  --scenario ds1 \
-  --output /work/results \
-  --build-root /work/build \
-  --seed 20260831
-```
-
-# HAI-CPPS - Overview
+# Overview
 
 The HAI-CPPS benchmark consists of ten datasets from ten different configurations of a modular Cyber-Physical Process plant. The process plant itself has four different types of modules that can be interchangeably connected. Each dataset in the benchmark is recorded from a different configuration of the Cyber-Physical Process plant.
 
@@ -116,9 +23,9 @@ The Cyber-Physical Process plant has four different types of modules: **(a) mixi
 
 You can find the OpenModelica models for the four different modules in the `models` directory along. All modules are controlled by their own automaton.
 
-| (a)<img src="figs/mixer.png" width="400"/>       | (b)<img src="figs/filter.png" width="400"/>       |
+| <img src="figs/mixer.png" width="400"/> (a)      | <img src="figs/filter.png" width="400"/>  (b)     |
 | ------------------------------------------------ | ------------------------------------------------- |
-| **(c)**<img src="figs/distill.png" width="400"/> | **(d)**<img src="figs/bottling.png" width="400"/> |
+| <img src="figs/distill.png" width="400"/> (c)    | <img src="figs/bottling.png" width="400"/> (d)    |
 
 ### Anomalies
 
@@ -158,107 +65,117 @@ Below is an image of ten standard setups of HAI-CPPS.
 
 The benchmark datasets are published via IEEE Dataport. You can access the datasets by following this [link](https://ieee-dataport.org/open-access/hai-cpps-hamburg-ai-benchmark-cyber-physical-production-systems-v2).
 
-Alternatively, you can replicate the datasets by running the simulation setups yourself. Therefore follow the instructions in [Replicate the Benchmark Datasets](#replicate-the-benchmark-datasets).
 
-# Using the Simulation Models
 
-You can use the code and models from this repository in two ways. Either, you simulate your own scenarios or you recreate the benchmark.
+# Working with the Repository
 
-> If you want to use the models in Simulink, you can export to FMU models from the OMEdit and import them into Simulink.
+Alternatively, you can replicate the datasets by running the simulation setups yourself.
+You can even add your own modules and CPPS setup and simluate them. 
+The three commands below are the supported workflows. Run them from the repository root.
 
-## Replicate the Benchmark Datasets
+## 1. Install on Ubuntu
 
-With the project environment activated and `omc` available on `PATH`, generate the complete v2 campaign with:
-
-```bash
-python code/sim.py run \
-  --config code/benchmark_setup.json \
-  --campaign full \
-  --output output/v2 \
-  --build-root work/v2 \
-  --seed 42
-```
-
-`full` generates one normal run and every configured single-fault run for each of the ten datasets (10 normal and 100 single-fault runs with the supplied configuration).
-
-Each generated scenario has this layout:
-
-```text
-<scenario_id>/
-  continuous/measurements.parquet
-  discrete/measurements.parquet
-  hybrid/measurements.parquet
-  oracle_states.parquet
-  fault_events.json
-  system_knowledge.yaml
-  technical_timing.json
-  sim_setup.json
-  provenance.json
-  validation.json
-  audit/internal_verification.csv
-```
-
-Only a `measurements.parquet` file is a deployable feature table. Oracle states include selected internal operation, actuator, disturbance, and fault-mechanism states, with their exact raw Modelica provenance documented in `system_knowledge.yaml`. The audit CSV is used by campaign validation and is not a release feature table.
-
-For leakage-safe loading, add `code/` to `PYTHONPATH` and use `load_scenario_dataset`. Oracle loading is explicit and remains a separate DataFrame:
-
-```python
-from pathlib import Path
-
-from dataset_io import load_scenario_dataset
-
-online = load_scenario_dataset(
-    Path("/path/to/scenario"), measurement_view="hybrid"
-)
-online_feature_matrix = online.online_features
-
-offline = load_scenario_dataset(
-    Path("/path/to/scenario"),
-    measurement_view="hybrid",
-    include_oracle=True,
-)
-```
-
-To regenerate an existing output, add `--force`. This replaces only the selected scenario release and regenerates its simulation build. Use `--resume` to reuse a complete, compatible scenario release; it cannot be combined with `--force`.
-
-On a multi-core computer, datasets can be generated concurrently with GNU Parallel. Each job must have its own output and build root:
+Install system packages and OpenModelica.
 
 ```bash
-parallel -j 4 --line-buffer --halt soon,fail=1 \
-  'python code/sim.py run \
-    --config code/benchmark_setup.json \
-    --campaign full \
-    --scenario {} \
-    --output output/{} \
-    --build-root work/{} \
-    --seed 42' \
-  ::: ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10
+sudo apt update
+sudo apt install ca-certificates curl gnupg build-essential python3 python3-venv python3-pip
+curl -fsSL https://build.openmodelica.org/apt/openmodelica-2026.asc \
+  | sudo gpg --dearmor --yes -o /usr/share/keyrings/openmodelica-keyring.gpg
+. /etc/os-release
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/openmodelica-keyring.gpg] https://build.openmodelica.org/apt ${VERSION_CODENAME} stable" \
+  | sudo tee /etc/apt/sources.list.d/openmodelica.list
+sudo apt update
+sudo apt install --no-install-recommends omc
+omc --version
 ```
 
-Adjust `-j 4` to the number of concurrent simulations your machine can sustain. Do not share a build root between parallel simulation processes.
-
-> [!WARNING]
-> Attention! The simulations takes time, so be prepared to let your computer run for a while.
-
-## Create Your Own Simulation
-
-If you want to create your own CPPS configurations and simulations, you can either use the OpenModelica Editor (OMEdit) or you use the python interface provided in this repository.
-
-When using OMEdit, simply load the models from the `models` directory and assemble them into a new configuration.
-
-When using the Python interface, create a configuration based on `code/benchmark_setup.json` and validate it before simulating it:
+The models require **Modelica Standard Library 4.0.0**. OpenModelica manages libraries separately from the compiler. Install the exact version with its [package manager](https://openmodelica.org/doc/OpenModelicaUsersGuide/latest/packagemanager.html):
 
 ```bash
-python code/sim.py validate --config /path/to/benchmark_setup.json
-python code/sim.py run \
-  --config /path/to/benchmark_setup.json \
-  --campaign full \
-  --output output/custom \
-  --build-root work/custom \
-  --seed 42
+cat > /tmp/hai-cpps-msl.mos <<'MOS'
+updatePackageIndex();
+installPackage(Modelica, "4.0.0", exactMatch=true);
+loadModel(Modelica, {"4.0.0"}, requireExactVersion=true);
+getVersion(Modelica);
+getErrorString();
+MOS
+omc /tmp/hai-cpps-msl.mos
 ```
 
-The validator checks the configuration schema, module types, port connectivity, enabled fault names, exclusive fault pairs, timing, and referenced model files.
+Check that the installation prints `true` for `installPackage` and `loadModel`, and `"4.0.0"` for `getVersion`. The exact-version option is documented in the [OpenModelica scripting API](https://openmodelica.org/doc/OpenModelicaUsersGuide/latest/scripting_api.html). This repository was smoke tested with OpenModelica 1.26.1 and MSL 4.0.0.
+
+Create a Python virtual environment and install the direct dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Activate the environment again with `source .venv/bin/activate` in each new shell.
+
+## 2. Run all benchmark datasets
+
+First inspect the work list without writing outputs:
+
+```bash
+python code/campaign.py --plan
+```
+
+Run all ten datasets and all configured faults with four concurrent simulations:
+
+```bash
+python code/campaign.py --jobs 4
+```
+
+Set `--jobs` to the number of simulations your computer can run at once. Each worker has an isolated OpenModelica build directory. The launcher schedules healthy controls before their paired faults, writes logs under `build/v2.2/campaign/logs/`, and validates the completed campaign. Rerun the same command after an interruption to reuse complete recordings. Choose new `--output` and `--build-root` directories if you change the configuration or source after starting a campaign.
+
+The default result is `output/v2.2/`. For example, one recording is in `output/v2.2/ds1/ds1/ds1_001_healthy/`. Each recording contains continuous, discrete, and hybrid Parquet measurements, controller commands, fault and timing metadata, validation results, and provenance. `output/v2.2/release_manifest.json` summarizes a validated full campaign. Generated files stay outside the source directories and are ignored by Git.
+
+You can choose output locations explicitly:
+
+```bash
+python code/campaign.py --jobs 8 --output /path/to/results --build-root /path/to/build
+```
+
+## 3. Run one benchmark dataset
+
+Use the same launcher with `--dataset`:
+
+```bash
+python code/campaign.py --dataset ds1 --jobs 4
+```
+
+This plans and runs the complete `ds1` campaign: 16 healthy recordings and 12 fault recordings. Its summary is `output/v2.2/ds1_release_manifest.json`. Any of `ds1` through `ds10` is accepted. Run `python code/campaign.py --dataset ds1 --plan` to inspect the selected work first.
+
+## 4. Simulate your own topology
+
+Copy [the example configuration](examples/custom.json) and edit its `modules` and `edges`. Each edge connects one output port to one input port. Every declared port must be connected exactly once. `files` paths are relative to the JSON file. You can combine the modules in `models/` without changing them.
+
+For a new Modelica module, add a `.mo` file and set its `type` to `custom`. Supply `modelica_class`, `input_ports`, and `output_ports` in the JSON. The class must define a replaceable `Medium` package and expose the listed ports. [PassThrough.mo](examples/PassThrough.mo) shows a small custom pipe module. Custom modules currently have an empty `faults` object; the benchmark's predefined fault campaign applies to its validated built-in modules.
+
+Run the included example:
+
+```bash
+python code/simulate.py --config examples/custom.json --dataset custom1
+```
+
+The raw result is `output/custom/custom1/processPlant_res.csv`. The same directory contains the generated plant, OpenModelica script, and compiler logs. `simulate.py` checks that OpenModelica loaded MSL 4.0.0 and produced the full requested time grid. Use `--output /path/to/new/output` for another run; an existing run directory is kept rather than overwritten.
+
+For an existing topology or a built-in-only combination, use the same JSON format and command. Keep a source, a sink, and a valid connection for every port. The `sim_setup` object sets `startTime`, `stopTime`, `numberOfIntervals`, `faultStart`, and `seed`.
+
+## Repository map
+
+- `models/`: validated Modelica modules used by the benchmark.
+- `code/benchmark_setup.json`: ten benchmark topologies and fault inventories.
+- `code/campaign.py`: parallel full or single-dataset v2.2 campaign.
+- `code/simulate.py`: one raw simulation for a user topology.
+- `code/config.py`, `code/model_generation.py`, `code/runner.py`, `code/sim.py`: configuration, plant generation, OpenModelica execution, and validated benchmark export.
+- `examples/`: a working configuration with an additional Modelica module.
+
+To run the focused Python tests, install `pytest` in the virtual environment and run `python -m pytest -q`.
 
 # Using the Benchmark
 
@@ -268,10 +185,10 @@ As a reference, you can have a look at the following repository [Discret2Di](htt
 
 # Citation
 
-When using the HAI-CPPS benchmark, please use the following citation:
+When using the HAI-CPPS benchmark, please use the following citations:
 
 ```bibtex
-   @data{haicpps,
+   @data{Ehrhardt2025HAICPPSDATASET,
    doi = {10.21227/5ewb-cn40},
    url = {https://dx.doi.org/10.21227/5ewb-cn40},
    author = {Jonas Ehrhardt and Lukas Moddemann and Alexander Diedrich and Oliver Niggemann},
@@ -280,10 +197,20 @@ When using the HAI-CPPS benchmark, please use the following citation:
    year = {2025} }
 ```
 
+```bibtex
+@INPROCEEDINGS{Moddemann2025HAICPPS,
+  author={Moddemann, Lukas and Ehrhardt, Jonas and Diedrich, Alexander and Niggemann, Oliver},
+  booktitle={2025 IEEE 30th International Conference on Emerging Technologies and Factory Automation (ETFA)},
+  title={The HAI-CPPS Benchmark: Evaluating AI Capabilities Across Hybrid Data Spaces},
+  year={2025},
+  pages={1-8},
+  doi={10.1109/ETFA65518.2025.11205680}}
+```
+
 When using the original benchmark (BeRFiPl) please cite:
 
 ```bibtex
-@INPROCEEDINGS{Ehrhardt2022,
+@INPROCEEDINGS{Ehrhardt2022BERFIPL,
   author={Ehrhardt, Jonas and Ramonat, Malte and Heesch, René and Balzereit, Kaja and Diedrich, Alexander and Niggemann, Oliver},
   booktitle={2022 IEEE 27th International Conference on Emerging Technologies and Factory Automation (ETFA)},
   title={An AI benchmark for Diagnosis, Reconfiguration & Planning},
@@ -293,6 +220,6 @@ When using the original benchmark (BeRFiPl) please cite:
   doi={10.1109/ETFA52439.2022.9921546}}
 ```
 
-## LICENSE
+## License
 
-The simulation models are licensed under [MIT license](LICENSE).
+See [LICENSE](LICENSE).
