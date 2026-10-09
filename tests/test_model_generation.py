@@ -87,11 +87,11 @@ class ModelGenerationTests(unittest.TestCase):
         self.assertEqual(len(seeds), expected)
         self.assertEqual(len(set(seeds)), expected)
 
-    def test_simulation_suppresses_extra_event_output_rows(self):
+    def test_simulation_preserves_event_output_rows(self):
         setup = self.config["ds1"]
         mos = generate_mos_text(setup, [], Path("/tmp/Plant.mo"))
         self.assertIn('loadModel(Modelica, {"4.0.0"});', mos)
-        self.assertIn('simflags="-noEventEmit"', mos)
+        self.assertNotIn('noEventEmit', mos)
         self.assertIn('variableFilter=".*(', mos)
 
     def test_modelica_fault_defaults_are_false_and_clogging_is_not_a_fault(self):

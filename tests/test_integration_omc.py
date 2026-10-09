@@ -57,6 +57,7 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
                 exports[-1], _ = enrich_release(
                     root / "output" / run.scenario_id, run, exports[-1],
                     artifacts.model_hashes, require_recorded=True,
+                    raw_result=artifacts.raw_result,
                 )
                 release_report = validate_release_bundle(
                     exports[-1],
@@ -100,6 +101,7 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
             exported, _ = enrich_release(
                 Path(temporary) / "output", run, exported,
                 artifacts.model_hashes, require_recorded=True,
+                raw_result=artifacts.raw_result,
             )
             release_report = validate_release_bundle(
                 exported,
@@ -219,7 +221,7 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
                 metadata = write_release_metadata(output, run, exported)
                 exported, _ = enrich_release(
                     output, run, exported, artifacts.model_hashes,
-                    require_recorded=True,
+                    require_recorded=True, raw_result=artifacts.raw_result,
                 )
                 report = validate_release_bundle(
                     exported,
