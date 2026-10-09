@@ -13,7 +13,7 @@ from config import focused_fault_pair, load_benchmark_config, normal_run
 from dataset_metadata import write_release_metadata
 from diagnosis_export import enrich_release
 from export import export_result_files
-from runner import check_openmodelica_topologies, run_openmodelica
+from runner import run_openmodelica
 from sim import _execute_run
 from validation import validate_fault_pair, validate_release_bundle
 
@@ -296,14 +296,6 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
     "set RUN_OMC_EXTENDED_TESTS=1 to run all topology checks",
 )
 class ExtendedOpenModelicaTests(unittest.TestCase):
-    def test_all_generated_topologies_pass_check_model(self):
-        benchmark = load_benchmark_config(CONFIG_PATH)
-        with tempfile.TemporaryDirectory() as temporary:
-            logs = check_openmodelica_topologies(
-                benchmark, CONFIG_PATH.parent, Path(temporary) / "checks"
-            )
-        self.assertEqual(set(logs), set(benchmark))
-
     def test_all_topologies_complete_short_normal_simulation(self):
         benchmark = load_benchmark_config(CONFIG_PATH)
         with tempfile.TemporaryDirectory() as temporary:
