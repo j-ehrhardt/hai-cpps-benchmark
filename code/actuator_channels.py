@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 import hashlib
+import math
 import re
 
 import numpy as np
@@ -124,6 +125,24 @@ def reconstruct_commands(audit, setup):
     return result
 
 
+def _slew_response(value, target, elapsed):
+    """Integrate MSL 4.0.0 SlewRateLimiter over one constant-input interval."""
+    if elapsed <= 0:
+        return value
+    rate = 10.0  # 1 / the reviewed built-in valveRampDuration of 0.1 s
+    td = 0.001  # valveRampDuration / 100 in the reviewed Modelica sources
+    difference = target - value
+    direction = 1.0 if difference >= 0 else -1.0
+    distance = abs(difference)
+    tail = rate * td
+    if distance <= tail:
+        return target - difference * math.exp(-elapsed / td)
+    linear_time = (distance - tail) / rate
+    if elapsed <= linear_time:
+        return value + direction * rate * elapsed
+    return target - direction * tail * math.exp(-(elapsed - linear_time) / td)
+
+
 def validate_command_equations(commands, audit, setup):
     """Fault references are consulted only here, never during reconstruction."""
     checked = []
@@ -142,34 +161,25 @@ def validate_command_equations(commands, audit, setup):
             else:
                 expected = expected * audit[key]
         effective = audit[spec.raw].astype(float)
-        valid = np.isclose(expected, effective, atol=1e-6 if spec.quantity == "opening" else 1e-9, rtol=1e-7)
         if spec.quantity == "opening":
-            # A slew limiter starts at the closed opening even if its controller
-            # requests an open valve on the first recorded simulation step.
-            previous = expected.shift(fill_value=spec.off)
-            changed = ~np.isclose(expected, previous, atol=1e-9, rtol=1e-7)
-            times = audit["simulation_time"].astype(float)
-            change_time = times.where(changed).ffill()
-            previous_target = previous.where(changed).ffill()
-            in_ramp = (times - change_time).between(0, 0.1 + 1e-9)
-            lower = np.minimum(previous_target, expected) - 1e-6
-            upper = np.maximum(previous_target, expected) + 1e-6
-            valid |= (in_ramp & effective.between(lower, upper)).to_numpy(dtype=bool)
-            if spec.periodic:
-                # A state can become active between one-second output samples
-                # just before the periodic closing edge. At that edge the
-                # recorded command is off while the valve still reflects the
-                # preceding on phase; the next sample must pass normally.
-                active = pd.Series(False, index=audit.index)
-                for state in spec.states:
-                    active |= audit[f"{spec.module}.{state}.active"].astype(bool)
-                entered_state = active & ~active.shift(fill_value=False)
-                closing_edge = np.isclose(times.mod(4), 2, atol=1e-8, rtol=0)
-                opening_in_range = effective.between(
-                    min(spec.off, spec.on) - 1e-6,
-                    max(spec.off, spec.on) + 1e-6,
+            # The limiter has a short first-order tail after its linear stroke.
+            # Use every simulator event row so intervening command pulses are
+            # represented before comparing the effective opening.
+            times = audit["simulation_time"].to_numpy(dtype=float)
+            targets = expected.to_numpy(dtype=float)
+            observed = effective.to_numpy(dtype=float)
+            predicted = np.empty(len(observed), dtype=float)
+            predicted[0] = observed[0]
+            for index in range(1, len(observed)):
+                predicted[index] = _slew_response(
+                    predicted[index - 1], targets[index - 1],
+                    times[index] - times[index - 1],
                 )
-                valid |= (entered_state & closing_edge & opening_in_range).to_numpy(dtype=bool)
+            # The DASSL run uses a 1e-6 tolerance; allow a small accumulated
+            # integration difference without accepting a material valve error.
+            valid = np.isclose(predicted, observed, atol=1e-4, rtol=1e-7)
+        else:
+            valid = np.isclose(expected, effective, atol=1e-9, rtol=1e-7)
         if not valid.all():
             times = audit.loc[~valid, "simulation_time"].head(8).tolist()
             raise ExportError(f"Command/effective equation mismatch {spec.name} at {times}")
@@ -231,7 +241,8 @@ def command_catalogue(setup, hashes, recorded=False):
             "actuator_dynamics": (
                 {"kind": "first_order_lag", "time_constant_s": 1.0, "disturbance_multiplier_range": [0.8, 1.2], "disturbance_sample_period_s": 1.0}
                 if spec.quantity == "speed" else
-                {"kind": "slew_rate_limiter", "full_stroke_time_s": 0.1, "max_opening_rate_per_s": 10.0}
+                {"kind": "slew_rate_limiter", "full_stroke_time_s": 0.1,
+                 "max_opening_rate_per_s": 10.0, "derivative_time_constant_s": 0.001}
                 if spec.quantity == "opening" else
                 {"kind": "algebraic", "delay_s": 0.0}
             ),
