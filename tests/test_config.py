@@ -10,6 +10,7 @@ from config import (
     load_benchmark_config,
     normalize_and_validate,
 )
+from campaign_plan import plan_campaign
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -22,9 +23,10 @@ class ConfigurationTests(unittest.TestCase):
     def setUpClass(cls):
         cls.config = load_benchmark_config(CONFIG_PATH)
 
-    def test_checked_in_configuration_and_campaign_size(self):
+    def test_checked_in_configuration_and_v22_campaign_size(self):
         self.assertEqual(len(self.config), 10)
         self.assertEqual(len(generate_single_fault_campaign(self.config)), 110)
+        self.assertEqual(len(plan_campaign(self.config)), 350)
 
     def test_all_checked_in_faults_are_neutral(self):
         for scenario in self.config.values():

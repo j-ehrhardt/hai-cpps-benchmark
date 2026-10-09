@@ -3,7 +3,7 @@ import io
 import unittest
 from pathlib import Path
 
-from sim import main
+from campaign import main
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -11,27 +11,20 @@ CONFIG_PATH = REPOSITORY / "code" / "benchmark_setup.json"
 
 
 class CommandLineTests(unittest.TestCase):
-    def test_validate_command_reports_campaign_sizes(self):
+    def test_plan_reports_v22_campaign_size(self):
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
-            result = main(["validate", "--config", str(CONFIG_PATH)])
+            result = main(["--plan", "--config", str(CONFIG_PATH)])
         self.assertEqual(result, 0)
-        self.assertIn("10 normal runs, 100 single-fault runs", stdout.getvalue())
+        self.assertIn("350 recordings", stdout.getvalue())
 
-    def test_invalid_seed_fails_before_creating_outputs(self):
+    def test_invalid_worker_count_fails_before_creating_outputs(self):
         stderr = io.StringIO()
         with contextlib.redirect_stderr(stderr):
-            result = main(
-                [
-                    "run",
-                    "--config",
-                    str(CONFIG_PATH),
-                    "--seed",
-                    "0",
-                ]
-            )
-        self.assertEqual(result, 2)
-        self.assertIn("--seed must be between", stderr.getvalue())
+            with self.assertRaises(SystemExit) as error:
+                main(["--config", str(CONFIG_PATH), "--jobs", "0"])
+        self.assertEqual(error.exception.code, 2)
+        self.assertIn("--jobs must be at least 1", stderr.getvalue())
 
 
 if __name__ == "__main__":

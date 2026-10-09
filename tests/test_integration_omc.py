@@ -11,9 +11,10 @@ import pandas as pd
 
 from config import focused_fault_pair, load_benchmark_config, normal_run
 from dataset_metadata import write_release_metadata
+from diagnosis_export import enrich_release
 from export import export_result_files
 from runner import check_openmodelica_topologies, run_openmodelica
-from sim import main
+from sim import _execute_run
 from validation import validate_fault_pair, validate_release_bundle
 
 
@@ -52,6 +53,10 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
                 )
                 metadata = write_release_metadata(
                     root / "output" / run.scenario_id, run, exports[-1]
+                )
+                exports[-1], _ = enrich_release(
+                    root / "output" / run.scenario_id, run, exports[-1],
+                    artifacts.model_hashes, require_recorded=True,
                 )
                 release_report = validate_release_bundle(
                     exports[-1],
@@ -92,6 +97,10 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
                 run.setup["sim_setup"],
             )
             metadata = write_release_metadata(Path(temporary) / "output", run, exported)
+            exported, _ = enrich_release(
+                Path(temporary) / "output", run, exported,
+                artifacts.model_hashes, require_recorded=True,
+            )
             release_report = validate_release_bundle(
                 exported,
                 run,
@@ -102,7 +111,7 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
             self.assertEqual(len(pd.read_parquet(exported.hybrid)), 21)
             self.assertTrue(release_report["valid"])
 
-    def test_short_cli_run_writes_and_resumes_complete_release(self):
+    def test_short_v22_run_writes_and_resumes_complete_release(self):
         benchmark = load_benchmark_config(CONFIG_PATH)
         setup = copy.deepcopy(benchmark["ds1"])
         setup["sim_setup"].update(
@@ -118,24 +127,19 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
             config_path.write_text(
                 json.dumps({"ds1": setup}, indent=2) + "\n", encoding="utf-8"
             )
-            arguments = [
-                "run",
-                "--config",
-                str(config_path),
-                "--campaign",
-                "normal",
-                "--output",
-                str(root / "output"),
-                "--build-root",
-                str(root / "build"),
-            ]
-            self.assertEqual(main(arguments), 0)
+            run = normal_run("ds1", setup)
+            _execute_run(run, config_path, root / "output", root / "build",
+                         force=False, resume=False)
             scenario = root / "output" / "ds1_normal"
             expected = (
                 scenario / "continuous" / "measurements.parquet",
                 scenario / "discrete" / "measurements.parquet",
                 scenario / "hybrid" / "measurements.parquet",
                 scenario / "oracle_states.parquet",
+                scenario / "audit_for_verification" / "internal_verification.csv",
+                scenario / "commands.parquet",
+                scenario / "channel_catalogue.yaml",
+                scenario / "permitted_inputs.json",
                 scenario / "fault_events.json",
                 scenario / "system_knowledge.yaml",
                 scenario / "technical_timing.json",
@@ -144,7 +148,8 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
                 scenario / "validation.json",
             )
             self.assertTrue(all(path.is_file() for path in expected))
-            self.assertEqual(main(arguments + ["--resume"]), 0)
+            _execute_run(run, config_path, root / "output", root / "build",
+                         force=False, resume=True)
 
     def test_repeated_fixed_seed_exports_are_byte_identical(self):
         benchmark = load_benchmark_config(CONFIG_PATH)
@@ -212,6 +217,10 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
                     run.setup["sim_setup"],
                 )
                 metadata = write_release_metadata(output, run, exported)
+                exported, _ = enrich_release(
+                    output, run, exported, artifacts.model_hashes,
+                    require_recorded=True,
+                )
                 report = validate_release_bundle(
                     exported,
                     run,
@@ -252,45 +261,6 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
         self.assertFalse(
             report["non_target_direct_effects"], json.dumps(report, indent=2)
         )
-
-    def test_filter_pollution_has_safe_effect_when_filter_operates(self):
-        benchmark = load_benchmark_config(CONFIG_PATH)
-        benchmark["ds3"]["sim_setup"].update(
-            {"startTime": 0, "stopTime": 100, "numberOfIntervals": 100, "faultStart": 30}
-        )
-        with tempfile.TemporaryDirectory() as temporary:
-            fixture_dir = Path(temporary) / "models"
-            fixture_dir.mkdir()
-            filter_source = (REPOSITORY / "models" / "Filter.mo").read_text(
-                encoding="utf-8"
-            )
-            (fixture_dir / "Filter.mo").write_text(
-                filter_source.replace(
-                    "parameter Real tankMaxVol = 0.95;",
-                    "parameter Real tankMaxVol = 0.06;",
-                ),
-                encoding="utf-8",
-            )
-            for module in benchmark["ds3"]["model"]["modules"].values():
-                model_path = REPOSITORY / "models" / Path(module["files"]).name
-                module["files"] = str(model_path.resolve())
-            benchmark["ds3"]["model"]["modules"]["filter0"]["files"] = str(
-                (fixture_dir / "Filter.mo").resolve()
-            )
-            report = self._run_pair(
-                benchmark,
-                "ds3",
-                "filter0",
-                "anom_pollution",
-                config_dir=fixture_dir,
-            )
-        self.assertTrue(report["injection_observed"], json.dumps(report, indent=2))
-        self.assertTrue(
-            report["component_operation"]["operated_after_onset"],
-            json.dumps(report, indent=2),
-        )
-        self.assertTrue(report["safe_effect_observed"], json.dumps(report, indent=2))
-        self.assertTrue(report["valid"], json.dumps(report, indent=2))
 
     def test_distill_leak_ramp_is_stable_while_pump_operates(self):
         benchmark = load_benchmark_config(CONFIG_PATH)

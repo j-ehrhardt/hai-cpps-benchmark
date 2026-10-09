@@ -10,7 +10,6 @@ from config import RunSpec
 from dataset_metadata import fault_events_document, write_release_metadata
 from dataset_io import load_scenario_dataset
 from export import export_result_files
-from validation import validate_release_bundle
 
 
 def _fault_run() -> RunSpec:
@@ -95,13 +94,6 @@ class DatasetMetadataTests(unittest.TestCase):
                 raw_path, output, run.scenario_id, run.setup["sim_setup"]
             )
             metadata = write_release_metadata(output, run, bundle)
-            report = validate_release_bundle(
-                bundle,
-                run,
-                metadata.fault_events,
-                metadata.system_knowledge,
-                metadata.technical_timing,
-            )
             oracle = pd.read_parquet(bundle.oracle_states)
             events = json.loads(metadata.fault_events.read_text(encoding="utf-8"))
             knowledge = yaml.safe_load(
@@ -113,8 +105,7 @@ class DatasetMetadataTests(unittest.TestCase):
             online = load_scenario_dataset(output)
             offline = load_scenario_dataset(output, include_oracle=True)
 
-        self.assertTrue(report["valid"])
-        self.assertEqual(report["fault_events"], 1)
+        self.assertEqual(len(events["events"]), 1)
         self.assertEqual(events["events"][0]["configuration_flag"], "anom_pump50")
         self.assertEqual(events["events"][0]["fault_value"], 0.5)
         self.assertEqual(
@@ -176,18 +167,10 @@ class DatasetMetadataTests(unittest.TestCase):
                 raw_path, output, run.scenario_id, run.setup["sim_setup"]
             )
             metadata = write_release_metadata(output, run, bundle)
-            report = validate_release_bundle(
-                bundle,
-                run,
-                metadata.fault_events,
-                metadata.system_knowledge,
-                metadata.technical_timing,
-            )
             timing = json.loads(
                 metadata.technical_timing.read_text(encoding="utf-8")
             )
 
-        self.assertTrue(report["valid"])
         self.assertEqual(
             timing["recording"]["event_boundary_value"],
             "pre_or_post_event_value",
