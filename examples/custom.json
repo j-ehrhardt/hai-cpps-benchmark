@@ -1,0 +1,30 @@
+{
+  "custom1": {
+    "ds_name": "custom1",
+    "model": {
+      "modules": {
+        "source0": {"type": "source", "files": "../models/Source.mo", "faults": {}},
+        "pipe0": {
+          "type": "custom",
+          "files": "PassThrough.mo",
+          "modelica_class": "passThroughModule",
+          "input_ports": ["port_in0"],
+          "output_ports": ["port_out0"],
+          "faults": {}
+        },
+        "sink0": {"type": "sink", "files": "../models/Sink.mo", "faults": {}}
+      },
+      "edges": {
+        "0": ["source0.port_out0", "pipe0.port_in0"],
+        "1": ["pipe0.port_out0", "sink0.port_in0"]
+      }
+    },
+    "sim_setup": {
+      "startTime": 0,
+      "stopTime": 10,
+      "numberOfIntervals": 10,
+      "faultStart": 1,
+      "seed": 42
+    }
+  }
+}
