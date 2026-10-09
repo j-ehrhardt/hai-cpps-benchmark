@@ -144,7 +144,9 @@ def validate_command_equations(commands, audit, setup):
         effective = audit[spec.raw].astype(float)
         valid = np.isclose(expected, effective, atol=1e-6 if spec.quantity == "opening" else 1e-9, rtol=1e-7)
         if spec.quantity == "opening":
-            previous = expected.shift(fill_value=expected.iloc[0])
+            # A slew limiter starts at the closed opening even if its controller
+            # requests an open valve on the first recorded simulation step.
+            previous = expected.shift(fill_value=spec.off)
             changed = ~np.isclose(expected, previous, atol=1e-9, rtol=1e-7)
             times = audit["simulation_time"].astype(float)
             change_time = times.where(changed).ffill()
@@ -153,6 +155,21 @@ def validate_command_equations(commands, audit, setup):
             lower = np.minimum(previous_target, expected) - 1e-6
             upper = np.maximum(previous_target, expected) + 1e-6
             valid |= (in_ramp & effective.between(lower, upper)).to_numpy(dtype=bool)
+            if spec.periodic:
+                # A state can become active between one-second output samples
+                # just before the periodic closing edge. At that edge the
+                # recorded command is off while the valve still reflects the
+                # preceding on phase; the next sample must pass normally.
+                active = pd.Series(False, index=audit.index)
+                for state in spec.states:
+                    active |= audit[f"{spec.module}.{state}.active"].astype(bool)
+                entered_state = active & ~active.shift(fill_value=False)
+                closing_edge = np.isclose(times.mod(4), 2, atol=1e-8, rtol=0)
+                opening_in_range = effective.between(
+                    min(spec.off, spec.on) - 1e-6,
+                    max(spec.off, spec.on) + 1e-6,
+                )
+                valid |= (entered_state & closing_edge & opening_in_range).to_numpy(dtype=bool)
         if not valid.all():
             times = audit.loc[~valid, "simulation_time"].head(8).tolist()
             raise ExportError(f"Command/effective equation mismatch {spec.name} at {times}")
