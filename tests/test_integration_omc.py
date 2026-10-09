@@ -264,6 +264,19 @@ class OpenModelicaIntegrationTests(unittest.TestCase):
             report["non_target_direct_effects"], json.dumps(report, indent=2)
         )
 
+    def test_ds1_valve_fault_survives_event_aware_release(self):
+        benchmark = load_benchmark_config(CONFIG_PATH)
+        benchmark["ds1"]["sim_setup"].update(
+            {"startTime": 0, "stopTime": 30, "numberOfIntervals": 30, "faultStart": 10}
+        )
+        report = self._run_pair(
+            benchmark, "ds1", "mixer0", "anom_valve_in0"
+        )
+        self.assertTrue(report["injection_observed"], json.dumps(report, indent=2))
+        self.assertFalse(
+            report["non_target_direct_effects"], json.dumps(report, indent=2)
+        )
+
     def test_distill_leak_ramp_is_stable_while_pump_operates(self):
         benchmark = load_benchmark_config(CONFIG_PATH)
         benchmark["ds2"]["sim_setup"].update(
