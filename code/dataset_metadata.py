@@ -1107,6 +1107,6 @@ def enrich_diagnosis_metadata(output_dir, run, bundle, commands, hashes, renames
     timing["fault_timing"]["diagnosis_observations"] = {"status": "pending_paired_run" if run.is_fault else "not_applicable"}
     recorded = all(c["availability"] == "recorded_controller_output" for c in commands)
     timing["reconstruction"] = {"operation": "directly recorded nominal controller outputs; state equations used only for verification" if recorded else "healthy controller equations evaluated at recorded phases/time",
-                                 "resampling": "none", "boundary_policy": "verify bounded 0.1 s valve slew against recorded event transitions before selecting the canonical grid",
+                                 "resampling": "none", "boundary_policy": "verify the 10/s valve rate limit and 0.001 s derivative tail against recorded event transitions before selecting the canonical grid",
                                  "exact_between_sample_effects": "available_in_internal_event_trace"}
     write_json(output_dir / "technical_timing.json", timing)
