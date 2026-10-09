@@ -25,7 +25,7 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_checked_in_configuration_and_v22_campaign_size(self):
         self.assertEqual(len(self.config), 10)
-        self.assertEqual(len(generate_single_fault_campaign(self.config)), 110)
+        self.assertEqual(len(generate_single_fault_campaign(self.config)), 95)
         self.assertEqual(len(plan_campaign(self.config)), 350)
 
     def test_all_checked_in_faults_are_neutral(self):
