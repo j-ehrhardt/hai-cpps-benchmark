@@ -174,8 +174,7 @@ def generate_mos_text(
     if include_simulation:
         lines.append(
             'simulate({}, startTime={}, stopTime={}, numberOfIntervals={}, '
-            'outputFormat="csv", tolerance=1e-6, variableFilter="{}", '
-            'simflags="-noEventEmit");'.format(
+            'outputFormat="csv", tolerance=1e-6, variableFilter="{}");'.format(
                 MODEL_NAME,
                 sim_setup["startTime"],
                 sim_setup["stopTime"],

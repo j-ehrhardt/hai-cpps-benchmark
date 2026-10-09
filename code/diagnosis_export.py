@@ -4,16 +4,19 @@ from pathlib import Path
 import hashlib
 import json
 
+import numpy as np
 import pandas as pd
 import yaml
 
 from actuator_channels import (SCHEMA_VERSION, REGISTRY_VERSION, command_catalogue,
                                reconstruct_commands, recorded_commands, validate_command_equations, verify_sources)
 from export import (ExportBundle, ExportError, OracleVariable, IDENTIFIER_COLUMNS,
-                    classify_columns)
+                    canonical_grid_indices, classify_columns)
 
 AUDIT_PATH = "audit_for_verification/internal_verification.csv"
-EXTRA_ARTIFACTS = ("commands.parquet", "channel_catalogue.yaml", "permitted_inputs.json")
+EVENT_AUDIT_PATH = "audit_for_verification/actuator_event_trace.parquet"
+EXTRA_ARTIFACTS = ("commands.parquet", "channel_catalogue.yaml", "permitted_inputs.json",
+                   EVENT_AUDIT_PATH)
 
 
 def digest(path):
@@ -150,7 +153,46 @@ def update_diagnosis_pair_timing(normal_dir, fault_dir, run, report):
     write_json(path, timing)
 
 
-def enrich_release(output_dir, run, bundle, recorded_hashes=None, require_recorded=False):
+def event_audit_from_raw(raw_result, audit, run):
+    """Retain the simulator event rows needed to verify subsecond valve motion."""
+    raw = pd.read_csv(raw_result, index_col=False)
+    signal_columns = list(audit.columns[len(IDENTIFIER_COLUMNS):])
+    if not set(signal_columns).issubset(raw.columns):
+        raise ExportError("Raw result is missing event verification channels")
+    trace = raw[signal_columns].copy()
+    trace.insert(0, "simulation_time", raw["time"])
+    trace.insert(0, "simulation_step", np.arange(len(raw)))
+    trace.insert(0, "scenario_id", run.scenario_id)
+    return trace
+
+
+def validate_event_audit(trace, audit, run):
+    """Check the event history and its exact relationship to the released grid."""
+    if list(trace.columns) != list(audit.columns):
+        raise ExportError("Event trace and canonical verification schemas differ")
+    if trace.empty or not trace["scenario_id"].eq(run.scenario_id).all():
+        raise ExportError("Event trace has an inconsistent scenario_id")
+    if not np.array_equal(trace["simulation_step"].to_numpy(), np.arange(len(trace))):
+        raise ExportError("Event trace has a non-sequential raw row index")
+    times = pd.to_numeric(trace["simulation_time"], errors="coerce")
+    if not np.isfinite(times.to_numpy(dtype=float)).all() or not times.is_monotonic_increasing:
+        raise ExportError("Event trace has invalid simulation times")
+    values = trace.iloc[:, len(IDENTIFIER_COLUMNS):].apply(pd.to_numeric, errors="coerce")
+    if not np.isfinite(values.to_numpy(dtype=float)).all():
+        raise ExportError("Event trace has invalid verification values")
+    indices = canonical_grid_indices(times, run.setup["sim_setup"])
+    sampled = values.iloc[indices].to_numpy(dtype=float)
+    canonical = audit.iloc[:, len(IDENTIFIER_COLUMNS):].to_numpy(dtype=float)
+    if sampled.shape != canonical.shape or not np.allclose(sampled, canonical, rtol=0, atol=1e-10):
+        raise ExportError("Event trace differs from canonical verification channels")
+    commands = recorded_commands(trace, run.setup)
+    if commands is None:
+        commands = reconstruct_commands(trace, run.setup)
+    return validate_command_equations(commands, trace, run.setup)
+
+
+def enrich_release(output_dir, run, bundle, recorded_hashes=None, require_recorded=False,
+                   raw_result=None):
     """Add the v2.2 diagnosis contract to a staged simulation release."""
     from dataset_metadata import enrich_diagnosis_metadata
     output_dir = Path(output_dir)
@@ -164,7 +206,13 @@ def enrich_release(output_dir, run, bundle, recorded_hashes=None, require_record
         raise ExportError("Fresh simulation is missing recorded nominal commands")
     if not recorded:
         commands = reconstruct_commands(audit, run.setup)
-    checked = validate_command_equations(commands, audit, run.setup)
+    if raw_result is None:
+        raise ExportError("Event-aware validation requires the raw OpenModelica result")
+    event_audit = event_audit_from_raw(raw_result, audit, run)
+    checked = validate_event_audit(event_audit, audit, run)
+    event_path = output_dir / EVENT_AUDIT_PATH
+    event_path.parent.mkdir(parents=True, exist_ok=True)
+    event_audit.to_parquet(event_path, index=False, engine="pyarrow")
     entries = command_catalogue(run.setup, hashes, recorded=recorded)
     variables = renamed_variables(bundle.oracle_variables)
     mapping = {old.oracle_column: new.oracle_column for old, new in zip(bundle.oracle_variables, variables)
@@ -218,7 +266,8 @@ def validate_diagnosis_release(path, run):
         expected = reconstruct_commands(audit, run.setup)
     if list(expected) != list(commands) or not np.array_equal(expected.iloc[:, 3:].to_numpy(), commands.iloc[:, 3:].to_numpy()):
         raise ExportError("Commands differ from verified controller reconstruction")
-    validate_command_equations(commands, audit, run.setup)
+    event_audit = pd.read_parquet(path / EVENT_AUDIT_PATH, engine="pyarrow")
+    validate_event_audit(event_audit, audit, run)
     catalogue = yaml.safe_load((path / "channel_catalogue.yaml").read_text())
     if catalogue.get("schema_version") != SCHEMA_VERSION or catalogue.get("scenario_id") != run.scenario_id:
         raise ExportError("Channel catalogue identity mismatch")

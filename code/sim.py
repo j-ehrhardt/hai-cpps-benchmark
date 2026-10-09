@@ -18,7 +18,7 @@ from dataset_metadata import (
     write_release_metadata,
 )
 from export import export_result_files
-from diagnosis_export import (AUDIT_PATH, EXTRA_ARTIFACTS, enrich_release,
+from diagnosis_export import (AUDIT_PATH, EVENT_AUDIT_PATH, EXTRA_ARTIFACTS, enrich_release,
                         validate_diagnosis_release, update_diagnosis_pair_timing)
 from actuator_channels import SCHEMA_VERSION as DIAGNOSIS_SCHEMA_VERSION
 from runner import SimulationError, run_openmodelica
@@ -76,6 +76,7 @@ def _run_metadata(run: RunSpec) -> Dict[str, Any]:
             "system_knowledge.yaml": "structural_knowledge_non_feature",
             "technical_timing.json": "timing_metadata_non_feature",
             AUDIT_PATH: "internal_validation_non_feature",
+            EVENT_AUDIT_PATH: "internal_validation_non_feature",
             "commands.parquet": "controller_command_features",
             "channel_catalogue.yaml": "channel_metadata_non_feature",
             "permitted_inputs.json": "diagnostic_input_policy",
@@ -166,7 +167,7 @@ def _provenance(
         "solver": {
             "tolerance": 1e-6,
             "output_format": "csv",
-            "emit_event_points": False,
+            "emit_event_points": True,
         },
         "release": {
             "schema_version": DIAGNOSIS_SCHEMA_VERSION,
@@ -342,7 +343,8 @@ def _execute_run(
     )
     metadata = write_release_metadata(output_dir, run, exported)
     exported, diagnosis_validation = enrich_release(
-        output_dir, run, exported, artifacts.model_hashes, require_recorded=True
+        output_dir, run, exported, artifacts.model_hashes, require_recorded=True,
+        raw_result=artifacts.raw_result,
     )
     release_validation = validate_release_bundle(
         exported, run, metadata.fault_events, metadata.system_knowledge,

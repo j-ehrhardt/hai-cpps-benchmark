@@ -286,11 +286,10 @@ def _validate_oracle_equations(
     onset = float(run.setup["sim_setup"]["faultStart"])
     end_value = run.setup["sim_setup"].get("faultEnd")
     end = None if end_value is None else float(end_value)
-    # With the fixed -noEventEmit simulation call, OMC may serialize either
-    # the pre-event or post-event value on a canonical output row exactly at a
-    # later event boundary.  Values strictly before and after that row remain
-    # unambiguous.  An intervention configured at simulation start is active
-    # initially because there is no preceding state to record.
+    # OMC may serialize either the pre-event or post-event value on a canonical
+    # output row exactly at a later event boundary. Values strictly before and
+    # after that row remain unambiguous. An intervention configured at simulation
+    # start is active initially because there is no preceding state to record.
     start = float(run.setup["sim_setup"]["startTime"])
     onset_at_start = math.isclose(onset, start, rel_tol=0.0, abs_tol=1e-12)
     boundary_tolerance = max(1e-9, abs(onset) * 1e-12)

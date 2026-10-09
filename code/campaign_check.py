@@ -32,6 +32,7 @@ REQUIRED = (
     "commands.parquet",
     "oracle_states.parquet",
     "audit_for_verification/internal_verification.csv",
+    "audit_for_verification/actuator_event_trace.parquet",
     "sim_setup.json",
     "fault_events.json",
     "channel_catalogue.yaml",
