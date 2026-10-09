@@ -10,10 +10,12 @@ model filterModule
   parameter Real pump_P101_head_middle = 1.534;
   parameter Real pump_P101_head_min = 1.022;
   parameter Real closedValveOpening(min = 0, max = 1) = 1e-4;
+  parameter Modelica.Units.SI.Time valveRampDuration(min = Modelica.Constants.small) = 0.1;
   parameter Integer noiseSeed = 1;
   
   // anomalies
   parameter Real anom_start = 2500;
+  parameter Real anom_end = Modelica.Constants.inf;
   parameter Boolean anom_leaking = false annotation(Evaluate = false);
   parameter Boolean anom_pollution = false annotation(Evaluate = false);
   parameter Boolean anom_valve_in0 = false annotation(Evaluate = false);
@@ -22,6 +24,10 @@ model filterModule
   Real pollution_value(start=0.5);
   Real var_valve_in(start=0.0);
   Real var_pump_n(start=1.0);
+  output Real command_pump_P101_speed(unit="rev/min") "Nominal controller request before faults";
+  output Real command_valve_in_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_P101_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_out_opening(unit="1") "Nominal controller request before faults";
   Real pump_n_in;
   Boolean fault_window_active;
   
@@ -65,6 +71,10 @@ model filterModule
     Placement(transformation(origin = {50, -150}, extent = {{10, 10}, {-10, -10}}, rotation = 180)));
   Modelica.Fluid.Valves.ValveLinear clogging_valve(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
     Placement(transformation(origin = {-10, -150}, extent = {{10, 10}, {-10, -10}}, rotation = 180)));
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valveInRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valvePumpRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valveOutRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
+  Modelica.Blocks.Nonlinear.SlewRateLimiter leakingValveRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
 
   // machines
   Modelica.Fluid.Machines.PrescribedPump pump_P101(redeclare package Medium = Medium, N_nominal = 166.43, m_flow_start = 0.000001, T_start = 300, V(displayUnit = "m3") = 0.00004398128, checkValve = false, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, redeclare function flowCharacteristic = Modelica.Fluid.Machines.BaseClasses.PumpCharacteristics.quadraticFlow(V_flow_nominal = {pump_P101_V_flow_at_max_head, pump_P101_V_flow_at_middle_head, pump_P101_V_flow_at_min_head}, head_nominal = {pump_P101_head_max, pump_P101_head_middle, pump_P101_head_min}), massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, nParallel = 1, p_a_start = 100000, p_b_start = 100000, use_N_in = true, allowFlowReversal = true) annotation(Placement(transformation(origin = {-90, -150}, extent = {{-10, 10}, {10, -10}})));
@@ -81,6 +91,7 @@ model filterModule
   // A filter passes product toward B102 but must not let B102 drain into a leak.
   Modelica.Fluid.Valves.ValveIncompressible filter_F101(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3, checkValve = true, allowFlowReversal = true) annotation(
     Placement(transformation(origin = {30, -48}, extent = {{10, 10}, {-10, -10}}, rotation = -90)));
+  Modelica.Blocks.Nonlinear.SlewRateLimiter filterRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
   Modelica.Blocks.Math.Division division annotation(
     Placement(transformation(origin = {0, 100}, extent = {{-10, -10}, {10, 10}})));
   Modelica.Blocks.Math.Product product annotation(
@@ -160,20 +171,28 @@ model filterModule
   Modelica.StateGraph.TransitionWithSignal state_is_empty_tank_B102 annotation(
     Placement(transformation(origin = {152, 170}, extent = {{-10, -10}, {10, 10}})));
 equation
+  command_pump_P101_speed = if state_emptying_tank_B101.active then 150 else 0;
+  command_valve_in_opening = if state_filling_tank_B101.active then 1.0 else closedValveOpening;
+  command_valve_pump_P101_opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
+  command_valve_out_opening = if state_emptying_tank_B102.active then 1.0 else 0;
   assert(not (anom_pump50 and anom_pump75), "Filter pump50 and pump75 faults are mutually exclusive");
-  fault_window_active = time >= anom_start;
+  fault_window_active = time >= anom_start and time < anom_end;
   // state graph equations
   condition_is_full_tank_B101.condition = tank_B101.level >= tank_B101.height*tankMaxVol;
   condition_is_empty_tank_B101.condition = tank_B101.level <= tank_B101.height*tankMinVol;
   state_is_empty_tank_B102.condition = tank_B102.level <= tank_B102.height*tankMinVol;
-  valve_in.opening = if state_filling_tank_B101.active then 1.0 else max(closedValveOpening, var_valve_in);
-  valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
-  pump_n_in = if state_emptying_tank_B101.active then 150.0 * var_pump_n else 0.0;
+  valveInRamp.u = max(command_valve_in_opening, var_valve_in);
+  valve_in.opening = valveInRamp.y;
+  valvePumpRamp.u = command_valve_pump_P101_opening;
+  valve_pump_P101.opening = valvePumpRamp.y;
+  pump_n_in = command_pump_P101_speed * var_pump_n;
   // Keep the outlet shut outside its state; a minimum opening here empties B102.
-  valve_out.opening = if state_emptying_tank_B102.active then 1.0 else 0.0;
+  valveOutRamp.u = command_valve_out_opening;
+  valve_out.opening = valveOutRamp.y;
 
   // anomalies
-  leaking_valve.opening = if fault_window_active and anom_leaking then 0.25 else 0.0;
+  leakingValveRamp.u = if fault_window_active and anom_leaking then 0.25 else 0.0;
+  leaking_valve.opening = leakingValveRamp.y;
   clogging_valve.opening = 1.0;
   pollution_value = if (fault_window_active and anom_pollution) then 1.0 else 0.5;
   var_valve_in = if (fault_window_active and anom_valve_in0) then 0.2 else 0.0;
@@ -232,8 +251,8 @@ equation
     Line(points = {{-17, 80}, {-12, 80}, {-12, 94}}, color = {0, 0, 127}));
   connect(const1.y, division.u1) annotation(
     Line(points = {{-109, 110}, {-13, 110}, {-13, 108}, {-13.5, 108}, {-13.5, 106}, {-12, 106}}, color = {0, 0, 127}));
-  connect(division.y, filter_F101.opening) annotation(
-    Line(points = {{11, 100}, {20, 100}, {20, -48}, {22, -48}}, color = {0, 0, 127}));
+  connect(division.y, filterRamp.u);
+  connect(filterRamp.y, filter_F101.opening);
   connect(firstOrder.y, pump_P101.N_in) annotation(
     Line(points = {{-99, -190}, {-90, -190}, {-90, -160}}, color = {0, 0, 127}));
   connect(pipe1.port_b, clogging_valve.port_a) annotation(

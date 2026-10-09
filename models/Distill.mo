@@ -11,11 +11,13 @@ model distillModule
   parameter Real p_ambient = 1e5;
   parameter Real Tmin = 275;
   parameter Real closedValveOpening(min = 0, max = 1) = 1e-4;
+  parameter Modelica.Units.SI.Time valveRampDuration(min = Modelica.Constants.small) = 0.1;
   parameter Modelica.Units.SI.Time leakRampDuration(min = Modelica.Constants.small) = 10;
   parameter Integer noiseSeed = 1;
   
   // anomalies
   parameter Real anom_start = 2500;
+  parameter Real anom_end = Modelica.Constants.inf;
   parameter Boolean anom_leaking = false annotation(Evaluate = false);
   parameter Boolean anom_valve_in0 = false annotation(Evaluate = false);
   parameter Boolean anom_pump50 = false annotation(Evaluate = false);
@@ -25,6 +27,16 @@ model distillModule
   Real var_valve_in0(start=0.0);
   Real var_pump_n(start=1.0);
   Real var_heat(start=1.0);
+  output Real command_pump_P101_speed(unit="rev/min") "Nominal controller request before faults";
+  output Real command_valve_in_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_pump_P101_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_distill1_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_distill3_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_out0_opening(unit="1") "Nominal controller request before faults";
+  output Real command_valve_out1_opening(unit="1") "Nominal controller request before faults";
+  output Real command_heater_distill_heat_flow(unit="W") "Nominal controller request before faults";
+  output Real command_cooler_B102_heat_flow(unit="W") "Nominal controller request before faults";
+  output Real command_cooler_B103_heat_flow(unit="W") "Nominal controller request before faults";
   Real pump_n_in;
   Real leakRampProgress(min=0.0, max=1.0);
   Boolean fault_window_active;
@@ -73,6 +85,10 @@ model distillModule
     Placement(transformation(origin = {-30, -150}, extent = {{10, 10}, {-10, -10}}, rotation = 90)));
   Modelica.Fluid.Valves.ValveLinear clogging_valve(redeclare package Medium = Medium, dp(start = 1), dp_nominal = 1, m_flow(start = 1e-5), m_flow_nominal = 1e-3) annotation(
     Placement(transformation(origin = {-30, 30}, extent = {{10, -10}, {-10, 10}}, rotation = 270)));
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valveInRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valvePumpRamp(Rising = 1 / valveRampDuration, Falling = -1 / valveRampDuration, Td = valveRampDuration / 100, strict = true);
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valveDistillRamp[2](each Rising = 1 / valveRampDuration, each Falling = -1 / valveRampDuration, each Td = valveRampDuration / 100, each strict = true);
+  Modelica.Blocks.Nonlinear.SlewRateLimiter valveOutRamp[2](each Rising = 1 / valveRampDuration, each Falling = -1 / valveRampDuration, each Td = valveRampDuration / 100, each strict = true);
 
   // machines
   Modelica.Fluid.Machines.PrescribedPump pump_P101(redeclare package Medium = Medium, N_nominal = 166.43, m_flow_start = 0.000001, T_start = 300, V(displayUnit = "m3") = 0.00004398128, checkValve = false, energyDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, redeclare function flowCharacteristic = Modelica.Fluid.Machines.BaseClasses.PumpCharacteristics.quadraticFlow(V_flow_nominal = {pump_P101_V_flow_at_max_head, pump_P101_V_flow_at_middle_head, pump_P101_V_flow_at_min_head}, head_nominal = {pump_P101_head_max, pump_P101_head_middle, pump_P101_head_min}), massDynamics = Modelica.Fluid.Types.Dynamics.FixedInitial, nParallel = 1, p_a_start = 100000, p_b_start = 100000, use_N_in = true, allowFlowReversal = true) annotation(
@@ -185,29 +201,45 @@ model distillModule
 
 
 equation
+  command_pump_P101_speed = if state_emptying_tank_B101.active then 150 else 0;
+  command_valve_in_opening = if state_filling_tank_B101.active then 1.0 else closedValveOpening;
+  command_valve_pump_P101_opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
+  command_valve_distill1_opening = if state_emptying_tank_B101.active then 1.0 else 0;
+  command_valve_distill3_opening = if state_emptying_distill.active then 1.0 else 0;
+  command_valve_out0_opening = if state_emptying_output_tanks.active then 1.0 else 0;
+  command_valve_out1_opening = if state_emptying_output_tanks.active then 1.0 else 0;
+  command_heater_distill_heat_flow = if state_destillation.active then 20000 else 0;
+  command_cooler_B102_heat_flow = 0;
+  command_cooler_B103_heat_flow = 0;
   assert(not (anom_pump50 and anom_pump75), "Distillation pump50 and pump75 faults are mutually exclusive");
   assert(not (anom_heat50 and anom_heat75), "Distillation heat50 and heat75 faults are mutually exclusive");
-  fault_window_active = time >= anom_start;
+  fault_window_active = time >= anom_start and time < anom_end;
   condition_is_full_tank_B101.condition = tank_B101.level >= tank_B101.height*tankMaxVol;
   condition_is_empty_tank_B101.condition = tank_B101.level <= tank_B101.height*tankMinVol;
   condition_destillation_done.condition = distill.level <= 0.1*distill.height;
   condition_is_empty_distill.condition = distill.level <= distill.height*tankMinVol;
   condition_is_empty_output_tanks.condition = tank_B102.level <= tank_B102.height*tankMinVol and tank_B103.level <= tank_B103.height*tankMinVol;
-  valve_in.opening = if state_filling_tank_B101.active then 1.0 else max(closedValveOpening, var_valve_in0);
-  pump_n_in = if state_emptying_tank_B101.active then 150.0 * var_pump_n else 0.0;
-  valve_pump_P101.opening = if state_emptying_tank_B101.active then 1.0 else closedValveOpening;
-  valve_distill1.opening = if state_emptying_tank_B101.active then 1.0 else 0.0;
-  heater_distill.Q_flow = if state_destillation.active then 20000 * var_heat else 0;
-  cooler_B102.Q_flow = if state_destillation.active then 0 else 0;
+  valveInRamp.u = max(command_valve_in_opening, var_valve_in0);
+  valve_in.opening = valveInRamp.y;
+  pump_n_in = command_pump_P101_speed * var_pump_n;
+  valvePumpRamp.u = command_valve_pump_P101_opening;
+  valve_pump_P101.opening = valvePumpRamp.y;
+  valveDistillRamp[1].u = command_valve_distill1_opening;
+  valve_distill1.opening = valveDistillRamp[1].y;
+  heater_distill.Q_flow = command_heater_distill_heat_flow * var_heat;
+  cooler_B102.Q_flow = command_cooler_B102_heat_flow;
 // -2000
-  cooler_B103.Q_flow = if state_destillation.active then 0 else 0;
+  cooler_B103.Q_flow = command_cooler_B103_heat_flow;
 // -2000
-  valve_distill3.opening = if state_emptying_distill.active then 1.0 else 0.0;
-  valve_out0.opening = if state_emptying_output_tanks.active then 1.0 else 0.0;
-  valve_out1.opening = if state_emptying_output_tanks.active then 1.0 else 0.0;
+  valveDistillRamp[2].u = command_valve_distill3_opening;
+  valve_distill3.opening = valveDistillRamp[2].y;
+  valveOutRamp[1].u = command_valve_out0_opening;
+  valveOutRamp[2].u = command_valve_out1_opening;
+  valve_out0.opening = valveOutRamp[1].y;
+  valve_out1.opening = valveOutRamp[2].y;
 // anomalies
   // A smooth command avoids an impulse in the pump pressure derivative at onset.
-  leakRampProgress = if anom_leaking then min(1.0, max(0.0, (time - anom_start) / leakRampDuration)) else 0.0;
+  leakRampProgress = if fault_window_active and anom_leaking then min(1.0, max(0.0, (time - anom_start) / leakRampDuration)) else 0.0;
   leaking_valve.opening = 0.25 * leakRampProgress ^ 2 * (3.0 - 2.0 * leakRampProgress);
   clogging_valve.opening = 1.0;
   var_valve_in0 = if (fault_window_active and anom_valve_in0) then 0.2 else 0.0;
