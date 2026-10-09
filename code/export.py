@@ -58,6 +58,7 @@ _DISCRETE_PATTERNS = (
     re.compile(r"^[^.]+\.sensor_discrete_[A-Za-z0-9_]+\.showActive$"),
 )
 _VERIFICATION_PATTERNS = (
+    re.compile(r"^[^.]+\.command_[A-Za-z0-9_]+$"),
     re.compile(r"^[^.]+\.state_[A-Za-z0-9_]+\.active$"),
     re.compile(r"^[^.]+\.[A-Za-z0-9_]*valve[A-Za-z0-9_]*\.opening$"),
     re.compile(r"^[^.]+\.filter_[A-Za-z0-9_]+\.opening$"),
@@ -69,6 +70,7 @@ _VERIFICATION_PATTERNS = (
     re.compile(r"^[^.]+\.leaking_valve\.m_flow$"),
     re.compile(r"^[^.]+\.pollution_value$"),
     re.compile(r"^[^.]+\.heater_[A-Za-z0-9_]+\.Q_flow$"),
+    re.compile(r"^[^.]+\.cooler_[A-Za-z0-9_]+\.Q_flow$"),
 )
 
 FORBIDDEN_SAFE_FRAGMENTS = (
@@ -240,7 +242,7 @@ def _oracle_variable(column: str) -> Optional[OracleVariable]:
             "process_state",
         )
 
-    heater_match = re.fullmatch(r"(heater_[A-Za-z0-9_]+)\.Q_flow", local)
+    heater_match = re.fullmatch(r"((?:heater|cooler)_[A-Za-z0-9_]+)\.Q_flow", local)
     if heater_match:
         component = heater_match.group(1)
         return OracleVariable(
@@ -384,8 +386,7 @@ def _write_parquet(frame: pd.DataFrame, path: Path) -> None:
         frame.to_parquet(path, index=False, engine="pyarrow")
     except (ImportError, ModuleNotFoundError) as exc:
         raise ExportError(
-            "Parquet export requires pyarrow; recreate the project environment "
-            "from venv.yml"
+            "Parquet export requires pyarrow; install requirements.txt in the virtual environment"
         ) from exc
     except Exception as exc:
         raise ExportError(
@@ -461,14 +462,3 @@ def export_result_files(
         tuple(variable.oracle_column for variable in oracle_variables),
         tuple(oracle_variables),
     )
-
-
-def export_result_csvs(
-    raw_path: Path,
-    output_dir: Path,
-    scenario_id: str,
-    sim_setup: Mapping[str, object],
-) -> ExportBundle:
-    """Backward-compatible function name for the release-file exporter."""
-
-    return export_result_files(raw_path, output_dir, scenario_id, sim_setup)

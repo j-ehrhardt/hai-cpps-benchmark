@@ -57,8 +57,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -112,8 +112,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -157,8 +157,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -201,8 +201,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -279,8 +279,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -362,8 +362,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -421,8 +421,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -514,8 +514,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -612,8 +612,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
@@ -636,6 +636,9 @@
         },
         "mixer1": {
           "files": "../models/Mixer.mo",
+          "campaign_faults": [
+            "anom_leaking"
+          ],
           "faults": {
             "anom_valve_in0": false,
             "anom_valve_in1": false,
@@ -751,8 +754,8 @@
     },
     "sim_setup": {
       "startTime": 0,
-      "stopTime": 10000,
-      "numberOfIntervals": 10000,
+      "stopTime": 25000,
+      "numberOfIntervals": 25000,
       "faultStart": 2500,
       "seed": 20260831
     }
