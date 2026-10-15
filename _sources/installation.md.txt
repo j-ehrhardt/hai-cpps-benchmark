@@ -1,6 +1,6 @@
 # Installation
 
-HAI-CPPS v2.2 can generate benchmark recordings with OpenModelica or run a custom topology as a raw simulation. Run the commands below from the [v2.2 source branch](https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/v2.2) on Ubuntu.
+HAI-CPPS v2.2 can generate benchmark recordings with OpenModelica or run a custom topology as a raw simulation. Run the commands below from the current [`dev_v2.2_debug` source branch](https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug) on Ubuntu. The changes on that branch have not yet been merged into `v2.2` or `main`.
 
 ## OpenModelica and Modelica library
 
@@ -36,7 +36,7 @@ The output should report `true` for both installation and loading and `"4.0.0"` 
 
 ## Python environment
 
-Create a virtual environment and install the dependencies listed in the v2.2 branch's `requirements.txt`:
+Create a virtual environment and install the dependencies listed in that branch's `requirements.txt`:
 
 ```bash
 python3 -m venv .venv

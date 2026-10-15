@@ -29,25 +29,25 @@ python code/simulate.py --config examples/custom.json --dataset custom1
                         [--output output/custom]
 ```
 
-The `--dataset` value is the top-level key in the JSON configuration. The [example configuration](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/examples/custom.json) shows the required structure for a new module. `code/config.py` and `code/schemas/benchmark_setup.schema.json` validate module types, ports, file references, fault names, and simulation timing. A custom module has `type: custom`, an explicit Modelica class and port lists, and no configured faults.
+The `--dataset` value is the top-level key in the JSON configuration. The [example configuration](https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/examples/custom.json) shows the required structure for a new module. `code/config.py` and `code/schemas/benchmark_setup.schema.json` validate module types, ports, file references, fault names, and simulation timing. A custom module has `type: custom`, an explicit Modelica class and port lists, and no configured faults.
 
 ## Reading a benchmark recording
 
-The v2.2 branch does not supply the former `dataset_io` loader. Read a chosen Parquet measurement view with pandas, and use `permitted_inputs.json` as its diagnostic input policy:
+The current debug branch supplies `code/dataset_io.py`. Add `code/` to `PYTHONPATH` and use its loader for a measurement view. It keeps oracle data separate and removes identifiers from `online_features`:
 
-```python
-import json
-from pathlib import Path
-import pandas as pd
-
-recording = Path("output/v2.2/ds1/ds1/ds1_016_healthy")
-policy = json.loads((recording / "permitted_inputs.json").read_text())
-measurements = pd.read_parquet(recording / "hybrid/measurements.parquet")
-X = measurements[policy["measurements"]]
-
-# Add controller commands only if your experiment assumes they can be logged.
-commands = pd.read_parquet(recording / "commands.parquet")
-X_with_commands = X.join(commands[policy["commands"]])
+```bash
+PYTHONPATH=code python
 ```
 
-`scenario_id`, `simulation_step`, and `simulation_time` align the tables but are excluded identifiers, not diagnostic features. `oracle_states.parquet`, fault labels, and verification data are offline information. See [Campaign Output and Data Directory](../campaign-output) for each artifact's role.
+```python
+from pathlib import Path
+from dataset_io import load_scenario_dataset
+
+recording = Path("output/v2.2/ds1/ds1/ds1_016_healthy")
+data = load_scenario_dataset(recording, measurement_view="hybrid")
+X = data.online_features
+offline = load_scenario_dataset(recording, include_oracle=True)
+oracle = offline.oracle_states  # a separate DataFrame
+```
+
+For an explicit diagnostic input policy, read `permitted_inputs.json`. Its `measurements` list selects columns from one measurement view; its `commands` list names optional controller outputs in `commands.parquet`. Use commands only if your intended application can observe them. The three identifiers `scenario_id`, `simulation_step`, and `simulation_time` align tables but are excluded as diagnostic features. `oracle_states.parquet`, fault labels, and verification data are offline information. See [Campaign Output and Data Directory](../campaign-output) for each artifact's role.

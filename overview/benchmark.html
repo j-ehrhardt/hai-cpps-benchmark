@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/js/current-year.js?v=76165a1e"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -102,6 +100,7 @@
 <h2>Measurement and diagnosis inputs<a class="headerlink" href="#measurement-and-diagnosis-inputs" title="Link to this heading"></a></h2>
 <p>Each recording offers continuous, discrete, and hybrid measurement views. Nominal controller commands are saved separately and can be added if they are observable in the intended application. <code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code> defines the allowlists. Simulator oracle states, injected-fault labels, technical timing, and verification traces remain offline artifacts.</p>
 <p>The campaign validates raw results, exported tables, channel alignment, fault pairs, and release structure. Each recording has a <code class="docutils literal notranslate"><span class="pre">validation.json</span></code> and <code class="docutils literal notranslate"><span class="pre">provenance.json</span></code>; each topology shard has a <code class="docutils literal notranslate"><span class="pre">campaign.json</span></code> manifest and a frozen copy of generation sources.</p>
+<p>The current v2.2 model uses passive tank-rim spills to keep an overfilled tank physically bounded without terminating the run. These spill signals are private validation channels. They do not add a fault class or online measurement feature.</p>
 </section>
 </section>
 

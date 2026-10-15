@@ -1,6 +1,6 @@
 # Using the Simulation
 
-Run these commands from the repository root of the [v2.2 branch](https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/v2.2) after [installation](../installation). The campaign launcher exports validated benchmark recordings. The custom launcher produces a raw OpenModelica result.
+Run these commands from the repository root of the current [`dev_v2.2_debug` branch](https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug) after [installation](../installation). The campaign launcher exports validated benchmark recordings. The custom launcher produces a raw OpenModelica result.
 
 ## Run all ten benchmark datasets
 
@@ -24,6 +24,10 @@ python code/campaign.py --jobs 8 \
 ```
 
 After an interruption, rerun the **same command** with unchanged source and configuration. The launcher verifies and reuses complete recordings. Choose fresh output and build roots after changing the source or configuration. It moves an incomplete recording into the build logs' `incomplete/` directory before retrying it. See [Campaign Output and Data Directory](../campaign-output) for the complete layout and validation files.
+
+A failed recording does not stop independent workers. Failures and any fault recordings blocked by a failed healthy control are written to `<build-root>/logs/failed_simulations.log`. The launcher exits with status 1 and writes no release manifest while failures remain. Fix the cause and rerun the same command with unchanged source and configuration to retry incomplete work.
+
+After a recording passes its checks, its OpenModelica build directory is removed to save space. Failed recordings retain their build files, and worker logs remain in the log directory.
 
 ## Run one benchmark dataset
 

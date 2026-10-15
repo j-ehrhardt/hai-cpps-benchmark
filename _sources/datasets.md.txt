@@ -6,7 +6,9 @@ HAI-CPPS v2.2 provides ten modular process-plant topologies with increasing comp
 
 Each benchmark recording has three Parquet measurement views: **continuous** process values, **discrete** sensor states, and **hybrid** combined measurements. A separate `commands.parquet` table contains directly recorded nominal controller commands. The `permitted_inputs.json` policy lists which measurement and command columns can be used for diagnosis.
 
-Simulator-derived `oracle_states.parquet`, fault labels, structural knowledge, timing, and audit data are separate **offline** artifacts. Do not join them into online model inputs. The three identifier columns are for alignment and are excluded as diagnostic features.
+Simulator-derived `oracle_states.parquet`, fault labels, structural knowledge, timing, and audit data are separate **offline** artifacts. Do not join them into online model inputs. The three identifier columns are for alignment and are excluded as diagnostic features. The current release also keeps subsecond actuator event rows in `audit_for_verification/actuator_event_trace.parquet` for validation; this is not an online input.
+
+The v2.2 models have passive rim spill paths on process tanks. Spill rates and cumulative spilled mass are recorded only in the private verification audit, not in the three measurement views. A spill is independent of the injected leak fault.
 
 The release is organized in topology shards, such as `output/v2.2/ds1/ds1/ds1_016_healthy/`. Every recording spans times 0–25,000 with 25,001 rows. See [Campaign Output and Data Directory](campaign-output) for the complete tree, file-by-file roles, naming scheme, fault windows, and an input-loading example.
 

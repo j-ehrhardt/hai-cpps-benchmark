@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/js/current-year.js?v=76165a1e"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -99,6 +97,7 @@
 <p>The HAI-CPPS benchmark consists of ten datasets derived from different configurations of a modular Cyber-Physical Process plant.
 The process plant features four types of modules that can be interconnected in various ways.
 Each module is implemented as an OpenModelica model containing multiple components and controlled by its own automaton.</p>
+<p>The current v2.2 models use <code class="docutils literal notranslate"><span class="pre">models/SpillTanks.mo</span></code> for their process tanks, including the distillation evaporator. Above the tank rim, a passive outlet carries excess liquid to a separate atmospheric sink; below the rim, spill flow is zero. It carries mass, enthalpy, and composition out of the tank. A small hydraulic head above the nominal tank height can occur. Spill rates and cumulative spilled mass remain private verification signals, separate from the injected leak proxy.</p>
 <p>To enhance the realism of the simulation data, stochastic noise has been introduced into the pump rotational speed (RPM), resulting in fluctuations in volume flow throughout the system. This addition better reflects the inherent variability present in real-world industrial environments.</p>
 <p>Below is an overview of the available modules.</p>
 <hr class="docutils" />
@@ -117,7 +116,7 @@ Each module is implemented as an OpenModelica model containing multiple componen
 <li><p>Open the outlet valve of B204 to pass fluid to the next module via <code class="docutils literal notranslate"><span class="pre">out0</span></code></p></li>
 </ol>
 <img src="../_static/imgs/mixer.png" alt="Mixer module" width="100%" />
-<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Mixer.mo"><code class="docutils literal notranslate"><span class="pre">models/Mixer.mo</span></code></a></p>
+<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/models/Mixer.mo"><code class="docutils literal notranslate"><span class="pre">models/Mixer.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="filter">
@@ -131,7 +130,7 @@ Each module is implemented as an OpenModelica model containing multiple componen
 <li><p>Drain B102</p></li>
 </ol>
 <img src="../_static/imgs/filter.png" alt="Filter module" width="100%" />
-<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Filter.mo"><code class="docutils literal notranslate"><span class="pre">models/Filter.mo</span></code></a></p>
+<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/models/Filter.mo"><code class="docutils literal notranslate"><span class="pre">models/Filter.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="distill">
@@ -152,7 +151,7 @@ The vaporized (distilled) components are cooled and collected in B103, while the
 <li><p>Drain B102 and B103 via <code class="docutils literal notranslate"><span class="pre">out0</span></code> and <code class="docutils literal notranslate"><span class="pre">out1</span></code></p></li>
 </ol>
 <img src="../_static/imgs/distill.png" alt="Distill module" width="100%" />
-<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Distill.mo"><code class="docutils literal notranslate"><span class="pre">models/Distill.mo</span></code></a></p>
+<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/models/Distill.mo"><code class="docutils literal notranslate"><span class="pre">models/Distill.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="bottling">
@@ -165,21 +164,21 @@ The vaporized (distilled) components are cooled and collected in B103, while the
 <li><p>Perform bottling by pulsing the outlet valve of B402 in fixed intervals</p></li>
 </ol>
 <img src="../_static/imgs/bottling.png" alt="Bottling module" width="100%" />
-<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Bottling.mo"><code class="docutils literal notranslate"><span class="pre">models/Bottling.mo</span></code></a></p>
+<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/models/Bottling.mo"><code class="docutils literal notranslate"><span class="pre">models/Bottling.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="source">
 <h2>Source<a class="headerlink" href="#source" title="Link to this heading"></a></h2>
 <p>The <strong>Source</strong> module continuously outputs a flow of fluid to simulate a live feed into the system.</p>
 <img src="../_static/imgs/source.png" alt="Source module" width="40%" />
-<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Source.mo"><code class="docutils literal notranslate"><span class="pre">models/Source.mo</span></code></a></p>
+<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/models/Source.mo"><code class="docutils literal notranslate"><span class="pre">models/Source.mo</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="sink">
 <h2>Sink<a class="headerlink" href="#sink" title="Link to this heading"></a></h2>
 <p>The <strong>Sink</strong> module serves as a continuous fluid consumer, simulating a live drain from the system.</p>
 <img src="../_static/imgs/sink.png" alt="Sink module" width="40%" />
-<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/models/Sink.mo"><code class="docutils literal notranslate"><span class="pre">models/Sink.mo</span></code></a></p>
+<p>Modelica file: <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/models/Sink.mo"><code class="docutils literal notranslate"><span class="pre">models/Sink.mo</span></code></a></p>
 </section>
 </section>
 

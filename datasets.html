@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/js/current-year.js?v=76165a1e"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/js/current-year.js?v=76165a1e"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -88,7 +86,8 @@
 <p>HAI-CPPS v2.2 provides ten modular process-plant topologies with increasing complexity. A complete generated campaign has <strong>350 recordings</strong>: 160 healthy and 190 single-fault recordings. Each topology has training, validation, calibration, and healthy test recordings. Every enabled fault proxy has persistent and temporary test recordings paired with a seed-matched healthy control.</p>
 <img src="_static/imgs/cpps-setups.png" alt="HAI-CPPS process-plant configurations" width="100%" />
 <p>Each benchmark recording has three Parquet measurement views: <strong>continuous</strong> process values, <strong>discrete</strong> sensor states, and <strong>hybrid</strong> combined measurements. A separate <code class="docutils literal notranslate"><span class="pre">commands.parquet</span></code> table contains directly recorded nominal controller commands. The <code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code> policy lists which measurement and command columns can be used for diagnosis.</p>
-<p>Simulator-derived <code class="docutils literal notranslate"><span class="pre">oracle_states.parquet</span></code>, fault labels, structural knowledge, timing, and audit data are separate <strong>offline</strong> artifacts. Do not join them into online model inputs. The three identifier columns are for alignment and are excluded as diagnostic features.</p>
+<p>Simulator-derived <code class="docutils literal notranslate"><span class="pre">oracle_states.parquet</span></code>, fault labels, structural knowledge, timing, and audit data are separate <strong>offline</strong> artifacts. Do not join them into online model inputs. The three identifier columns are for alignment and are excluded as diagnostic features. The current release also keeps subsecond actuator event rows in <code class="docutils literal notranslate"><span class="pre">audit_for_verification/actuator_event_trace.parquet</span></code> for validation; this is not an online input.</p>
+<p>The v2.2 models have passive rim spill paths on process tanks. Spill rates and cumulative spilled mass are recorded only in the private verification audit, not in the three measurement views. A spill is independent of the injected leak fault.</p>
 <p>The release is organized in topology shards, such as <code class="docutils literal notranslate"><span class="pre">output/v2.2/ds1/ds1/ds1_016_healthy/</span></code>. Every recording spans times 0–25,000 with 25,001 rows. See <a class="reference internal" href="campaign-output.html"><span class="doc std std-doc">Campaign Output and Data Directory</span></a> for the complete tree, file-by-file roles, naming scheme, fault windows, and an input-loading example.</p>
 <section id="download">
 <h2>Download<a class="headerlink" href="#download" title="Link to this heading"></a></h2>

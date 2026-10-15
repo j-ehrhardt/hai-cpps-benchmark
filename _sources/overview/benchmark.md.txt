@@ -13,3 +13,5 @@ A complete v2.2 campaign has 350 recordings: 160 healthy and 190 single-fault. E
 Each recording offers continuous, discrete, and hybrid measurement views. Nominal controller commands are saved separately and can be added if they are observable in the intended application. `permitted_inputs.json` defines the allowlists. Simulator oracle states, injected-fault labels, technical timing, and verification traces remain offline artifacts.
 
 The campaign validates raw results, exported tables, channel alignment, fault pairs, and release structure. Each recording has a `validation.json` and `provenance.json`; each topology shard has a `campaign.json` manifest and a frozen copy of generation sources.
+
+The current v2.2 model uses passive tank-rim spills to keep an overfilled tank physically bounded without terminating the run. These spill signals are private validation channels. They do not add a fault class or online measurement feature.

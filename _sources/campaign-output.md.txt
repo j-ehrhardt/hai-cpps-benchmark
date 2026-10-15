@@ -1,6 +1,6 @@
 # Campaign Output and Data Directory
 
-A v2.2 benchmark campaign writes a **release of recordings**, not one combined CSV. The default staging root is `output/v2.2/` when you run `python code/campaign.py --jobs 4` from the v2.2 repository root. This page describes the files created by that launcher. The separate `code/simulate.py` custom workflow writes a raw CSV instead; see [Using the Simulation](simulation/using-the-simulation).
+A v2.2 benchmark campaign writes a **release of recordings**, not one combined CSV. The default staging root is `output/v2.2/` when you run `python code/campaign.py --jobs 4` from the current [`dev_v2.2_debug` source branch](https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug). This page describes the files created by that launcher. The separate `code/simulate.py` custom workflow writes a raw CSV instead; see [Using the Simulation](simulation/using-the-simulation).
 
 ## Campaign size and recording splits
 
@@ -55,6 +55,8 @@ output/v2.2/
 
 A full campaign writes `release_manifest.json` at the root after validation. A selected topology, for example `--dataset ds1`, writes `ds1_release_manifest.json`. Each summary records schema version, recording count, shard summaries, and the path to its validation report. The report and individual worker logs are under `build/v2.2/campaign/logs/` by default, outside the release tree.
 
+If a recording fails, other independent workers continue. The log `build/v2.2/campaign/logs/failed_simulations.log` lists failed recordings and fault recordings blocked by a failed healthy control. The shard manifest records current failures and blocks. A campaign with either finishes with exit status 1 and no release manifest; rerun with unchanged source and configuration to retry incomplete work. Successful recordings have their OpenModelica build directory removed after validation, while failed builds and worker logs remain for diagnosis.
+
 To check a finished **full** campaign again, run `python code/campaign_check.py output/v2.2`. The checker verifies expected counts and files, table alignment and time grids, artifact hashes, fault windows, and per-recording validation status.
 
 `campaign.json` is the shard's detailed manifest. It lists every `scenario_id`, split, seed, paired healthy recording, fault variant, start/end times, active duration, completion state, and coverage observations. Its status can be `planned`, `running`, `failed`, `complete`, or a coverage/signal review status. The `generation/` snapshot freezes the generation code, Modelica models, requested configuration, replay configuration, requirements, and their SHA-256 digests.
@@ -84,6 +86,7 @@ Every folder such as `output/v2.2/ds1/ds1/ds1_016_healthy/` contains:
 ├── commands.parquet
 ├── oracle_states.parquet
 ├── audit_for_verification/internal_verification.csv
+├── audit_for_verification/actuator_event_trace.parquet
 ├── fault_events.json
 ├── channel_catalogue.yaml
 ├── permitted_inputs.json
@@ -102,6 +105,7 @@ Every folder such as `output/v2.2/ds1/ds1/ds1_016_healthy/` contains:
 | `commands.parquet` | Directly recorded nominal controller commands on the same time grid. | Optional diagnostic inputs if controller outputs are available in your setting. |
 | `oracle_states.parquet` | Simulator internals, controller phases, effective references, and fault-window indicators. | Offline analysis and targets only. |
 | `audit_for_verification/internal_verification.csv` | Raw internal channels used to check exports and paired fault effects. | Internal validation only. |
+| `audit_for_verification/actuator_event_trace.parquet` | Simulator event rows used to check subsecond actuator motion against the canonical output grid. | Internal validation only. |
 | `fault_events.json` | Empty `events` for healthy runs; otherwise target module, fault mechanism, window, and intervention details. | Offline labels and interpretation. |
 | `channel_catalogue.yaml` | Channel meanings, units, command availability, source equations, and links to effective offline references. | Interpret and verify channels. |
 | `permitted_inputs.json` | Explicit allowlists of measurement and command columns; excluded identifiers and offline files. | Define diagnostic inputs. |
@@ -112,6 +116,8 @@ Every folder such as `output/v2.2/ds1/ds1/ds1_016_healthy/` contains:
 | `validation.json` | Raw-result, export, diagnosis, and healthy/fault-pair checks. | Check recording validity. |
 
 The measurement, command, and oracle tables share `scenario_id`, `simulation_step`, and `simulation_time` identifiers. They are aligned row by row, but these three fields are **excluded diagnostic features**. The v2.2 release schema is `2.2.0`.
+
+Process tank spill flow and cumulative spilled mass are kept in the internal verification audit. They describe passive rim overflow behavior, which is independent of the configured leak fault. These channels are not online measurement features.
 
 ## Choose permitted diagnostic inputs
 
@@ -133,3 +139,5 @@ X_with_commands = X.join(commands[policy["commands"]])
 ```
 
 Use `fault_events.json` for labels **after** choosing inputs. The paired fault timing fields report threshold-qualified sampled differences, not an exact continuous-time causal onset. For reproducibility, retain each recording's `sim_setup.json` and `provenance.json` with the tables you use.
+
+The current debug branch also provides `code/dataset_io.py`. Its `load_scenario_dataset` helper returns one measurement view, optional oracle data as a separate DataFrame, and the fault, structure, and timing metadata. Its `online_features` property drops the three identifier columns. See [Command-Line Interface and Configuration](simulation/api) for an example.

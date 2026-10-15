@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/js/current-year.js?v=76165a1e"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/js/current-year.js?v=76165a1e"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -83,15 +81,21 @@
 <h1>Welcome to the Documentation of HAI-CPPS v2.2<a class="headerlink" href="#welcome-to-the-documentation-of-hai-cpps-v2-2" title="Link to this heading"></a></h1>
 <p>The <strong>Hamburg AI Benchmark for Cyber-Physical Production Systems (HAI-CPPS)</strong> is a benchmark for evaluating AI methods in anomaly detection, diagnosis, reconfiguration, and planning for modular cyber-physical process plants.</p>
 <p>HAI-CPPS comprises ten process-plant topologies with increasing complexity. The v2.2 campaign contains 350 recordings: 160 healthy and 190 recordings with one enabled fault proxy in one module. Each fault has persistent and temporary variants paired with a seed-matched healthy test control.</p>
-<a class="align-center reference internal image-reference" href="_images/banner.png"><img alt="HAI-CPPS process plant" class="align-center" src="_images/banner.png" style="width: 100%;" /></a>
+<a class="align-center reference internal image-reference" href="_images/banner.png"><img alt="HAI-CPPS process plant" class="align-center" src="_images/banner.png" style="width: 100%;" />
+</a>
 <p>HAI-CPPS includes:</p>
 <ul class="simple">
 <li><p>OpenModelica simulation models</p></li>
-<li><p>Published benchmark datasets</p></li>
+<li><p>Links to the published benchmark dataset</p></li>
 <li><p>Validated generation, export, and release checks</p></li>
 <li><p>A parallel campaign launcher with per-topology manifests and frozen generation source</p></li>
 </ul>
 <p>The release separates online measurements and recorded controller commands from simulator-derived oracle states and offline metadata. You can also simulate a custom topology or module and obtain a raw OpenModelica CSV.</p>
+<p>This site describes the current v2.2 work on the
+<a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug">dev_v2.2_debug branch</a>.
+That work is awaiting manual merge into <cite>v2.2</cite> and <cite>main</cite>. Check the version
+of a downloaded IEEE DataPort release before comparing it with newly generated
+v2.2 recordings.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>HAI-CPPS</strong> extends the <strong>Benchmark for Diagnosis, Reconfiguration, and Planning (BeRfiPl)</strong>.

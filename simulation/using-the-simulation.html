@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/js/current-year.js?v=76165a1e"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -92,7 +90,7 @@
              
   <section id="using-the-simulation">
 <h1>Using the Simulation<a class="headerlink" href="#using-the-simulation" title="Link to this heading"></a></h1>
-<p>Run these commands from the repository root of the <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/v2.2">v2.2 branch</a> after <a class="reference internal" href="../installation.html"><span class="doc std std-doc">installation</span></a>. The campaign launcher exports validated benchmark recordings. The custom launcher produces a raw OpenModelica result.</p>
+<p>Run these commands from the repository root of the current <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug"><code class="docutils literal notranslate"><span class="pre">dev_v2.2_debug</span></code> branch</a> after <a class="reference internal" href="../installation.html"><span class="doc std std-doc">installation</span></a>. The campaign launcher exports validated benchmark recordings. The custom launcher produces a raw OpenModelica result.</p>
 <section id="run-all-ten-benchmark-datasets">
 <h2>Run all ten benchmark datasets<a class="headerlink" href="#run-all-ten-benchmark-datasets" title="Link to this heading"></a></h2>
 <p>Inspect the work list, then run up to four simulations at once:</p>
@@ -109,6 +107,8 @@ python<span class="w"> </span>code/campaign.py<span class="w"> </span>--jobs<spa
 </pre></div>
 </div>
 <p>After an interruption, rerun the <strong>same command</strong> with unchanged source and configuration. The launcher verifies and reuses complete recordings. Choose fresh output and build roots after changing the source or configuration. It moves an incomplete recording into the build logs’ <code class="docutils literal notranslate"><span class="pre">incomplete/</span></code> directory before retrying it. See <a class="reference internal" href="../campaign-output.html"><span class="doc std std-doc">Campaign Output and Data Directory</span></a> for the complete layout and validation files.</p>
+<p>A failed recording does not stop independent workers. Failures and any fault recordings blocked by a failed healthy control are written to <code class="docutils literal notranslate"><span class="pre">&lt;build-root&gt;/logs/failed_simulations.log</span></code>. The launcher exits with status 1 and writes no release manifest while failures remain. Fix the cause and rerun the same command with unchanged source and configuration to retry incomplete work.</p>
+<p>After a recording passes its checks, its OpenModelica build directory is removed to save space. Failed recordings retain their build files, and worker logs remain in the log directory.</p>
 </section>
 <section id="run-one-benchmark-dataset">
 <h2>Run one benchmark dataset<a class="headerlink" href="#run-one-benchmark-dataset" title="Link to this heading"></a></h2>

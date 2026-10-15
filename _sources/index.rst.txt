@@ -13,11 +13,17 @@ HAI-CPPS comprises ten process-plant topologies with increasing complexity. The 
 HAI-CPPS includes:
 
 - OpenModelica simulation models
-- Published benchmark datasets
+- Links to the published benchmark dataset
 - Validated generation, export, and release checks
 - A parallel campaign launcher with per-topology manifests and frozen generation source
 
 The release separates online measurements and recorded controller commands from simulator-derived oracle states and offline metadata. You can also simulate a custom topology or module and obtain a raw OpenModelica CSV.
+
+This site describes the current v2.2 work on the
+`dev_v2.2_debug branch <https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug>`_.
+That work is awaiting manual merge into `v2.2` and `main`. Check the version
+of a downloaded IEEE DataPort release before comparing it with newly generated
+v2.2 recordings.
 
 .. note::
 

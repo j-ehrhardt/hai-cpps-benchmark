@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/js/current-year.js?v=76165a1e"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/current-year.js?v=76165a1e"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -117,26 +115,25 @@
                         [--output output/custom]
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> value is the top-level key in the JSON configuration. The <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/v2.2/examples/custom.json">example configuration</a> shows the required structure for a new module. <code class="docutils literal notranslate"><span class="pre">code/config.py</span></code> and <code class="docutils literal notranslate"><span class="pre">code/schemas/benchmark_setup.schema.json</span></code> validate module types, ports, file references, fault names, and simulation timing. A custom module has <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">custom</span></code>, an explicit Modelica class and port lists, and no configured faults.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> value is the top-level key in the JSON configuration. The <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/blob/dev_v2.2_debug/examples/custom.json">example configuration</a> shows the required structure for a new module. <code class="docutils literal notranslate"><span class="pre">code/config.py</span></code> and <code class="docutils literal notranslate"><span class="pre">code/schemas/benchmark_setup.schema.json</span></code> validate module types, ports, file references, fault names, and simulation timing. A custom module has <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">custom</span></code>, an explicit Modelica class and port lists, and no configured faults.</p>
 </section>
 <section id="reading-a-benchmark-recording">
 <h2>Reading a benchmark recording<a class="headerlink" href="#reading-a-benchmark-recording" title="Link to this heading"></a></h2>
-<p>The v2.2 branch does not supply the former <code class="docutils literal notranslate"><span class="pre">dataset_io</span></code> loader. Read a chosen Parquet measurement view with pandas, and use <code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code> as its diagnostic input policy:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-
-<span class="n">recording</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"output/v2.2/ds1/ds1/ds1_016_healthy"</span><span class="p">)</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"permitted_inputs.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
-<span class="n">measurements</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"hybrid/measurements.parquet"</span><span class="p">)</span>
-<span class="n">X</span> <span class="o">=</span> <span class="n">measurements</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">"measurements"</span><span class="p">]]</span>
-
-<span class="c1"># Add controller commands only if your experiment assumes they can be logged.</span>
-<span class="n">commands</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"commands.parquet"</span><span class="p">)</span>
-<span class="n">X_with_commands</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">"commands"</span><span class="p">]])</span>
+<p>The current debug branch supplies <code class="docutils literal notranslate"><span class="pre">code/dataset_io.py</span></code>. Add <code class="docutils literal notranslate"><span class="pre">code/</span></code> to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> and use its loader for a measurement view. It keeps oracle data separate and removes identifiers from <code class="docutils literal notranslate"><span class="pre">online_features</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PYTHONPATH</span><span class="o">=</span>code<span class="w"> </span>python
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">scenario_id</span></code>, <code class="docutils literal notranslate"><span class="pre">simulation_step</span></code>, and <code class="docutils literal notranslate"><span class="pre">simulation_time</span></code> align the tables but are excluded identifiers, not diagnostic features. <code class="docutils literal notranslate"><span class="pre">oracle_states.parquet</span></code>, fault labels, and verification data are offline information. See <a class="reference internal" href="../campaign-output.html"><span class="doc std std-doc">Campaign Output and Data Directory</span></a> for each artifact’s role.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataset_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_scenario_dataset</span>
+
+<span class="n">recording</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;output/v2.2/ds1/ds1/ds1_016_healthy&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">load_scenario_dataset</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">measurement_view</span><span class="o">=</span><span class="s2">&quot;hybrid&quot;</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">online_features</span>
+<span class="n">offline</span> <span class="o">=</span> <span class="n">load_scenario_dataset</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">include_oracle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">oracle</span> <span class="o">=</span> <span class="n">offline</span><span class="o">.</span><span class="n">oracle_states</span>  <span class="c1"># a separate DataFrame</span>
+</pre></div>
+</div>
+<p>For an explicit diagnostic input policy, read <code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code>. Its <code class="docutils literal notranslate"><span class="pre">measurements</span></code> list selects columns from one measurement view; its <code class="docutils literal notranslate"><span class="pre">commands</span></code> list names optional controller outputs in <code class="docutils literal notranslate"><span class="pre">commands.parquet</span></code>. Use commands only if your intended application can observe them. The three identifiers <code class="docutils literal notranslate"><span class="pre">scenario_id</span></code>, <code class="docutils literal notranslate"><span class="pre">simulation_step</span></code>, and <code class="docutils literal notranslate"><span class="pre">simulation_time</span></code> align tables but are excluded as diagnostic features. <code class="docutils literal notranslate"><span class="pre">oracle_states.parquet</span></code>, fault labels, and verification data are offline information. See <a class="reference internal" href="../campaign-output.html"><span class="doc std std-doc">Campaign Output and Data Directory</span></a> for each artifact’s role.</p>
 </section>
 </section>
 

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -10,16 +12,12 @@
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0bcac001" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e09f69a6"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/js/current-year.js?v=76165a1e"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e09f69a6"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/js/current-year.js?v=76165a1e"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -88,7 +86,7 @@
              
   <section id="campaign-output-and-data-directory">
 <h1>Campaign Output and Data Directory<a class="headerlink" href="#campaign-output-and-data-directory" title="Link to this heading"></a></h1>
-<p>A v2.2 benchmark campaign writes a <strong>release of recordings</strong>, not one combined CSV. The default staging root is <code class="docutils literal notranslate"><span class="pre">output/v2.2/</span></code> when you run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">code/campaign.py</span> <span class="pre">--jobs</span> <span class="pre">4</span></code> from the v2.2 repository root. This page describes the files created by that launcher. The separate <code class="docutils literal notranslate"><span class="pre">code/simulate.py</span></code> custom workflow writes a raw CSV instead; see <a class="reference internal" href="simulation/using-the-simulation.html"><span class="doc std std-doc">Using the Simulation</span></a>.</p>
+<p>A v2.2 benchmark campaign writes a <strong>release of recordings</strong>, not one combined CSV. The default staging root is <code class="docutils literal notranslate"><span class="pre">output/v2.2/</span></code> when you run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">code/campaign.py</span> <span class="pre">--jobs</span> <span class="pre">4</span></code> from the current <a class="reference external" href="https://github.com/j-ehrhardt/hai-cpps-benchmark/tree/dev_v2.2_debug"><code class="docutils literal notranslate"><span class="pre">dev_v2.2_debug</span></code> source branch</a>. This page describes the files created by that launcher. The separate <code class="docutils literal notranslate"><span class="pre">code/simulate.py</span></code> custom workflow writes a raw CSV instead; see <a class="reference internal" href="simulation/using-the-simulation.html"><span class="doc std std-doc">Using the Simulation</span></a>.</p>
 <section id="campaign-size-and-recording-splits">
 <h2>Campaign size and recording splits<a class="headerlink" href="#campaign-size-and-recording-splits" title="Link to this heading"></a></h2>
 <p>The ten topologies, <code class="docutils literal notranslate"><span class="pre">ds1</span></code> through <code class="docutils literal notranslate"><span class="pre">ds10</span></code>, contain <strong>160 healthy recordings</strong> and <strong>190 single-fault recordings</strong> in a complete campaign. Each topology has 10 healthy training, 3 validation, 2 calibration, and 1 test recording. Its enabled fault inventory determines how many fault recordings it has. Each fault proxy produces one persistent and one temporary test recording.</p>
@@ -202,6 +200,7 @@
 </pre></div>
 </div>
 <p>A full campaign writes <code class="docutils literal notranslate"><span class="pre">release_manifest.json</span></code> at the root after validation. A selected topology, for example <code class="docutils literal notranslate"><span class="pre">--dataset</span> <span class="pre">ds1</span></code>, writes <code class="docutils literal notranslate"><span class="pre">ds1_release_manifest.json</span></code>. Each summary records schema version, recording count, shard summaries, and the path to its validation report. The report and individual worker logs are under <code class="docutils literal notranslate"><span class="pre">build/v2.2/campaign/logs/</span></code> by default, outside the release tree.</p>
+<p>If a recording fails, other independent workers continue. The log <code class="docutils literal notranslate"><span class="pre">build/v2.2/campaign/logs/failed_simulations.log</span></code> lists failed recordings and fault recordings blocked by a failed healthy control. The shard manifest records current failures and blocks. A campaign with either finishes with exit status 1 and no release manifest; rerun with unchanged source and configuration to retry incomplete work. Successful recordings have their OpenModelica build directory removed after validation, while failed builds and worker logs remain for diagnosis.</p>
 <p>To check a finished <strong>full</strong> campaign again, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">code/campaign_check.py</span> <span class="pre">output/v2.2</span></code>. The checker verifies expected counts and files, table alignment and time grids, artifact hashes, fault windows, and per-recording validation status.</p>
 <p><code class="docutils literal notranslate"><span class="pre">campaign.json</span></code> is the shard’s detailed manifest. It lists every <code class="docutils literal notranslate"><span class="pre">scenario_id</span></code>, split, seed, paired healthy recording, fault variant, start/end times, active duration, completion state, and coverage observations. Its status can be <code class="docutils literal notranslate"><span class="pre">planned</span></code>, <code class="docutils literal notranslate"><span class="pre">running</span></code>, <code class="docutils literal notranslate"><span class="pre">failed</span></code>, <code class="docutils literal notranslate"><span class="pre">complete</span></code>, or a coverage/signal review status. The <code class="docutils literal notranslate"><span class="pre">generation/</span></code> snapshot freezes the generation code, Modelica models, requested configuration, replay configuration, requirements, and their SHA-256 digests.</p>
 <p>The launcher uses <code class="docutils literal notranslate"><span class="pre">output/v2.2/</span></code> as <strong>staging output</strong>. The source branch does not contain a generated <code class="docutils literal notranslate"><span class="pre">data/</span></code> release. <code class="docutils literal notranslate"><span class="pre">data/v2.2</span></code> is reserved for later promotion, and the campaign command refuses to write there directly. Do not mistake <code class="docutils literal notranslate"><span class="pre">build/</span></code> logs or a custom run’s <code class="docutils literal notranslate"><span class="pre">output/custom/</span></code> directory for benchmark recordings.</p>
@@ -226,6 +225,7 @@
 ├── commands.parquet
 ├── oracle_states.parquet
 ├── audit_for_verification/internal_verification.csv
+├── audit_for_verification/actuator_event_trace.parquet
 ├── fault_events.json
 ├── channel_catalogue.yaml
 ├── permitted_inputs.json
@@ -268,41 +268,46 @@
 <td><p>Raw internal channels used to check exports and paired fault effects.</p></td>
 <td><p>Internal validation only.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audit_for_verification/actuator_event_trace.parquet</span></code></p></td>
+<td><p>Simulator event rows used to check subsecond actuator motion against the canonical output grid.</p></td>
+<td><p>Internal validation only.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code></p></td>
 <td><p>Empty <code class="docutils literal notranslate"><span class="pre">events</span></code> for healthy runs; otherwise target module, fault mechanism, window, and intervention details.</p></td>
 <td><p>Offline labels and interpretation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">channel_catalogue.yaml</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">channel_catalogue.yaml</span></code></p></td>
 <td><p>Channel meanings, units, command availability, source equations, and links to effective offline references.</p></td>
 <td><p>Interpret and verify channels.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">permitted_inputs.json</span></code></p></td>
 <td><p>Explicit allowlists of measurement and command columns; excluded identifiers and offline files.</p></td>
 <td><p>Define diagnostic inputs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">system_knowledge.yaml</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">system_knowledge.yaml</span></code></p></td>
 <td><p>Module/edge structure, variable catalogue, and model-based rules.</p></td>
 <td><p>Structural and semantic metadata.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">technical_timing.json</span></code></p></td>
 <td><p>Sample period, channel timing, fault boundaries, and observed differences from the paired healthy control.</p></td>
 <td><p>Interpret timing and align comparisons.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sim_setup.json</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sim_setup.json</span></code></p></td>
 <td><p>Exact run setup, target module/fault, variant, data roles, and release schema.</p></td>
 <td><p>Identify/reproduce a recording.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">provenance.json</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">provenance.json</span></code></p></td>
 <td><p>Config, model and runtime source hashes; software versions; seed; solver settings; artifact hashes.</p></td>
 <td><p>Trace and verify provenance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">validation.json</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">validation.json</span></code></p></td>
 <td><p>Raw-result, export, diagnosis, and healthy/fault-pair checks.</p></td>
 <td><p>Check recording validity.</p></td>
 </tr>
 </tbody>
 </table>
 <p>The measurement, command, and oracle tables share <code class="docutils literal notranslate"><span class="pre">scenario_id</span></code>, <code class="docutils literal notranslate"><span class="pre">simulation_step</span></code>, and <code class="docutils literal notranslate"><span class="pre">simulation_time</span></code> identifiers. They are aligned row by row, but these three fields are <strong>excluded diagnostic features</strong>. The v2.2 release schema is <code class="docutils literal notranslate"><span class="pre">2.2.0</span></code>.</p>
+<p>Process tank spill flow and cumulative spilled mass are kept in the internal verification audit. They describe passive rim overflow behavior, which is independent of the configured leak fault. These channels are not online measurement features.</p>
 </section>
 <section id="choose-permitted-diagnostic-inputs">
 <h2>Choose permitted diagnostic inputs<a class="headerlink" href="#choose-permitted-diagnostic-inputs" title="Link to this heading"></a></h2>
@@ -311,17 +316,18 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">recording</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"output/v2.2/ds1/ds1/ds1_016_healthy"</span><span class="p">)</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"permitted_inputs.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
-<span class="n">hybrid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"hybrid/measurements.parquet"</span><span class="p">)</span>
-<span class="n">X</span> <span class="o">=</span> <span class="n">hybrid</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">"measurements"</span><span class="p">]]</span>
+<span class="n">recording</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;output/v2.2/ds1/ds1/ds1_016_healthy&quot;</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">&quot;permitted_inputs.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">hybrid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">&quot;hybrid/measurements.parquet&quot;</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">hybrid</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">&quot;measurements&quot;</span><span class="p">]]</span>
 
 <span class="c1"># Use this only when controller commands are observable in your application.</span>
-<span class="n">commands</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">"commands.parquet"</span><span class="p">)</span>
-<span class="n">X_with_commands</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">"commands"</span><span class="p">]])</span>
+<span class="n">commands</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">recording</span> <span class="o">/</span> <span class="s2">&quot;commands.parquet&quot;</span><span class="p">)</span>
+<span class="n">X_with_commands</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">[</span><span class="n">policy</span><span class="p">[</span><span class="s2">&quot;commands&quot;</span><span class="p">]])</span>
 </pre></div>
 </div>
 <p>Use <code class="docutils literal notranslate"><span class="pre">fault_events.json</span></code> for labels <strong>after</strong> choosing inputs. The paired fault timing fields report threshold-qualified sampled differences, not an exact continuous-time causal onset. For reproducibility, retain each recording’s <code class="docutils literal notranslate"><span class="pre">sim_setup.json</span></code> and <code class="docutils literal notranslate"><span class="pre">provenance.json</span></code> with the tables you use.</p>
+<p>The current debug branch also provides <code class="docutils literal notranslate"><span class="pre">code/dataset_io.py</span></code>. Its <code class="docutils literal notranslate"><span class="pre">load_scenario_dataset</span></code> helper returns one measurement view, optional oracle data as a separate DataFrame, and the fault, structure, and timing metadata. Its <code class="docutils literal notranslate"><span class="pre">online_features</span></code> property drops the three identifier columns. See <a class="reference internal" href="simulation/api.html"><span class="doc std std-doc">Command-Line Interface and Configuration</span></a> for an example.</p>
 </section>
 </section>
 
